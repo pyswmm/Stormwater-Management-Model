@@ -25,7 +25,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <omp.h>                                                               //(5.1.008)
+#include <libiomp/omp.h>                                                            //(5.1.008)
 #include "headers.h"
 
 //-----------------------------------------------------------------------------

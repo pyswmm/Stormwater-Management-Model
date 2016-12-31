@@ -43,9 +43,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <math.h>                                                              //(5.1.008)
-#include <omp.h>                                                               //(5.1.008)
+#include <libiomp/omp.h>                                                               //(5.1.008)
 #include "headers.h"
 #include "lid.h" 
 #include "hash.h"
