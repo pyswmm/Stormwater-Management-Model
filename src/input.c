@@ -17,7 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
+
 #include <math.h>
 #include "headers.h"
 #include "lid.h"
@@ -53,7 +53,6 @@ static int  readTitle(char* line);
 static int  readControl(char* tok[], int ntoks);
 static int  readNode(int type);
 static int  readLink(int type);
-
 
 //=============================================================================
 

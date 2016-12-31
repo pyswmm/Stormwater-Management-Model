@@ -31,7 +31,7 @@
 //**********************************************************
 //#define CLE     /* Compile as a command line executable */
 //#define SOL     /* Compile as a shared object library */
-#define DLL     /* Compile as a Windows DLL */
+//#define DLL     /* Compile as a Windows DLL */
 
 // --- define WINDOWS
 #undef WINDOWS
@@ -45,24 +45,38 @@
 ////  ---- following section modified for release 5.1.008.  ////               //(5.1.008)
 ////
 // --- define EXH (MS Windows exception handling)
-#undef MINGW       // indicates if MinGW compiler used
 #undef EXH         // indicates if exception handling included
 #ifdef WINDOWS
-  #ifndef MINGW
-    #define EXH
+  #ifndef __MINGW32__ 
+      #define EXH
   #endif
 #endif
 
 // --- include Windows & exception handling headers
 #ifdef WINDOWS
   #include <windows.h>
+  #include <direct.h>
 #endif
 #ifdef EXH
   #include <excpt.h>
 #endif
 ////
 
-#include <direct.h>
+// --- define DLLEXPORT
+
+//#ifndef DLLEXPORT
+#ifdef WINDOWS
+	#ifdef __MINGW32__
+		// Seems to be more wrapper friendly
+		#define DLLEXPORT __declspec(dllexport) __cdecl 
+	#else
+		#define DLLEXPORT __declspec(dllexport) __stdcall
+	#endif
+#else
+	#define DLLEXPORT
+#endif
+//#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -88,6 +102,7 @@
 #include "globals.h"                   // declaration of all global variables
 
 #include "swmm5.h"                     // declaration of exportable functions
+#include "toolkitAPI.h"
                                        //   callable from other programs
 #define  MAX_EXCEPTIONS 100            // max. number of exceptions handled
 
@@ -244,7 +259,8 @@ int DLLEXPORT  swmm_run(char* f1, char* f2, char* f3)
                     theDay = (long)elapsedTime;
                     theHour = (long)((elapsedTime - floor(elapsedTime)) * 24.0);
                     writecon("\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-                    sprintf(Msg, "%-5d hour: %-2d", theDay, theHour);
+                    //sprintf(Msg, "%-5d hour: %-2d", theDay, theHour);
+					sprintf(Msg, "%-5ld hour: %-2ld", theDay, theHour);
                     writecon(Msg);
                     oldHour = newHour;
                 }
@@ -281,7 +297,7 @@ int DLLEXPORT swmm_open(char* f1, char* f2, char* f3)
    _fpreset();              
 #endif
 
-#ifdef WINDOWS
+#ifdef EXH
     // --- begin exception handling here
     __try
 #endif
@@ -313,7 +329,7 @@ int DLLEXPORT swmm_open(char* f1, char* f2, char* f3)
         if ( RptFlags.input ) inputrpt_writeInput();
     }
 
-#ifdef WINDOWS
+#ifdef EXH
     // --- end of try loop; handle exception here
     __except(xfilter(GetExceptionCode(), 0.0, 0))
     {
@@ -341,7 +357,7 @@ int DLLEXPORT swmm_start(int saveResults)
     }
     ExceptionCount = 0;
 
-#ifdef WINDOWS
+#ifdef EXH
     // --- begin exception handling loop here
     __try
 #endif
@@ -398,7 +414,7 @@ int DLLEXPORT swmm_start(int saveResults)
 ////
     }
 
-#ifdef WINDOWS
+#ifdef EXH
     // --- end of try loop; handle exception here
     __except(xfilter(GetExceptionCode(), 0.0, 0))
     {
@@ -428,7 +444,7 @@ int DLLEXPORT swmm_step(DateTime* elapsedTime)
         return ErrorCode;
     }
 
-#ifdef WINDOWS
+#ifdef EXH
     // --- begin exception handling loop here
     __try
 #endif
@@ -459,7 +475,7 @@ int DLLEXPORT swmm_step(DateTime* elapsedTime)
         else *elapsedTime = 0.0;
     }
 
-#ifdef WINDOWS
+#ifdef EXH
     // --- end of try loop; handle exception here
     __except(xfilter(GetExceptionCode(), *elapsedTime, StepCount))
     {
@@ -481,7 +497,7 @@ void execRouting(DateTime elapsedTime)
     double   nextRoutingTime;          // updated elapsed routing time (msec)
     double   routingStep;              // routing time step (sec)
 
-#ifdef WINDOWS
+#ifdef EXH
     // --- begin exception handling loop here
     __try
 #endif
@@ -524,7 +540,7 @@ void execRouting(DateTime elapsedTime)
         else NewRoutingTime = nextRoutingTime;
     }
 
-#ifdef WINDOWS
+#ifdef EXH
     // --- end of try loop; handle exception here
     __except(xfilter(GetExceptionCode(), elapsedTime, StepCount))
     {
@@ -803,7 +819,8 @@ void  writecon(char *s)
 //
 {
 #ifdef CLE 
-   fprintf(stdout,s);
+   //fprintf(stdout,s);
+   fprintf(stdout,"%c", *s);
    fflush(stdout);
 #endif
 }
@@ -879,6 +896,3 @@ int xfilter(int xc, DateTime elapsedTime, long step)
     return rc;
 }
 #endif
-
-//=============================================================================
-    

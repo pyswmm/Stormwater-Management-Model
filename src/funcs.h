@@ -28,6 +28,20 @@
 //-----------------------------------------------------------------------------
 //   Project Manager Methods
 //-----------------------------------------------------------------------------
+
+// --- define DLLEXPORT
+
+#ifdef WINDOWS
+	#ifdef __MINGW32__
+		// Seems to be more wrapper friendly
+		#define DLLEXPORT __declspec(dllexport) __cdecl 
+	#else
+		#define DLLEXPORT __declspec(dllexport) __stdcall
+	#endif
+#else
+	#define DLLEXPORT
+#endif
+
 void     project_open(char *f1, char *f2, char *f3);
 void     project_close(void);
 
@@ -37,7 +51,7 @@ void     project_validate(void);
 int      project_init(void);
 
 int      project_addObject(int type, char* id, int n);
-int      project_findObject(int type, char* id);
+int   DLLEXPORT   project_findObject(int type, char* id);
 char*    project_findID(int type, char* id);
 
 double** project_createMatrix(int nrows, int ncols);
@@ -510,3 +524,4 @@ void     writecon(char *s);                   // writes string to console
 DateTime getDateTime(double elapsedMsec);     // convert elapsed time to date
 void     getElapsedTime(DateTime aDate,       // convert elapsed date
          int* days, int* hrs, int* mins);
+	 
