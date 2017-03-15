@@ -12,9 +12,11 @@ BEGIN {
 }
 ## must manually add Lew first, since he generated the code prior to CVS
 push @authors, "Lew Rossman <LRossman\@cinci.rr.com>\n";
+push @authors, "Robert Dickinson <robert.dickinson\@gmail.com>\n";
 while (<>) {
   next if $seen{$_};
   next if /orquina.jessica\@epa.gov/; ## this individual never authored code; just init-ed the repo
+  next if /Bryant\ M/; ## Duplicate
   $seen{$_} = push @authors, $_;
 }
 END {
