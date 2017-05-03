@@ -161,6 +161,8 @@ static int  ExceptionCount;       // number of exceptions handled
 static int  DoRunoff;             // TRUE if runoff is computed
 static int  DoRouting;            // TRUE if flow routing is computed
 
+static double RoutingDuration;    // duration of a set of routing steps (msecs) 
+
 //-----------------------------------------------------------------------------
 //  External functions (prototyped in swmm5.h)
 //-----------------------------------------------------------------------------
@@ -434,6 +436,8 @@ int DLLEXPORT swmm_start(int saveResults)
         // --- initialize elapsed time in decimal days                         //(5.1.011)
         ElapsedTime = 0.0;                                                     //(5.1.011)
 
+        RoutingDuration = TotalDuration;                                       
+
         // --- initialize runoff, routing & reporting time (in milliseconds)
         NewRunoffTime = 0.0;
         NewRoutingTime = 0.0;
@@ -519,7 +523,7 @@ int DLLEXPORT swmm_step(double* elapsedTime)                                   /
 #endif
     {
         // --- if routing time has not exceeded total duration
-        if ( NewRoutingTime < TotalDuration )
+        if ( NewRoutingTime < RoutingDuration )                                
         {
             // --- route flow & WQ through drainage system
             //     (runoff will be calculated as needed)
@@ -535,7 +539,7 @@ int DLLEXPORT swmm_step(double* elapsedTime)                                   /
         }
 
         // --- update elapsed time (days)
-        if ( NewRoutingTime < TotalDuration )
+        if ( NewRoutingTime < RoutingDuration )                                
         {
             ElapsedTime = NewRoutingTime / MSECperDAY;                         //(5.1.011)
         }
@@ -557,6 +561,55 @@ int DLLEXPORT swmm_step(double* elapsedTime)                                   /
 
 //=============================================================================
 
+int DLLEXPORT swmm_stride(int strideStep, double* elapsedTime)
+//
+//  Input:   strideStep = number of seconds to advance the simulation
+//           elapsedTime = current elapsed time in decimal days
+//  Output:  updated value of elapsedTime,
+//           returns error code
+//  Purpose: advances the simulation by a fixed number of seconds
+//
+{
+    double realRouteStep = RouteStep;
+
+    // --- check that simulation can proceed
+    if ( ErrorCode ) return error_getCode(ErrorCode);
+    if ( !IsOpenFlag || !IsStartedFlag  )
+    {
+        report_writeErrorMsg(ERR_NOT_OPEN, "");
+        return error_getCode(ErrorCode);
+    }
+
+    // --- modify total duration to be strideStep seconds after current time
+    RoutingDuration = NewRoutingTime + 1000.0 * strideStep;
+    RoutingDuration = MIN(TotalDuration, RoutingDuration);
+
+    // --- modify routing step to not exceed stride time step
+    if ( strideStep < RouteStep ) RouteStep = strideStep;
+
+    // --- step through simulation until next stride step is reached
+    do
+    {
+        swmm_step(elapsedTime);
+    } while ( *elapsedTime > 0.0 && !ErrorCode );
+
+    // --- restore original routing step
+    RouteStep = realRouteStep;
+	RoutingDuration = TotalDuration;
+
+    // --- restore actual elapsed time (days)
+    if ( NewRoutingTime < TotalDuration )
+    {
+        ElapsedTime = NewRoutingTime / MSECperDAY;
+    }
+    else ElapsedTime = 0.0;
+    *elapsedTime = ElapsedTime;
+    return error_getCode(ErrorCode);
+}
+
+
+//=============================================================================
+
 void execRouting()                                                             //(5.1.011)
 //
 //  Input:   none                                                              //(5.1.011)
@@ -564,6 +617,7 @@ void execRouting()                                                             /
 //  Purpose: routes flow & WQ through drainage system over a single time step.
 //
 {
+    double   nextRunoffTime;           // next elapsed runoff time (msec)      
     double   nextRoutingTime;          // updated elapsed routing time (msec)
     double   routingStep;              // routing time step (sec)
 
@@ -583,19 +637,21 @@ void execRouting()                                                             /
         }
         nextRoutingTime = NewRoutingTime + 1000.0 * routingStep;
 
+        nextRunoffTime = nextRoutingTime;                                      
+
 ////  Following section added to release 5.1.008.  ////                        //(5.1.008)
 ////
         // --- adjust routing step so that total duration not exceeded
-        if ( nextRoutingTime > TotalDuration )
+        if ( nextRoutingTime > RoutingDuration )                               
         {
-            routingStep = (TotalDuration - NewRoutingTime) / 1000.0;
+            routingStep = (RoutingDuration - NewRoutingTime) / 1000.0;         
             routingStep = MAX(routingStep, 1./1000.0);
-            nextRoutingTime = TotalDuration;
+            nextRoutingTime = RoutingDuration;                                 
         }
 ////
 
         // --- compute runoff until next routing time reached or exceeded
-        if ( DoRunoff ) while ( NewRunoffTime < nextRoutingTime )
+        if ( DoRunoff ) while ( NewRunoffTime < nextRunoffTime )               
         {
             runoff_execute();
             if ( ErrorCode ) return;

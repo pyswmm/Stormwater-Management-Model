@@ -49,6 +49,7 @@ int  DLLEXPORT   swmm_run(char* f1, char* f2, char* f3);
 int  DLLEXPORT   swmm_open(char* f1, char* f2, char* f3);
 int  DLLEXPORT   swmm_start(int saveFlag);
 int  DLLEXPORT   swmm_step(double* elapsedTime);
+int  DLLEXPORT   swmm_stride(int strideStep, double* elapsedTime);
 int  DLLEXPORT   swmm_end(void);
 int  DLLEXPORT   swmm_report(void);
 int  DLLEXPORT   swmm_getMassBalErr(float* runoffErr, float* flowErr,
