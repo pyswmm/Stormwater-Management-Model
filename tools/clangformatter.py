@@ -52,8 +52,6 @@ FILES_FAILING_FORMAT_CHECK = [
     'src/inflow.c',
     'src/input.c',
     'src/inputrpt.c',
-    'src/keywords.c',
-    'src/keywords.h',
     'src/kinwave.c',
     'src/landuse.c',
     'src/lid.c',
@@ -228,7 +226,8 @@ def run_process():
             return
 
         std_path = path.replace('\\', '/')
-        if diff_lines and std_path not in FILES_FAILING_FORMAT_CHECK:
+        if ((diff_lines and std_path not in FILES_FAILING_FORMAT_CHECK) or 
+                (not diff_lines and std_path in FILES_FAILING_FORMAT_CHECK)):
             file_errors.append(path)
             print('*' * len(path))
             print(path)
