@@ -753,7 +753,7 @@ void DLLEXPORT swmm_getSemVersion(char* semver)
 //  
 //  NOTE: Each New Release should be updated in consts.h
 {
-	getSemVersion(semver);
+    getSemVersion(semver);
 }
 
 void DLLEXPORT swmm_getVersionInfo(char* major, char* minor, char* patch)
@@ -763,11 +763,31 @@ void DLLEXPORT swmm_getVersionInfo(char* major, char* minor, char* patch)
 //  
 //  NOTE: Each New Release should be updated in consts.h
 {
-	strncpy(major, SEMVERSION_MAJOR, sizeof SEMVERSION_MAJOR);
-	strncpy(minor, SEMVERSION_MINOR, sizeof SEMVERSION_MINOR);
-	strncpy(patch, SEMVERSION_PATCH, sizeof SEMVERSION_PATCH);
+    strncpy(major, SEMVERSION_MAJOR, sizeof SEMVERSION_MAJOR);
+    strncpy(minor, SEMVERSION_MINOR, sizeof SEMVERSION_MINOR);
+    strncpy(patch, SEMVERSION_PATCH, sizeof SEMVERSION_PATCH);
 }
 
+void DLLEXPORT swmm_getAPIVersion(char* apiver)
+//
+//  Output: Returns API Version
+//  Purpose: retrieves the current API version
+//  
+//  NOTE: Each New Release should be updated in consts.h
+{
+    getAPIVersion(apiver);
+}
+
+void DLLEXPORT swmm_getAPIVersionInfo(char* major, char* minor)
+//
+//  Output: Returns API Version Info
+//  Purpose: retrieves the current API version
+//  
+//  NOTE: Each New Release should be updated in consts.h
+{
+    strncpy(major, API_VERSION_MAJOR, sizeof API_VERSION_MAJOR);
+    strncpy(minor, API_VERSION_MINOR, sizeof API_VERSION_MINOR);
+}
 //=============================================================================
 
 ////  New function added to release 5.1.011.  ////                             //(5.1.011)
@@ -1058,8 +1078,18 @@ void getSemVersion(char* semver)
 //  
 //  NOTE: Each New Release should be updated in consts.h
 {
-	snprintf(semver, SEMVERSION_LEN, "%s.%s.%s", 
-		SEMVERSION_MAJOR, SEMVERSION_MINOR, SEMVERSION_PATCH);
+    snprintf(semver, SEMVERSION_LEN, "%s.%s.%s", 
+        SEMVERSION_MAJOR, SEMVERSION_MINOR, SEMVERSION_PATCH);
 }
 
+void getAPIVersion(char* apiver)
+//
+//  Output: Returns API Version
+//  Purpose: retrieves the current semantic version
+//  
+//  NOTE: Each New API Release should be updated in consts.h
+{
+    snprintf(apiver, SEMVERSION_LEN, "%s.%s", 
+        API_VERSION_MAJOR, API_VERSION_MINOR);
+}
 //=============================================================================

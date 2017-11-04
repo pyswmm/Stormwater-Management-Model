@@ -56,6 +56,8 @@ int  DLLEXPORT   swmm_getMassBalErr(float* runoffErr, float* flowErr,
 int  DLLEXPORT   swmm_close(void);
 int  DLLEXPORT   swmm_getVersion(void);
 void DLLEXPORT   swmm_getSemVersion(char* semver);
+void DLLEXPORT   swmm_getAPIVersion(char* apiver);
+void DLLEXPORT   swmm_getAPIVersionInfo(char* major, char* minor);
 void DLLEXPORT   swmm_getVersionInfo(char* major, char* minor, char* patch);
 int  DLLEXPORT   swmm_getError(char* errMsg, int msgLen);                      //(5.1.011)
 int  DLLEXPORT   swmm_getWarnings(void);                                       //(5.1.011)
