@@ -18,8 +18,11 @@
 #define   VERSION            52000          // Eventually will be deprecated. 
 #define   SEMVERSION_MAJOR   "5"            // Major Semantic Version
 #define   SEMVERSION_MINOR   "2"            // Minor Semantic Version
-#define   SEMVERSION_PATCH   "0.dev1"      // Patch Semantic Version
+#define   SEMVERSION_PATCH   "0.dev1"       // Patch Semantic Version
 #define   SEMVERSION_LEN     20             // Version String Len
+#define   API_VERSION_MAJOR  "2"            // API Major Version Number
+#define   API_VERSION_MINOR  "0.dev0"       // API Minor Version Number
+
 
 #define   MAGICNUMBER        516114522
 #define   EOFMARK            0x1A           // Use 0x04 for UNIX systems
