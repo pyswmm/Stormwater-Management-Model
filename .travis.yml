@@ -28,7 +28,7 @@ script:
   # Check file format with clang
   - source activate format
   - conda info --json
-#  - python tools/clangformatter.py src/
+  - python tools/clangformatter.py src/
   # Test built package
   - source activate test
   - conda info --json
@@ -36,6 +36,6 @@ script:
 
 deploy:
   - provider: script
-    script: "conda-build conda.recipe --user owa --token ${SWWM_CI_UPLOAD_TOKEN}"
+    script: "conda-build conda.recipe --user owa --token ${SWWM_CI_UPLOAD_TOKEN} --old-build-string"
     on:
        branch: develop

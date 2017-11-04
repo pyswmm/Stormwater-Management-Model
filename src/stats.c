@@ -34,8 +34,11 @@
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
-#include <omp.h>                                                               //(5.1.008)
+#if defined(_OPENMP)
+  #include <omp.h>                                                             //(5.1.008)
+#endif
 #include "headers.h"
 #include "swmm5.h"
 

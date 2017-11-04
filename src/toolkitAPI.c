@@ -79,17 +79,18 @@ int DLLEXPORT swmm_setSimulationDateTime(int timetype, char *dtimestr)
 // Return:  API Error
 // Purpose: Get the simulation start, end and report date times
 {
-	// Check if Open
-	if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
-	// Check if Simulation is Running
-	if(swmm_IsStartedFlag() == TRUE) return(ERR_API_SIM_NRUNNING);	
-	
-	char     theDate[10];
-    char     theTime[9];
+    char theDate[10];
+    char theTime[9];
 
-	strncpy(theDate, dtimestr, 10);
-	strncpy(theTime, dtimestr+11, 9);
-	
+    // Check if Open
+    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+
+    // Check if Simulation is Running
+    if(swmm_IsStartedFlag() == TRUE) return(ERR_API_SIM_NRUNNING);
+
+    strncpy(theDate, dtimestr, 10);
+    strncpy(theTime, dtimestr+11, 9);
+
 	switch(timetype)
 	{
 		//StartDateTime (globals.h)
@@ -407,7 +408,7 @@ int DLLEXPORT swmm_setNodeParam(int index, int Param, double value)
 		default: return(ERR_API_OUTBOUNDS);
 	}
 	// Re-validated a node ******************** BEM 1/20/2017 Probably need to re-validate connecting links
-	node_validate(index);// incorprate callback here
+	//node_validate(index);// incorprate callback here
 	
 	return(0);
 }
@@ -493,7 +494,7 @@ int DLLEXPORT swmm_setLinkParam(int index, int Param, double value)
 		default: return(ERR_API_OUTBOUNDS);
 	}
 	// re-validated link
-	link_validate(index);// incorprate callback here
+	//link_validate(index);// incorprate callback here
 	
 	return(0);
 }
@@ -629,29 +630,28 @@ int DLLEXPORT swmm_getCurrentDateTimeStr(char *dtimestr)
 // Return:  API Error
 // Purpose: Get the current simulation time
 {
-	// Check if Simulation is Running
-	if(swmm_IsStartedFlag() == FALSE) return(ERR_API_SIM_NRUNNING);
-	
-	//Provide Empty Character Array 
-	
+    //Provide Empty Character Array 
     char     theDate[12];
     char     theTime[9];
-	char     _DTimeStr[22];
-	
-	DateTime currentTime;
-	// Fetch Current Time
-	currentTime = getDateTime(NewRoutingTime);
-	
-	// Convert To Char
-	datetime_dateToStr(currentTime, theDate);
-	datetime_timeToStr(currentTime, theTime);
-	
-	strcpy(_DTimeStr, theDate);
-	strcat(_DTimeStr, " ");
-	strcat(_DTimeStr, theTime);
-	
-	strcpy(dtimestr, _DTimeStr);
-	return(0);
+    char     _DTimeStr[22];
+    DateTime currentTime;
+
+    // Check if Simulation is Running
+    if(swmm_IsStartedFlag() == FALSE) return(ERR_API_SIM_NRUNNING);
+
+    // Fetch Current Time
+    currentTime = getDateTime(NewRoutingTime);
+
+    // Convert To Char
+    datetime_dateToStr(currentTime, theDate);
+    datetime_timeToStr(currentTime, theTime);
+
+    strcpy(_DTimeStr, theDate);
+    strcat(_DTimeStr, " ");
+    strcat(_DTimeStr, theTime);
+
+    strcpy(dtimestr, _DTimeStr);
+    return(0);
 }
 
 
@@ -774,7 +774,7 @@ int DLLEXPORT swmm_getNodeStats(int index, TNodeStats *nodeStats)
 	if (errorcode == 0)
 	{
 		// Current Average Depth
-		nodeStats->avgDepth *= (UCF(LENGTH) / StepCount);
+		nodeStats->avgDepth *= (UCF(LENGTH) / (double)StepCount);
 		// Current Maximum Depth
 		nodeStats->maxDepth *= UCF(LENGTH);
 		// Current Maximum Lateral Inflow
@@ -800,6 +800,24 @@ int DLLEXPORT swmm_getNodeStats(int index, TNodeStats *nodeStats)
 	return (errorcode);
 }
 
+int DLLEXPORT swmm_getNodeTotalInflow(int index, double *value)
+//
+// Input:   Node Index
+// Output: 	Node Total inflow Volume.
+// Return: 	API Error
+// Purpose: Get Node Total Inflow Volume.
+{
+
+	int errorcode = massbal_getNodeTotalInflow(index, value);
+
+	if (errorcode == 0)
+	{
+		*value *= UCF(VOLUME);
+	}
+
+	return(errorcode);
+}
+
 int DLLEXPORT swmm_getStorageStats(int index, TStorageStats *storageStats)
 //
 // Output: 	Storage Node Stats Structure (TStorageStats)
@@ -813,7 +831,7 @@ int DLLEXPORT swmm_getStorageStats(int index, TStorageStats *storageStats)
 		// Initial Volume
 		storageStats->initVol *= UCF(VOLUME);
 		// Current Average Volume
-		storageStats->avgVol *= (UCF(VOLUME) / StepCount);
+		storageStats->avgVol *= (UCF(VOLUME) / (double)StepCount);
 		// Current Maximum Volume
 		storageStats->maxVol *= UCF(VOLUME);
 		// Current Maximum Flow
@@ -841,7 +859,14 @@ int DLLEXPORT swmm_getOutfallStats(int index, TOutfallStats *outfallStats)
 	if (errorcode == 0)
 	{
 		// Current Average Flow
-		outfallStats->avgFlow *= (UCF(FLOW) / StepCount);
+        if ( outfallStats->totalPeriods > 0 )
+		{
+			outfallStats->avgFlow *= (UCF(FLOW) / (double)outfallStats->totalPeriods);
+		}
+        else
+		{
+			outfallStats->avgFlow *= 0.0;
+		}
 		// Current Maximum Flow
 		outfallStats->maxFlow *= UCF(FLOW);
 		// Convert Mass Units
@@ -922,7 +947,14 @@ int DLLEXPORT swmm_getPumpStats(int index, TPumpStats *pumpStats)
 		// Cumulative Minimum Flow
 		pumpStats->minFlow *= UCF(FLOW);
 		// Cumulative Average Flow
-		pumpStats->avgFlow *= (UCF(FLOW) / StepCount);
+		if (pumpStats->totalPeriods > 0)
+		{
+			pumpStats->avgFlow *= (UCF(FLOW) / (double)pumpStats->totalPeriods);
+		}
+		else
+		{
+			pumpStats->avgFlow *= 0.0;
+		}
 		// Cumulative Maximum Flow
 		pumpStats->maxFlow *= UCF(FLOW);
 		// Cumulative Pumping Volume
@@ -1042,94 +1074,139 @@ int DLLEXPORT swmm_getSystemRunoffStats(TRunoffTotals *runoffTot)
 
 int DLLEXPORT swmm_setLinkSetting(int index, double targetSetting)
 //
-// Input: 	index = Index of desired ID
-//			value = New Target Setting		
-// Output: 	returns API Error
+// Input:   index = Index of desired ID
+//          value = New Target Setting
+// Output:  returns API Error
 // Purpose: Sets Link open fraction (Weir, Orifice, Pump, and Outlet)
 {
-	int errcode = 0;
-	// Check if Simulation is Running
-	if (swmm_IsStartedFlag() == FALSE)
-	{
-		errcode = ERR_API_SIM_NRUNNING;
-	}
-	// Check if object index is within bounds
-	if (index < 0 || index >= Nobjects[LINK]) return(ERR_API_OBJECT_INDEX);
-	
-	// Get Link Type
-	// errcode = swmm_getLinkType(index, &l_type);
-	// WEIR, ORIFICES, PUMPS can have any value between [0,1]
-	// CONDUIT can be only 0 or 1 * BEM 11/4/2016 investigate this...	
+    DateTime currentTime;
+    int errcode = 0;
+    char _rule_[11] = "ToolkitAPI";
 
-	Link[index].targetSetting = targetSetting;
-	// Use internal function to apply the new setting
-	link_setSetting(index, 0.0);
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+    {
+        errcode = ERR_API_INPUTNOTOPEN;
+    }
+    // Check if object index is within bounds
+    else if (index < 0 || index >= Nobjects[LINK])
+    {
+        errcode = ERR_API_OBJECT_INDEX;
+    }
+    else
+    {
+        // --- check that new setting lies within feasible limits
+        if (targetSetting < 0.0) targetSetting = 0.0;
+        if (Link[index].type != PUMP && targetSetting > 1.0) targetSetting = 1.0;
 
-	// Add control action to RPT file if desired flagged
-	if (RptFlags.controls)
-	{
-		DateTime currentTime;
-		currentTime = getDateTime(NewRoutingTime);
-		char _rule_[11] = "ToolkitAPI";
-		report_writeControlAction(currentTime, Link[index].ID, targetSetting, _rule_);
-	}
-	return(errcode);
+        Link[index].targetSetting = targetSetting;
+
+        // Use internal function to apply the new setting
+        link_setSetting(index, 0.0);
+
+        // Add control action to RPT file if desired flagged
+        if (RptFlags.controls)
+        {
+            currentTime = getDateTime(NewRoutingTime);
+            report_writeControlAction(currentTime, Link[index].ID, targetSetting, _rule_);
+        }
+    }
+    return(errcode);
 }
 
 
 int DLLEXPORT swmm_setNodeInflow(int index, double flowrate)
 //
-// Input: 	index = Index of desired ID
-//			value = New Inflow Rate 		
-// Output: 	returns API Error
+// Input:   index = Index of desired ID
+//          value = New Inflow Rate
+// Output:  returns API Error
 // Purpose: Sets new node inflow rate and holds until set again
 {
-	int errcode = 0;
+    int errcode = 0;
 
-	// Check if object index is within bounds
-	if (index < 0 || index >= Nobjects[NODE])
-	{
-		errcode = ERR_API_OBJECT_INDEX;
-	}
-	else
-	{
-		// Check to see if node has an assigned inflow object
-		TExtInflow* inflow;
-		
-		// --- check if an external inflow object for this constituent already exists
-		inflow = Node[index].extInflow;
-		while (inflow)
-		{
-			if (inflow->param == -1) break;
-			inflow = inflow->next;
-		}
-		
-		if (!inflow)
-		{
-			int param = -1;        // FLOW (-1) or Pollutant Index
-			int type = FLOW_INFLOW;// Type of inflow (FLOW)
-			int tSeries = -1;      // No Time Series
-			int basePat = -1;      // No Base Pattern
-			double cf = 1.0;       // Unit Convert (Converted during validation)
-			double sf = 1.0;       // Scaling Factor
-			double baseline = 0.0; // Baseline Inflow Rate
-			
-			// Initializes Inflow Object
-			errcode = inflow_setExtInflow(index, param, type, tSeries,
-				basePat, cf, baseline, sf);
-
-			// Get The Inflow Object
-			if ( errcode == 0 )
-			{
-				inflow = Node[index].extInflow;
-			}
-		}
-		// Assign new flow rate
-		if ( errcode == 0 )
-		{
-			inflow -> extIfaceInflow = flowrate;
-		}
-	}
-	return(errcode);
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+    {
+        errcode = ERR_API_INPUTNOTOPEN;
+    }
+    // Check if object index is within bounds
+    else if (index < 0 || index >= Nobjects[NODE])
+    {
+        errcode = ERR_API_OBJECT_INDEX;
+    }
+    else
+    {
+        // Check to see if node has an assigned inflow object
+        TExtInflow* inflow;
+        
+        // --- check if an external inflow object for this constituent already exists
+        inflow = Node[index].extInflow;
+        while (inflow)
+        {
+            if (inflow->param == -1) break;
+            inflow = inflow->next;
+        }
+        
+        if (!inflow)
+        {
+            int param = -1;        // FLOW (-1) or Pollutant Index
+            int type = FLOW_INFLOW;// Type of inflow (FLOW)
+            int tSeries = -1;      // No Time Series
+            int basePat = -1;      // No Base Pattern
+            double cf = 1.0;       // Unit Convert (Converted during validation)
+            double sf = 1.0;       // Scaling Factor
+            double baseline = 0.0; // Baseline Inflow Rate
+            
+            // Initializes Inflow Object
+            errcode = inflow_setExtInflow(index, param, type, tSeries,
+                basePat, cf, baseline, sf);
+        
+            // Get The Inflow Object
+            if ( errcode == 0 )
+            {
+                inflow = Node[index].extInflow;
+            }
+        }
+        // Assign new flow rate
+        if ( errcode == 0 )
+        {
+            inflow -> extIfaceInflow = flowrate;
+        }
+    }
+    return(errcode);
 }
 
+int DLLEXPORT swmm_setOutfallStage(int index, double stage)
+//
+// Input:   index = Index of desired outfall
+//          stage = New outfall stage (head)
+// Output:  returns API Error
+// Purpose: Sets new outfall stage and holds until set again.
+{
+    int errcode = 0;
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+    {
+        errcode = ERR_API_INPUTNOTOPEN;
+    }
+    // Check if object index is within bounds
+    else if ( index < 0 || index >= Nobjects[NODE] )
+    {
+        errcode = ERR_API_OBJECT_INDEX;
+    }
+    else if ( Node[index].type != OUTFALL )
+    {
+        errcode = ERR_API_WRONG_TYPE;
+    }
+    else
+    {
+        int k = Node[index].subIndex;
+        if ( Outfall[k].type != STAGED_OUTFALL )
+        {
+            // Change Boundary Conditions Setting Type
+            Outfall[k].type = STAGED_OUTFALL;
+        }
+        Outfall[k].outfallStage = stage / UCF(LENGTH);
+    }
+    return(errcode);
+}

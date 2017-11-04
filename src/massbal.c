@@ -36,6 +36,7 @@
 //-----------------------------------------------------------------------------
 #define _CRT_SECURE_NO_DEPRECATE
 
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 #include "headers.h"
@@ -1149,4 +1150,30 @@ double massbal_getTotalArea(void)
 // Purpose: Used for Toolkit API Unit Conversion
 {
 	return TotalArea;
+}
+
+int massbal_getNodeTotalInflow(int index, double *value)
+//
+// Input:  NodeIndex
+// Output: Volume
+// Return: Error
+// Purpose: Used for ToolkitAPI to pull total Node Inflow.
+{
+    int errorcode = 0;
+
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+    {
+        errorcode = ERR_API_INPUTNOTOPEN;
+    }
+	// Check if Simulation is Running
+    else if (swmm_IsStartedFlag() == FALSE)
+    {
+        errorcode = ERR_API_SIM_NRUNNING;
+    }
+    else
+    {
+		*value = NodeInflow[index];
+    }
+    return errorcode;
 }
