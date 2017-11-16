@@ -26,9 +26,9 @@ install:
 
 script:
   # Check file format with clang
-  - source activate format
-  - conda info --json
-  - python tools/clangformatter.py src/
+  # - source activate format
+  # - conda info --json
+  # - python tools/clangformatter.py src/
   # Test built package
   - source activate test
   - conda info --json
