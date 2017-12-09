@@ -8,7 +8,7 @@ environment:
 checkout:
   override:
     # The code to run the regression tests is on a specific branch
-    - cd ..; git clone --depth=50 --branch=feature-nrtest https://github.com/OpenWaterAnalytics/Stormwater-Management-Model.git
+    - git clone --depth=50 --branch=feature-nrtest https://github.com/OpenWaterAnalytics/Stormwater-Management-Model.git
 
 dependencies:
   pre:
@@ -23,7 +23,7 @@ dependencies:
 
 compile:
   override:
-    - cd Stormwater-Management-Model; mkdir build; cd build; cmake ..; make
+    - cd Stormwater-Management-Model; mkdir $BUILD_HOME; cd $BUILD_HOME; cmake ..; make
 
 test:
   override:
