@@ -1,9 +1,14 @@
 # https://circleci.com/gh/OpenWaterAnalytics/Stormwater-Management-Model/
 
+environment:
+  SWMM_HOME: /home/ubuntu/Stormwater-Management-Model/Stormwater-Management-Model/
+  BUILD_HOME: build
+  TEST_HOME: tests/swmm-nrtestsuite
+
 checkout:
   override:
     # The code to run the regression tests is on a specific branch
-    - git clone --depth=50 --branch=feature-nrtest https://github.com/OpenWaterAnalytics/Stormwater-Management-Model.git
+    - cd ..; git clone --depth=50 --branch=feature-nrtest https://github.com/OpenWaterAnalytics/Stormwater-Management-Model.git
 
 dependencies:
   pre:
@@ -18,8 +23,8 @@ dependencies:
 
 compile:
   override:
-    - cd Stormwater-Management-Model/buildprod; cmake -DCMAKE_BUILD_TYPE=Release ..; cmake --build . --config Release
+    - cd Stormwater-Management-Model; mkdir build; cd build; cmake ..; make
 
 test:
   override:
-    - cd Stormwater-Management-Model; tools/gen-config.sh `pwd`/buildprod/bin > ./tests/apps/swmm-<build id>.json; tools/run-nrtest.sh `pwd`/tests/swmm-nrtestsuite 5112
+    - cd Stormwater-Management-Model; tools/gen-config.sh $SWMM_HOME/$BUILD_HOME/bin > $TEST_HOME/apps/swmm-$CIRCLE_SHA1.json
