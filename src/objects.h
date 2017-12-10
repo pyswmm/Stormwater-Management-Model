@@ -499,6 +499,7 @@ typedef struct
    double        fullDepth;       // dist. from invert to surface (ft)
    double        surDepth;        // added depth under surcharge (ft)
    double        pondedArea;      // area filled by ponded water (ft2)
+   double        surfaceArea;     // area used to calculate node's volume (ft2)
    TExtInflow*   extInflow;       // pointer to external inflow data
    TDwfInflow*   dwfInflow;       // pointer to dry weather flow inflow data
    TRdiiInflow*  rdiiInflow;      // pointer to RDII inflow data

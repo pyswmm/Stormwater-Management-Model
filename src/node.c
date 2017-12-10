@@ -363,7 +363,7 @@ double node_getVolume(int j, double d)
 
       default:
         if ( Node[j].fullDepth > 0.0 )
-            return Node[j].fullVolume * (d / Node[j].fullDepth);
+            return Node[j].surfaceArea * d;
         else return 0.0;
     }
 }
@@ -381,7 +381,7 @@ double  node_getSurfArea(int j, double d)
     switch (Node[j].type)
     {
       case STORAGE: return storage_getSurfArea(j, d);
-      default:      return 0.0;        
+      default:      return Node[j].surfaceArea;
     }
 }
 
