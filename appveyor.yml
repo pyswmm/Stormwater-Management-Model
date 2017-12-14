@@ -18,23 +18,23 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       VS_VERSION: "10 2010"
       ARCH: Win32
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-      VS_VERSION: "10 2010"
-      ARCH: Win64
+    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+    #   VS_VERSION: "10 2010"
+    #   ARCH: Win64
     # Not used as a python compiler
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      VS_VERSION: "12 2013"
-      arch: Win32
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      VS_VERSION: "12 2013"
-      ARCH: Win64
+    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    #   VS_VERSION: "12 2013"
+    #   arch: Win32
+    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    #   VS_VERSION: "12 2013"
+    #   ARCH: Win64
     # Python 3.5 and 3.6
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      VS_VERSION: "14 2015"
-      ARCH: Win32
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      VS_VERSION: "14 2015"
-      ARCH: Win64
+    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    #   VS_VERSION: "14 2015"
+    #   ARCH: Win32
+    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    #   VS_VERSION: "14 2015"
+    #   ARCH: Win64
     # Not used as a python compiler. Swig is not working with these compilers
     # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     #   VS_VERSION: "15 2017"
