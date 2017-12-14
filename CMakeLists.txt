@@ -8,13 +8,13 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(MSVC)
-    set(CMAKE_C_FLAGS "/fp:precise /fp:except- /Gd /Oy- /Ob2 /Ot")
+    set(CMAKE_C_FLAGS "/fp:fast /fp:except- /Gd /Oy- /Ob2 /Ot /GL")
     set(CMAKE_C_FLAGS_DEBUG "/MTd /W4")
-    set(CMAKE_C_FLAGS_RELEASE "/O2 /MT /W3")
+    set(CMAKE_C_FLAGS_RELEASE "/O2 /MT /W4")
 
-    set(CMAKE_CXX_FLAGS "/fp:precise /fp:except- /Gd /Oy- /Ob2 /Ot")
+    set(CMAKE_CXX_FLAGS "/fp:fast /fp:except- /Gd /Oy- /Ob2 /Ot /GL")
     set(CMAKE_CXX_FLAGS_DEBUG "/MTd /W4")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /MT /W3")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /MT /W4")
 endif(MSVC)
 
 if(UNIX)
