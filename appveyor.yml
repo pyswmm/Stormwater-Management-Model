@@ -15,10 +15,10 @@ environment:
     #   VS_VERSION: "9 2008"
     #   ARCH: Win64
     # Python 3.4
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       VS_VERSION: "10 2010"
       ARCH: Win32
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       VS_VERSION: "10 2010"
       ARCH: Win64
     # Not used as a python compiler
