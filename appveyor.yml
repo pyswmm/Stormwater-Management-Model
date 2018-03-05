@@ -73,7 +73,7 @@ init:
 
 install:
   # Install SWIG using nuget
-  - nuget install swig
+  - nuget install swigwin
   - swig -version
   # `C:\Python27` (x86) is default on path for `python` command
   - python --version
