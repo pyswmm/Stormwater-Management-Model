@@ -72,7 +72,6 @@ init:
   - echo %GENERATOR%
 
 install:
-  - 7z -version
   # Install SWIG using nuget
   - nuget install swig
   - swig -version
