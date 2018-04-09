@@ -28,6 +28,8 @@ extern "C" {
 
 #define _CRT_SECURE_NO_DEPRECATE
 
+typedef double DateTime;
+
 // --- Define the SWMM toolkit constants
 
 /// Object type codes
