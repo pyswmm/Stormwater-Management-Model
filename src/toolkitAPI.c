@@ -855,6 +855,17 @@ int DLLEXPORT swmm_getNodeResult(int index, int type, double *result)
                             + Node[index].invertElev) * UCF(LENGTH); break;
             case SM_LATINFLOW:
                 *result = Node[index].newLatFlow * UCF(FLOW); break;
+
+            case SM_NEWQUAL:
+                if (Nobjects[POLLUT] > 0)
+                {
+                    for (p = 0; p < Nobjects[POLLUT]; p++)
+                        *result = (LperFT3 * Node[index].newQual[p].mcf)
+                        if (Pollut[p].units == COUNT)
+                        {
+                            *result = LOG10(*result)
+                        }
+                 }
             default: errcode = ERR_API_OUTBOUNDS; break;
         }
     }
