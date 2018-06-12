@@ -1,0 +1,19 @@
+{
+  "configurations": [
+    {
+      "exe": "",
+      "name": "swmm5.dll (bin\\swmm5.dll)",
+      "project": "CMakeLists.txt",
+      "projectTarget": "swmm5.dll (bin\\swmm5.dll)",
+      "type": "dll"
+    },
+    {
+      "type": "dll",
+      "exe": "",
+      "project": "CMakeLists.txt",
+      "name": "CMakeLists.txt"
+    }
+  ],
+  "defaults": {},
+  "version": "0.2.1"
+}

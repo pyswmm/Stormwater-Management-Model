@@ -859,13 +859,18 @@ int DLLEXPORT swmm_getNodeResult(int index, int type, double *result)
             case SM_NEWQUAL:
                 if (Nobjects[POLLUT] > 0)
                 {
-                    for (p = 0; p < Nobjects[POLLUT]; p++)
-                        *result = (LperFT3 * Node[index].newQual[p].mcf)
-                        if (Pollut[p].units == COUNT)
-                        {
-                            *result = LOG10(*result)
+                    for (int p = 0; p < Nobjects[POLLUT]; p++) {
+                    
+                        result[p] = (Node[index].newQual[p]);
+                        if (Pollut[p].units == COUNT) 
+						{
+                            result[p] = LOG10(result[p]);
                         }
-                 }
+
+
+					}
+                }
+                break;
             default: errcode = ERR_API_OUTBOUNDS; break;
         }
     }

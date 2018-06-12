@@ -147,8 +147,8 @@ typedef enum {
     SM_NODEFLOOD      = 4,  /**< Flooding Rate */
     SM_NODEDEPTH      = 5,  /**< Node Depth */
     SM_NODEHEAD       = 6,  /**< Node Head */
-    SM_LATINFLOW      = 7   /**< Lateral Inflow Rate */
-	SM_NEWQUAL        = 8   /**added by SS/
+    SM_LATINFLOW      = 7,   /**< Lateral Inflow Rate */
+    SM_NEWQUAL        = 8   /*added by SS*/
 } SM_NodeResult;
 
 /// Link result property codes

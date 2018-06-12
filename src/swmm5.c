@@ -45,7 +45,7 @@
 //**********************************************************
 //#define CLE     /* Compile as a command line executable */
 //#define SOL     /* Compile as a shared object library */
-//#define DLL     /* Compile as a Windows DLL */
+#define DLL     /* Compile as a Windows DLL */
 
 // --- define WINDOWS
 #undef WINDOWS
