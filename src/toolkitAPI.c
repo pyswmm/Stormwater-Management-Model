@@ -881,6 +881,8 @@ int DLLEXPORT swmm_getNodeResult(int index, int type, double *result)
                             + Node[index].invertElev) * UCF(LENGTH); break;
             case SM_LATINFLOW:
                 *result = Node[index].newLatFlow * UCF(FLOW); break;
+	    case 100:
+		*result = Node[index].newQual[0]; break;
             default: errcode = ERR_API_OUTBOUNDS; break;
         }
     }
@@ -928,6 +930,8 @@ int DLLEXPORT swmm_getLinkResult(int index, int type, double *result)
                 *result = Link[index].targetSetting; break;
             case SM_FROUDE:
                 *result = Link[index].froude; break;
+	    case 100:
+	    	*result = Link[index].newQual[0]; break;
             default: errcode = ERR_API_OUTBOUNDS; break;
         }
     }
