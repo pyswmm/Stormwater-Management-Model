@@ -87,8 +87,7 @@ static char* SettingTypeWords[] = {"CURVE", "TIMESERIES", "PID", NULL};
 // Data Structures
 //-----------------------------------------------------------------------------
 // Rule Premise Variable
-struct TVariable
-{
+struct TVariable {
    int      node;            // index of a node (-1 if N/A)
    int      link;            // index of a link (-1 if N/A)
    int      attribute;       // type of attribute for node/link
