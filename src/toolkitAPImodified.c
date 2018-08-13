@@ -440,9 +440,9 @@ int DLLEXPORT swmm_getStorageParam(int index, int Param, double *value)
             case SM_STORAGECOEFFICIENT:
 				*value = Storage[index].aCoeff * UCF(LENGTH) * UCF(LENGTH); break;
             case SM_STORAGEEXFIL:
-                *value = Storage[index].exfil * UCF(VOLUME); break;
+                *value = Storage[index].exfil * UCF(LENGTH); break;
             case SM_STORAGEEVAP:
-                *value = Storage[index].fEvap * UCF(VOLUME); break;
+                *value = Storage[index].fEvap * UCF(EVAPRATE); break;
             default: errcode = ERR_API_OUTBOUNDS; break;
         }
     }
@@ -482,9 +482,9 @@ int DLLEXPORT swmm_setStorageParam(int index, int Param, double value)
             case SM_STORAGECOEFFICIENT:
                 *value = Storage[index].aCoeff * UCF(LENGTH) * UCF(LENGTH); break;
             case SM_STORAGEEXFIL:
-                *value = Storage[index].exfil * UCF(VOLUME); break;
+                *value = Storage[index].exfil * UCF(LENGTH); break;
             case SM_STORAGEEVAP:
-                *value = Storage[index].fEvap * UCF(VOLUME); break;
+                *value = Storage[index].fEvap * UCF(EVAPRATE); break;
             default: errcode = ERR_API_OUTBOUNDS; break;
         }
     }
