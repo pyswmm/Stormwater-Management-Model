@@ -216,10 +216,23 @@ int ErrorCodes[] =
 
 char  ErrString[256];
 
-char* error_getMsg(int i)
+char* error_getMsg(int errcode)
+//
+// Input: errcode = error code
+// Output: error message text
+// Purpose: converts an error code to an error message
+//
 {
-    if ( i >= 0 && i < MAXERRMSG ) return ErrorMsgs[i];
-    else return ErrorMsgs[0];
+    // The user passes an error code.  Given this error code, we find the
+    // corresponding index into the ErrorMsg struct
+    for (int errindex = 0; errindex < MAXERRMSG; errindex++) {
+      if (ErrorCodes[errindex] == errcode) {
+        return ErrorMsgs[errindex];
+      }
+    }
+
+    // If error code is not found, return empty string
+    return ErrorMsgs[0];
 };
 
 int  error_getCode(int i)
