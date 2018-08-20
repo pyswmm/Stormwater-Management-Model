@@ -412,7 +412,7 @@ int DLLEXPORT swmm_setNodeParam(int index, int Param, double value)
 	return(0);
 }
 
-
+// Get Storage 
 int DLLEXPORT swmm_getStorageParam(int index, int Param, double value)
 //
 // Input: 	index = Index of desired ID
@@ -422,30 +422,38 @@ int DLLEXPORT swmm_getStorageParam(int index, int Param, double value)
 // Purpose: Sets Storage Parameter
 //
 {
-    	// Check if Open
-	if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
-	// Check if object index is within bounds
-	if (index < 0 || index >= Nobjects[STORAGE]) return(ERR_API_OBJECT_INDEX);
-	
-	switch(Param)
-	{
-    
-		// FUNCTIONAL COEFF
-		case 0: *value = Storage[index].aCoeff * UCF(LENGTH) * UCF(LENGTH); break;
-		// FUNCTIONAL EXPON
-		case 1: *value = Storage[index].aExpon * UCF(LENGTH) * UCF(LENGTH); break;
-		// FUNCTIONAL CONST
-		case 2: *value = Storage[index].aConst * UCF(LENGTH) * UCF(LENGTH); break
-		// STORAGE EXFIL
-        case 3: *value = Storage[index].exfil * UCF(RATE); break;
-		// STORAGE EVAP
-    	case 4: *value = Storage[index].fEvap * UCF(RATE); break;
-		// Type not available
-    	 default: errcode = ERR_API_OUTBOUNDS; break;
-	}
+    int errcode = 0;
+    *value = 0;
+    // Check if Open
+    if(swmm_IsOpenFlag() == FALSE)
+    {
+        errcode = ERR_API_INPUTNOTOPEN;
+    }
+    // Check if object index is within bounds
+    else if (index < 0 || index >= Nobjects[Node])
+      {
+        errcode = ERR_API_OBJECT_INDEX;
+    }
+    else
+    {
+        switch(Param)
+        {
+			// FUNCTIONAL COEFF
+			case 0: *value = Storage[index].aCoeff * UCF(LENGTH) * UCF(LENGTH); break;
+			// FUNCTIONAL EXPON
+			case 1: *value = Storage[index].aExpon * UCF(LENGTH) * UCF(LENGTH); break;
+			// FUNCTIONAL CONST
+			case 2: *value = Storage[index].aConst * UCF(LENGTH) * UCF(LENGTH); break
+			// STORAGE EXFIL
+            case 3: *value = Storage[index].exfil * UCF(RATE); break;
+			// STORAGE EVAP
+            case 4: *value = Storage[index].fEvap * UCF(RATE); break;
+			// Type not available
+            default: errcode = ERR_API_OUTBOUNDS; break;
+        }
 	//re-validate storage
 	storage_validate(index); // incorprate callback here
-	
+	}
     return(0);
 }
 
@@ -460,32 +468,38 @@ int DLLEXPORT swmm_setStorageParam(int index, int Param, double value)
 // Purpose: Sets Storage Parameter
 //
 {
+    int errcode = 0;
+    *value = 0;
     // Check if Open
-	if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
-	// Check if Simulation is Running
-	if(swmm_IsStartedFlag() == TRUE) return(ERR_API_SIM_NRUNNING);
-	// Check if object index is within bounds	
-	if (index < 0 || index >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
-	
-	switch(Param)
-	{
-        
-		// FUNCTIONAL COEFF
-		case 0: Storage[index].aCoeff = value / ( UCF(LENGTH) * UCF(LENGTH) ); break;
-		// FUNCTIONAL EXPON
-		case 1: Storage[index].aExpon = value / ( UCF(LENGTH) * UCF(LENGTH) ); break;
-		// FUNCTIONAL CONST
-		case 2: Storage[index].aConst = value / ( UCF(LENGTH) * UCF(LENGTH) ); break;
-		// STORAGE EXFIL
-        case 3: Storage[index].exfil = value / UCF(RATE); break;
-		// STORAGE EVAP
-        case 4: Storage[index].fEvap = value / UCF(RATE); break;
-		// Type not available	
-        default: errcode = ERR_API_OUTBOUNDS; break;
-	}    
+    if(swmm_IsOpenFlag() == FALSE)
+    {
+        errcode = ERR_API_INPUTNOTOPEN;
+    }
+    // Check if object index is within bounds
+    else if (index < 0 || index >= Nobjects[Node])
+      {
+        errcode = ERR_API_OBJECT_INDEX;
+    }
+    else
+    {
+        switch(Param)
+        {
+			// FUNCTIONAL COEFF
+			case 0: Storage[index].aCoeff = value / ( UCF(LENGTH) * UCF(LENGTH) ); break;
+			// FUNCTIONAL EXPON
+			case 1: Storage[index].aExpon = value / ( UCF(LENGTH) * UCF(LENGTH) ); break;
+			// FUNCTIONAL CONST
+			case 2: Storage[index].aConst = value / ( UCF(LENGTH) * UCF(LENGTH) ); break;
+			// STORAGE EXFIL
+            case 3: Storage[index].exfil = value / UCF(RATE); break;
+			// STORAGE EVAP
+            case 4: Storage[index].fEvap = value / UCF(RATE); break;
+			// Type not available	
+            default: errcode = ERR_API_OUTBOUNDS; break;
+        }
 	//re-validate storage
 	storage_validate(index); // incorprate callback here
-	
+	}
     return(0);
 }
 
