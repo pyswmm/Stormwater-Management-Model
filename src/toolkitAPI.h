@@ -50,9 +50,6 @@ int DLLEXPORT  swmm_getSubcatchOutConnection(int index, int *type, int *Index );
 //Nodes
 int DLLEXPORT  swmm_getNodeParam(int index, int Param, double *value);
 int DLLEXPORT  swmm_setNodeParam(int index, int Param, double value);
-//Storages
-int DLLEXPORT  swmm_getStorageParam(int index, int Param, double *value);
-int DLLEXPORT  swmm_setStorageParam(int index, int Param, double value);
 //Links
 int DLLEXPORT  swmm_getLinkParam(int index, int Param, double *value);
 int DLLEXPORT  swmm_setLinkParam(int index, int Param, double value);
