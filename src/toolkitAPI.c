@@ -504,7 +504,6 @@ int DLLEXPORT swmm_setStorageParam(int index, int Param, double value)
 }
 
 
-
 int DLLEXPORT swmm_getLinkParam(int index, int Param, double *value)
 //
 // Input: 	index = Index of desired ID
