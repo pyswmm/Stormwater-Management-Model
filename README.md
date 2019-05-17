@@ -27,7 +27,7 @@ Programming Language and released in the Public Domain.
 
 Everyone is welcome to contribute to this project.
 
-See [CONTRIBUTING.md](https://github.com/OpenWaterAnalytics/Stormwater-Management-Model/blob/develop/.github/CONTRIBUTING.md) for insructions on setting your development environment.
+See [CONTRIBUTING.md](https://github.com/OpenWaterAnalytics/Stormwater-Management-Model/blob/develop/.github/CONTRIBUTING.md) for instructions on setting your development environment.
 
 # Regression Testing
 

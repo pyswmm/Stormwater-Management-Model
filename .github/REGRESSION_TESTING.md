@@ -97,7 +97,7 @@ To add a new test the [REPORTS] section of the input file should be configured
 to write all results out to the binary file. A json file also needs to be 
 created that describes how to execute the test, what files are needed, what 
 files get generated, what comparison routines to use, and meta-data describing 
-the test. The format and data found in the json files is resonably well 
+the test. The format and data found in the json files is reasonably well 
 described in the nrtest documentation. The input file, any auxiliary file need 
 to run the test, and the json file describing the test should be added to the 
 swmm-tests folder found in the swmm-example-networks repo. Finally, the test 
