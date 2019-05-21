@@ -12,7 +12,7 @@
 ::    3 - (test suite path)
 ::
 
-@echo off
+REM @echo off
 setlocal
 
 
@@ -27,10 +27,10 @@ IF [%3]==[] ( set "TEST_SUITE_PATH=nrtestsuite"
 ) ELSE ( set "TEST_SUITE_PATH=%~3" )
 
 
-:: determine location of python Scripts folder
-FOR /F "tokens=*" %%G IN ('where python') DO (
-  set PYTHON_DIR=%%~dpG
-)
+:: determine location of python Scripts folder, first result on PATH
+set "PYTHON_DIR="
+FOR /F "tokens=*" %%G IN ('where python') DO if not defined PYTHON_DIR set PYTHON_DIR=%%~dpG
+
 set "NRTEST_SCRIPT_PATH=%PYTHON_DIR%Scripts"
 
 

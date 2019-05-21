@@ -104,6 +104,18 @@ void infil_create(int subcatchCount, int model)
 //  Output:  none
 //
 {
+
+     // Allocate all 3 kinds of Infiltration data structures, because each
+     // subcatch[j] could be of any type. Doing this uses 3X the RAM: but the
+     // waste is only (2 X subcatchCount X 72 bytes) total.
+    HortInfil = (THorton *) calloc(subcatchCount, sizeof(THorton));
+    if ( HortInfil == NULL ) ErrorCode = ERR_MEMORY;
+    GAInfil = (TGrnAmpt *)calloc(subcatchCount, sizeof(TGrnAmpt));
+    if (GAInfil == NULL) ErrorCode = ERR_MEMORY;
+    CNInfil = (TCurveNum *)calloc(subcatchCount, sizeof(TCurveNum));
+    if (CNInfil == NULL) ErrorCode = ERR_MEMORY;
+    return;
+
     switch (model)
     {
     case HORTON:
@@ -153,11 +165,15 @@ int infil_readParams(int m, char* tok[], int ntoks)
 //     subcatch  p1  p2 ...
 {
     int   i, j, n, status;
-    double x[5];
+    double x[6];
 
     // --- check that subcatchment exists
     j = project_findObject(SUBCATCH, tok[0]);
     if ( j < 0 ) return error_setInpError(ERR_NAME, tok[0]);
+
+    // --- check for valid infiltration model keyword, or use default InfilModel
+    m = findmatch(tok[6], InfilModelWords);
+    if ( m < 0 ) m = InfilModel; // return error_setInpError(ERR_KEYWORD, tok[6]);
 
     // --- number of input tokens depends on infiltration model m
     if      ( m == HORTON )         n = 5;
@@ -183,8 +199,9 @@ int infil_readParams(int m, char* tok[], int ntoks)
             return error_setInpError(ERR_NUMBER, tok[n]);
     }
 
-    // --- assign parameter values to infil. object
+    // --- assign parameter values to infil, infil_type object
     Subcatch[j].infil = j;
+    Subcatch[j].infil_type = m;
     switch (m)
     {
       case HORTON:
@@ -212,6 +229,7 @@ void infil_initState(int j, int m)
 //  Purpose: initializes state of infiltration for a subcatchment.
 //
 {
+    m = Subcatch[j].infil_type; // 2016-01-15: CHANGE PASS-BY-VALUE, m
     switch (m)
     {
       case HORTON:
@@ -233,6 +251,7 @@ void infil_getState(int j, int m, double x[])
 //  Purpose: retrieves the current infiltration state for a subcatchment.
 //
 {
+    m = Subcatch[j].infil_type; // 2016-01-15: CHANGE PASS-BY-VALUE, m
     switch (m)
     {
       case HORTON:
@@ -254,6 +273,7 @@ void infil_setState(int j, int m, double x[])
 //  Purpose: sets the current infiltration state for a subcatchment.
 //
 {
+    m = Subcatch[j].infil_type; // 2016-01-15: CHANGE PASS-BY-VALUE, m
     switch (m)
     {
       case HORTON:
@@ -308,6 +328,7 @@ double infil_getInfil(int j, int m, double tstep, double rainfall,
 //  Purpose: computes infiltration rate depending on infiltration method.
 //
 {
+    m = Subcatch[j].infil_type; // 2016-01-15: CHANGE PASS-BY-VALUE, m
     switch (m)
     {
       case HORTON:

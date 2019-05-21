@@ -19,7 +19,7 @@
 #define   VERSION            52000          // Eventually will be deprecated. 
 #define   SEMVERSION_MAJOR   "5"            // Major Semantic Version
 #define   SEMVERSION_MINOR   "2"            // Minor Semantic Version
-#define   SEMVERSION_PATCH   "0.dev5"      // Patch Semantic Version
+#define   SEMVERSION_PATCH   "0.dev6"      // Patch Semantic Version
 #define   SEMVERSION_LEN     20             // Version String Len
 
 #define   MAGICNUMBER        516114522
@@ -42,6 +42,7 @@
 #define   GRAVITY            32.2           // accel. of gravity in US units
 #define   SI_GRAVITY         9.81           // accel of gravity in SI units
 #define   MAXFILESIZE        2147483647L    // largest file size in bytes
+#define   MULTI_INFIL        1              // multi infiltration types allowed
 
 //-----------------------------
 // Units factor in Manning Eqn.

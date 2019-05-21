@@ -190,6 +190,7 @@ int  subcatch_readParams(int j, char* tok[], int ntoks)
     Subcatch[j].nPervPattern  = -1;                                            //(5.1.013
     Subcatch[j].dStorePattern = -1;                                            //
     Subcatch[j].infilPattern  = -1;                                            //
+    Subcatch[j].infil_type    = -1;                                            // 2019/05/22
 
     // --- create the snow pack object if it hasn't already been created
     if ( x[8] >= 0 )
