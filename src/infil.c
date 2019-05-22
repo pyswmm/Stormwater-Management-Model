@@ -165,14 +165,15 @@ int infil_readParams(int m, char* tok[], int ntoks)
 //     subcatch  p1  p2 ...
 {
     int   i, j, n, status;
-    double x[6];
+    double x[5];
 
     // --- check that subcatchment exists
     j = project_findObject(SUBCATCH, tok[0]);
     if ( j < 0 ) return error_setInpError(ERR_NAME, tok[0]);
 
     // --- check for valid infiltration model keyword, or use default InfilModel
-    m = findmatch(tok[6], InfilModelWords);
+    int last_tok_ix = sizeof tok / sizeof *tok - 1;
+    m = findmatch(tok[last_tok_ix], InfilModelWords);
     if ( m < 0 ) m = InfilModel; // return error_setInpError(ERR_KEYWORD, tok[6]);
 
     // --- number of input tokens depends on infiltration model m
