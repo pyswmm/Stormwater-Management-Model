@@ -172,9 +172,17 @@ int infil_readParams(int m, char* tok[], int ntoks)
     if ( j < 0 ) return error_setInpError(ERR_NAME, tok[0]);
 
     // --- check for valid infiltration model keyword, or use default InfilModel
-    int last_tok_ix = sizeof tok / sizeof *tok - 1;
+    int last_tok_ix = 0;
+    for (i = 0; tok[i] != '\0'; i++) { 
+		last_tok_ix = i;
+    }
     m = findmatch(tok[last_tok_ix], InfilModelWords);
-    if ( m < 0 ) m = InfilModel; // return error_setInpError(ERR_KEYWORD, tok[6]);
+    if ( m < 0 ) m = InfilModel; 
+
+    printf("\nlast tok is %s of %d\n", tok[last_tok_ix], ntoks);
+    for (i = 0; tok[i] != '\0'; i++) {    
+        printf("%s, ", tok[i]);
+    }
 
     // --- number of input tokens depends on infiltration model m
     if      ( m == HORTON )         n = 5;
@@ -183,7 +191,21 @@ int infil_readParams(int m, char* tok[], int ntoks)
     else if ( m == MOD_GREEN_AMPT ) n = 4;
     else if ( m == CURVE_NUMBER )   n = 4;
     else return 0;
+    printf("\ninfiltration model is ");
+	if (m == HORTON)
+        fprintf(stderr, "HORTON");
+    else if (m == MOD_HORTON)
+        fprintf(stderr, "MOD_HORTON");
+    else if (m == GREEN_AMPT)
+        fprintf(stderr, "GREEN_AMPT");
+    else if (m == MOD_GREEN_AMPT)
+        fprintf(stderr, "MOD_GREEN_AMPT");
+    else if (m == CURVE_NUMBER)
+        fprintf(stderr, "CURVE_NUMBER");
+    else
+        return 0;
     if ( ntoks < n ) return error_setInpError(ERR_ITEMS, "");
+    fprintf(stderr, "\n");
 
     // --- parse numerical values from tokens
     for (i = 0; i < 5; i++) x[i] = 0.0;
