@@ -448,7 +448,7 @@ void  subcatch_initState(int j)
     Subcatch[j].infilLoss = 0.0;
 
     // --- initialize state of infiltration, groundwater, & snow pack objects
-    if ( Subcatch[j].infil == j )  infil_initState(j, InfilModel);
+    if ( Subcatch[j].infil == j )  infil_initState(j, Subcatch[j].infil_type);
     if ( Subcatch[j].groundwater ) gwater_initState(j);
     if ( Subcatch[j].snowpack )    snow_initSnowpack(j);
 
@@ -1028,7 +1028,7 @@ double getSubareaInfil(int j, TSubarea* subarea, double precip, double tStep)
     double infil = 0.0;                     // actual infiltration rate (ft/sec)
 
     // --- compute infiltration rate 
-    infil = infil_getInfil(j, InfilModel, tStep, precip,
+    infil = infil_getInfil(j, Subcatch[j].infil_type, tStep, precip,
                            subarea->inflow, subarea->depth);
 
     // --- limit infiltration rate by available void space in unsaturated

@@ -181,20 +181,20 @@ int infil_readParams(int m, char* tok[], int ntoks)
     if ( m < 0 ) m = InfilModel; 
 
     // --- number of input tokens depends on infiltration model m
-    if      ( m == HORTON )         n = 5;
+    if      ( m == HORTON )         n = 5; 
     else if ( m == MOD_HORTON )     n = 5;
     else if ( m == GREEN_AMPT )     n = 4;
     else if ( m == MOD_GREEN_AMPT ) n = 4;
     else if ( m == CURVE_NUMBER )   n = 4;
-    else return 0;
+    else return 0; 
 
     if ( ntoks < n ) return error_setInpError(ERR_ITEMS, "");
-
+   
     // --- parse numerical values from tokens
     for (i = 0; i < 5; i++) x[i] = 0.0;
     for (i = 1; i < n; i++)
     {
-        if ( ! getDouble(tok[i], &x[i-1]) )
+        if (!getDouble(tok[i], &x[i - 1]))
             return error_setInpError(ERR_NUMBER, tok[i]);
     }
 
@@ -235,7 +235,6 @@ void infil_initState(int j, int m)
 //  Purpose: initializes state of infiltration for a subcatchment.
 //
 {
-    m = Subcatch[j].infil_type; // 2016-01-15: CHANGE PASS-BY-VALUE, m
     switch (m)
     {
       case HORTON:
@@ -257,7 +256,6 @@ void infil_getState(int j, int m, double x[])
 //  Purpose: retrieves the current infiltration state for a subcatchment.
 //
 {
-    m = Subcatch[j].infil_type; // 2016-01-15: CHANGE PASS-BY-VALUE, m
     switch (m)
     {
       case HORTON:
@@ -279,7 +277,6 @@ void infil_setState(int j, int m, double x[])
 //  Purpose: sets the current infiltration state for a subcatchment.
 //
 {
-    m = Subcatch[j].infil_type; // 2016-01-15: CHANGE PASS-BY-VALUE, m
     switch (m)
     {
       case HORTON:
@@ -334,7 +331,6 @@ double infil_getInfil(int j, int m, double tstep, double rainfall,
 //  Purpose: computes infiltration rate depending on infiltration method.
 //
 {
-    m = Subcatch[j].infil_type; // 2016-01-15: CHANGE PASS-BY-VALUE, m
     switch (m)
     {
       case HORTON:

@@ -1717,7 +1717,7 @@ void findNativeInfil(int j, double tStep)
     //... otherwise find infil. rate for the subcatchment's rainfall + runon
     else
     {
-        NativeInfil = infil_getInfil(j, InfilModel, tStep,
+        NativeInfil = infil_getInfil(j, Subcatch[j].infil_type, tStep,
                                      Subcatch[j].rainfall,
                                      Subcatch[j].runon,
                                      getSurfaceDepth(j));                      //(5.1.008)

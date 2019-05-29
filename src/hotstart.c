@@ -378,7 +378,7 @@ void  saveRunoff(void)
 
         // Infiltration state (max. of 6 elements)
         for (j=0; j<sizeX; j++) x[j] = 0.0;
-        infil_getState(i, InfilModel, x);
+        infil_getState(i, Subcatch[i].infil_type, x);
         fwrite(x, sizeof(double), 6, f);
 
         // Groundwater state (4 elements)
@@ -447,7 +447,7 @@ void  readRunoff()
 
         // Infiltration state (max. of 6 elements)
         for (j=0; j<6; j++) if ( !readDouble(&x[j], f) ) return;
-        infil_setState(i, InfilModel, x);
+        infil_setState(i, Subcatch[i].infil_type, x);
 
         // Groundwater state (4 elements)
         if ( Subcatch[i].groundwater != NULL )
