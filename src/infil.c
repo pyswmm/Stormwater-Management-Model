@@ -205,9 +205,9 @@ int infil_readParams(int m, char* tok[], int ntoks)
             return error_setInpError(ERR_NUMBER, tok[n]);
     }
 
-    // --- assign parameter values to infil, infil_type object
+    // --- assign parameter values to infil, infilModel object
     Subcatch[j].infil = j;
-    Subcatch[j].infil_type = m;
+    Subcatch[j].infilModel = m;
     switch (m)
     {
       case HORTON:

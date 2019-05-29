@@ -1099,7 +1099,7 @@ void createObjects()
         Subcatch[j].gwDeepFlowExpr = NULL;
         Subcatch[j].snowpack    = NULL;
         Subcatch[j].lidArea     = 0.0;
-        Subcatch[j].infil_type = InfilModel;     // 2016-01-15: default all subcatch infil_type to global INFILTRATION specified in mode
+        Subcatch[j].infilModel = InfilModel;
         for (k = 0; k < Nobjects[POLLUT]; k++)
         {
             Subcatch[j].initBuildup[k] = 0.0;

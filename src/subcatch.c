@@ -190,7 +190,7 @@ int  subcatch_readParams(int j, char* tok[], int ntoks)
     Subcatch[j].nPervPattern  = -1;                                            //(5.1.013
     Subcatch[j].dStorePattern = -1;                                            //
     Subcatch[j].infilPattern  = -1;                                            //
-    Subcatch[j].infil_type    = -1;                                            // 2019/05/22
+    Subcatch[j].infilModel    = -1;                                            // 2019/05/22
 
     // --- create the snow pack object if it hasn't already been created
     if ( x[8] >= 0 )
@@ -448,7 +448,7 @@ void  subcatch_initState(int j)
     Subcatch[j].infilLoss = 0.0;
 
     // --- initialize state of infiltration, groundwater, & snow pack objects
-    if ( Subcatch[j].infil == j )  infil_initState(j, Subcatch[j].infil_type);
+    if ( Subcatch[j].infil == j )  infil_initState(j, Subcatch[j].infilModel);
     if ( Subcatch[j].groundwater ) gwater_initState(j);
     if ( Subcatch[j].snowpack )    snow_initSnowpack(j);
 
@@ -1028,7 +1028,7 @@ double getSubareaInfil(int j, TSubarea* subarea, double precip, double tStep)
     double infil = 0.0;                     // actual infiltration rate (ft/sec)
 
     // --- compute infiltration rate 
-    infil = infil_getInfil(j, Subcatch[j].infil_type, tStep, precip,
+    infil = infil_getInfil(j, Subcatch[j].infilModel, tStep, precip,
                            subarea->inflow, subarea->depth);
 
     // --- limit infiltration rate by available void space in unsaturated

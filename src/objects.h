@@ -399,7 +399,7 @@ typedef struct
    double*       concPonded;      // ponded surface water quality concentration (mass/L)
    double*       totalLoad;       // total washoff load (lbs or kg)
    double*       surfaceBuildup;  // surface buildup (mass)
-   int           infil_type;      // infiltration model code 
+   int           infilModel;      // infiltration model code
 }  TSubcatch;
 
 //-----------------------
