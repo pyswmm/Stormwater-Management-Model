@@ -105,36 +105,17 @@ void infil_create(int subcatchCount, int model)
 //
 {
 
-     // Allocate all 3 kinds of Infiltration data structures, because each
-     // subcatch[j] could be of any type. Doing this uses 3X the RAM: but the
-     // waste is only (2 X subcatchCount X 72 bytes) total.
+    // Allocate each (3) infiltration data structure. This wastes 
+	// at most (2 X subcatchCount X 72 bytes) of RAM. 
     HortInfil = (THorton *) calloc(subcatchCount, sizeof(THorton));
     if ( HortInfil == NULL ) ErrorCode = ERR_MEMORY;
     GAInfil = (TGrnAmpt *)calloc(subcatchCount, sizeof(TGrnAmpt));
     if (GAInfil == NULL) ErrorCode = ERR_MEMORY;
     CNInfil = (TCurveNum *)calloc(subcatchCount, sizeof(TCurveNum));
     if (CNInfil == NULL) ErrorCode = ERR_MEMORY;
-    return;
 
-    switch (model)
-    {
-    case HORTON:
-    case MOD_HORTON:
-        HortInfil = (THorton *) calloc(subcatchCount, sizeof(THorton));
-        if ( HortInfil == NULL ) ErrorCode = ERR_MEMORY;
-        break;
-    case GREEN_AMPT:
-    case MOD_GREEN_AMPT:
-        GAInfil = (TGrnAmpt *) calloc(subcatchCount, sizeof(TGrnAmpt));
-        if ( GAInfil == NULL ) ErrorCode = ERR_MEMORY;
-        break;
-    case CURVE_NUMBER:
-        CNInfil = (TCurveNum *) calloc(subcatchCount, sizeof(TCurveNum));
-        if ( CNInfil == NULL ) ErrorCode = ERR_MEMORY;
-        break;
-    default: ErrorCode = ERR_MEMORY;
-    }
-    InfilFactor = 1.0;                                                         //(5.1.013)
+	InfilFactor = 1.0;    //(5.1.013)
+    return;
 }
 
 //=============================================================================
