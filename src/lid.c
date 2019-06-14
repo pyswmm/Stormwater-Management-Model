@@ -1150,9 +1150,7 @@ void validateLidGroup(int j)
         {
             if ( InfilModel == GREEN_AMPT || InfilModel == MOD_GREEN_AMPT )
             {
-                p[0] = GAInfil[j].S * UCF(RAINDEPTH);
-                p[1] = GAInfil[j].Ks * UCF(RAINFALL);
-                p[2] = GAInfil[j].IMDmax;
+		grnampt_getParams(j, p);
                 if ( grnampt_setParams(&(lidUnit->soilInfil), p) == FALSE )
                 {
                     strcpy(Msg, LidProcs[k].ID);
