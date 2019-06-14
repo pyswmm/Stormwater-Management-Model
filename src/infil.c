@@ -44,9 +44,12 @@
 //-----------------------------------------------------------------------------
 //  Local Variables
 //-----------------------------------------------------------------------------
-THorton*   HortInfil = NULL;
-TGrnAmpt*  GAInfil   = NULL;
-TCurveNum* CNInfil   = NULL;
+typedef union TInfil {
+	THorton   horton;
+	TGrnAmpt  grnAmpt;
+	TCurveNum curveNum;
+} TInfil;
+TInfil *Infil;
 
 static double Fumax;   // saturated water volume in upper soil zone (ft)
 static double InfilFactor;                                                     //(5.1.013)
@@ -104,17 +107,9 @@ void infil_create(int subcatchCount, int model)
 //  Output:  none
 //
 {
-
-    // Allocate each (3) infiltration data structure. This wastes 
-	// at most (2 X subcatchCount X 72 bytes) of RAM. 
-    HortInfil = (THorton *) calloc(subcatchCount, sizeof(THorton));
-    if ( HortInfil == NULL ) ErrorCode = ERR_MEMORY;
-    GAInfil = (TGrnAmpt *)calloc(subcatchCount, sizeof(TGrnAmpt));
-    if (GAInfil == NULL) ErrorCode = ERR_MEMORY;
-    CNInfil = (TCurveNum *)calloc(subcatchCount, sizeof(TCurveNum));
-    if (CNInfil == NULL) ErrorCode = ERR_MEMORY;
-
-	InfilFactor = 1.0;    //(5.1.013)
+    Infil = (TInfil *) calloc(subcatchCount, sizeof(TInfil));
+    if (Infil == NULL) ErrorCode = ERR_MEMORY;
+    InfilFactor = 1.0;    //(5.1.013)
     return;
 }
 
@@ -127,9 +122,7 @@ void infil_delete()
 //  Output:  none
 //
 {
-    FREE(HortInfil);
-    FREE(GAInfil);
-    FREE(CNInfil);
+    FREE(Infil);
 }
 
 //=============================================================================
@@ -192,13 +185,13 @@ int infil_readParams(int m, char* tok[], int ntoks)
     switch (m)
     {
       case HORTON:
-      case MOD_HORTON:   status = horton_setParams(&HortInfil[j], x);
+      case MOD_HORTON:   status = horton_setParams(&Infil[j].horton, x);
                          break;
       case GREEN_AMPT:
       case MOD_GREEN_AMPT:
-                         status = grnampt_setParams(&GAInfil[j], x);
+                         status = grnampt_setParams(&Infil[j].grnAmpt, x);
                          break;
-      case CURVE_NUMBER: status = curvenum_setParams(&CNInfil[j], x);
+      case CURVE_NUMBER: status = curvenum_setParams(&Infil[j].curveNum, x);
                          break;
       default:           status = TRUE;
     }
@@ -219,11 +212,11 @@ void infil_initState(int j, int m)
     switch (m)
     {
       case HORTON:
-      case MOD_HORTON:   horton_initState(&HortInfil[j]);   break;
+      case MOD_HORTON:   horton_initState(&Infil[j].horton);   break;
       case GREEN_AMPT:
       case MOD_GREEN_AMPT:
-                         grnampt_initState(&GAInfil[j]);    break;
-      case CURVE_NUMBER: curvenum_initState(&CNInfil[j]);   break;
+                         grnampt_initState(&Infil[j].grnAmpt);    break;
+      case CURVE_NUMBER: curvenum_initState(&Infil[j].curveNum);   break;
     }
 }
 
@@ -240,11 +233,11 @@ void infil_getState(int j, int m, double x[])
     switch (m)
     {
       case HORTON:
-      case MOD_HORTON:   horton_getState(&HortInfil[j], x); break;
+      case MOD_HORTON:   horton_getState(&Infil[j].horton, x); break;
       case GREEN_AMPT:
       case MOD_GREEN_AMPT:
-                         grnampt_getState(&GAInfil[j],x);   break;
-      case CURVE_NUMBER: curvenum_getState(&CNInfil[j], x); break;
+                         grnampt_getState(&Infil[j].grnAmpt, x);   break;
+      case CURVE_NUMBER: curvenum_getState(&Infil[j].curveNum, x); break;
     }
 }
 
@@ -261,11 +254,11 @@ void infil_setState(int j, int m, double x[])
     switch (m)
     {
       case HORTON:
-      case MOD_HORTON:   horton_setState(&HortInfil[j], x); break;
+      case MOD_HORTON:   horton_setState(&Infil[j].horton, x); break;
       case GREEN_AMPT:
       case MOD_GREEN_AMPT:
-                         grnampt_setState(&GAInfil[j],x);   break;
-      case CURVE_NUMBER: curvenum_setState(&CNInfil[j], x); break;
+                         grnampt_setState(&Infil[j].grnAmpt, x);   break;
+      case CURVE_NUMBER: curvenum_setState(&Infil[j].curveNum, x); break;
     }
 }
 
@@ -315,19 +308,19 @@ double infil_getInfil(int j, int m, double tstep, double rainfall,
     switch (m)
     {
       case HORTON:
-          return horton_getInfil(&HortInfil[j], tstep, rainfall+runon, depth);
+          return horton_getInfil(&Infil[j].horton, tstep, rainfall+runon, depth);
 
       case MOD_HORTON:
-          return modHorton_getInfil(&HortInfil[j], tstep, rainfall+runon,
+          return modHorton_getInfil(&Infil[j].horton, tstep, rainfall+runon,
                                     depth);
 
       case GREEN_AMPT:
       case MOD_GREEN_AMPT:
-        return grnampt_getInfil(&GAInfil[j], tstep, rainfall+runon, depth, m);
+        return grnampt_getInfil(&Infil[j].grnAmpt, tstep, rainfall+runon, depth, m);
 
       case CURVE_NUMBER:
         depth += runon / tstep;
-        return curvenum_getInfil(&CNInfil[j], tstep, rainfall, depth);
+        return curvenum_getInfil(&Infil[j].curveNum, tstep, rainfall, depth);
 
       default:
         return 0.0;
@@ -566,6 +559,21 @@ double modHorton_getInfil(THorton *infil, double tstep, double irate,
         infil->Fe = MAX(infil->Fe, 0.0);
     }
     return f;
+}
+
+//=============================================================================
+
+void grnampt_getParams(int j, double p[])
+//
+//  Input:   j = subcatchment index
+//           p[] = array of parameter values
+//  Output:  none
+//  Purpose: retrieves Green-Ampt infiltration parameters for a subcatchment.
+//
+{
+    p[0] = Infil[j].grnAmpt.S * UCF(RAINDEPTH);   // Capillary suction head (ft)
+    p[1] = Infil[j].grnAmpt.Ks * UCF(RAINFALL);   // Sat. hyd. conductivity (ft/sec)
+    p[2] = Infil[j].grnAmpt.IMDmax;               // Max. init. moisture deficit
 }
 
 //=============================================================================
