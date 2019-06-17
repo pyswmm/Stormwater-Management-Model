@@ -1150,7 +1150,7 @@ void validateLidGroup(int j)
         {
             if ( InfilModel == GREEN_AMPT || InfilModel == MOD_GREEN_AMPT )
             {
-		grnampt_getParams(j, p);
+                grnampt_getParams(j, p);
                 if ( grnampt_setParams(&(lidUnit->soilInfil), p) == FALSE )
                 {
                     strcpy(Msg, LidProcs[k].ID);

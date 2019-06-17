@@ -103,6 +103,7 @@ void    infil_setInfilFactor(int j);                                           /
 double  infil_getInfil(int area, int model, double tstep, double rainfall,
         double runon, double depth);
 
+void    grnampt_getParams(int j, double p[]);                                  //(5.1.013)
 int     grnampt_setParams(TGrnAmpt *infil, double p[]);
 void    grnampt_initState(TGrnAmpt *infil);
 double  grnampt_getInfil(TGrnAmpt *infil, double tstep, double irate,
