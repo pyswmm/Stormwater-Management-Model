@@ -2659,6 +2659,40 @@ int DLLEXPORT swmm_setGagePrecip(int index, double total_precip)
     return error_getCode(error_code_index);
 }
 
+void DLLEXPORT save_hotstart(char *hsfile)
+//
+// Input:   hsfile = path of filename to save hotstart data to (e.g., 'myhotstart.hsf')
+// Output:  None
+// Purpose: save a hotstart file at any point in simulation
+{
+	  int errcode = 0;
+    // Check if Open
+    if(swmm_IsOpenFlag() == FALSE)
+    {
+        errcode = ERR_API_INPUTNOTOPEN;
+    }
+    else
+    {
+        // make a new instance of a TFile struct, Fhotstart_custom
+        TFile Fhotstart_custom;
+        // set the 'mode' attribute of new TFile struct to 'SAVE_FILE' as done in normal run in
+        // ... iface.c
+        Fhotstart_custom.mode = SAVE_FILE;
+        // set the 'name' attribute of Fhotstart_custom to char array passed as function parameter
+        sstrncpy(Fhotstart_custom.name, hsfile, MAXFNAME);
+        // call openHotstartFile2 from hotstart.c to open custom hotstart file for writing
+        openHotstartFile2(Fhotstart_custom);
+        // check to make sure there is the file
+        if (Fhotstart_custom.file)
+        {
+            // write the runoff states to the hotstart file
+            saveRunoff(Fhotstart_custom);
+            // write the routing states to the hotstart file (file is closed in saveRouting)
+            saveRouting(Fhotstart_custom);
+        }
+    }
+}
+
 //-------------------------------
 // Utility Functions
 //-------------------------------

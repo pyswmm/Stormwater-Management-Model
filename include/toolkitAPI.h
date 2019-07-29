@@ -601,6 +601,7 @@ typedef struct
    double        pctError;
 }  SM_RunoffTotals;
 
+
 /**
  @brief Get the text of an error code.
  @param errcode The error code
@@ -911,6 +912,15 @@ int DLLEXPORT swmm_setSimulationDateTime(int timetype, int year, int month,
                                          int day, int hour, int minute,
                                          int second);
 
+/**
+ @brief Save hotstart file during simulation
+ @param hsfile The file name of the hotstart file that user would like to save
+*/
+void DLLEXPORT save_hotstart(char *hsfile);
+
+//-------------------------------
+// Active Simulation Results API
+//-------------------------------
 /**
  @brief Get the current simulation datetime information.
  @param[out] year The year

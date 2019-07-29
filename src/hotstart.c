@@ -16,8 +16,8 @@
 //   a simulation has been run, allowing it to be used to initialize
 //   a subsequent simulation that picks up where the previous run ended.
 //
-//   An abridged version of the hot start file (version 2) is available 
-//   that contains only variables that appear in the binary output file 
+//   An abridged version of the hot start file (version 2) is available
+//   that contains only variables that appear in the binary output file
 //   (groundwater upper moisture and water table elevation, node depth,
 //   lateral inflow, and quality, and link flow, depth, setting and quality).
 //
@@ -35,7 +35,7 @@
 //   - Array indexing bug when reading snowpack state from file fixed.
 //
 //   Build 5.1.011:
-//   - Link control setting bug when reading a hot start file fixed.    
+//   - Link control setting bug when reading a hot start file fixed.
 //
 //-----------------------------------------------------------------------------
 #define _CRT_SECURE_NO_DEPRECATE
@@ -60,12 +60,9 @@ static int fileVersion;
 //-----------------------------------------------------------------------------
 // Function declarations
 //-----------------------------------------------------------------------------
-static int  openHotstartFile1(void); 
-static int  openHotstartFile2(void);       
+static int  openHotstartFile1(void);
 static void readRunoff(void);
-static void saveRunoff(void);
 static void readRouting(void);
-static void saveRouting(void);
 static int  readFloat(float *x, FILE* f);
 static int  readDouble(double* x, FILE* f);
 
@@ -75,7 +72,16 @@ int hotstart_open()
 {
     // --- open hot start files
     if ( !openHotstartFile1() ) return FALSE;       //input hot start file
-    if ( !openHotstartFile2() ) return FALSE;       //output hot start file
+    if ( !openHotstartFile2(Fhotstart2) ) return FALSE;       //output hot start file
+
+    ////  Following lines removed. ////                                            //(5.1.005)
+    //if ( Fhotstart1.file )
+    //{
+    //    readRunoff();
+    //    readRouting();
+    //    fclose(Fhotstart1.file);
+    //}
+
     return TRUE;
 }
 
@@ -83,11 +89,10 @@ int hotstart_open()
 
 void hotstart_close()
 {
-    if ( Fhotstart2.file )
+    if (Fhotstart2.mode != NO_FILE)
     {
-        saveRunoff();
-        saveRouting();
-        fclose(Fhotstart2.file);
+        saveRunoff(Fhotstart2);
+        saveRouting(Fhotstart2);
     }
 }
 
@@ -145,7 +150,7 @@ int openHotstartFile1()
     nLandUses = -1;
     flowUnits = -1;
     if ( fileVersion >= 2 )
-    {    
+    {
         fread(&nSubcatch, sizeof(int), 1, Fhotstart1.file);
     }
     else nSubcatch = Nobjects[SUBCATCH];
@@ -158,7 +163,7 @@ int openHotstartFile1()
     fread(&nLinks, sizeof(int), 1, Fhotstart1.file);
     fread(&nPollut, sizeof(int), 1, Fhotstart1.file);
     fread(&flowUnits, sizeof(int), 1, Fhotstart1.file);
-    if ( nSubcatch != Nobjects[SUBCATCH] 
+    if ( nSubcatch != Nobjects[SUBCATCH]
     ||   nLandUses != Nobjects[LANDUSE]
     ||   nNodes    != Nobjects[NODE]
     ||   nLinks    != Nobjects[LINK]
@@ -179,7 +184,7 @@ int openHotstartFile1()
 
 //=============================================================================
 
-int openHotstartFile2()
+int openHotstartFile2(TFile hsfile)
 //
 //  Input:   none
 //  Output:  none
@@ -195,10 +200,10 @@ int openHotstartFile2()
     char  fileStamp[] = "SWMM5-HOTSTART4";
 
     // --- try to open file
-    if ( Fhotstart2.mode != SAVE_FILE ) return TRUE;
-    if ( (Fhotstart2.file = fopen(Fhotstart2.name, "w+b")) == NULL)
+    if ( hsfile.mode != SAVE_FILE ) return TRUE;
+    if ( (hsfile.file = fopen(hsfile.name, "w+b")) == NULL)
     {
-        report_writeErrorMsg(ERR_HOTSTART_FILE_OPEN, Fhotstart2.name);
+        report_writeErrorMsg(ERR_HOTSTART_FILE_OPEN, hsfile.name);
         return FALSE;
     }
 
@@ -209,25 +214,32 @@ int openHotstartFile2()
     nLinks = Nobjects[LINK];
     nPollut = Nobjects[POLLUT];
     flowUnits = FlowUnits;
-    fwrite(fileStamp, sizeof(char), strlen(fileStamp), Fhotstart2.file);
-    fwrite(&nSubcatch, sizeof(int), 1, Fhotstart2.file);
-    fwrite(&nLandUses, sizeof(int), 1, Fhotstart2.file);
-    fwrite(&nNodes, sizeof(int), 1, Fhotstart2.file);
-    fwrite(&nLinks, sizeof(int), 1, Fhotstart2.file);
-    fwrite(&nPollut, sizeof(int), 1, Fhotstart2.file);
-    fwrite(&flowUnits, sizeof(int), 1, Fhotstart2.file);
+    fwrite(fileStamp, sizeof(char), strlen(fileStamp), hsfile.file);
+    fwrite(&nSubcatch, sizeof(int), 1, hsfile.file);
+    fwrite(&nLandUses, sizeof(int), 1, hsfile.file);
+    fwrite(&nNodes, sizeof(int), 1, hsfile.file);
+    fwrite(&nLinks, sizeof(int), 1, hsfile.file);
+    fwrite(&nPollut, sizeof(int), 1, hsfile.file);
+    fwrite(&flowUnits, sizeof(int), 1, hsfile.file);
+    fclose(hsfile.file);
     return TRUE;
 }
 
 //=============================================================================
 
-void  saveRouting()
+int  saveRouting(TFile hsfile)
 //
 //  Input:   none
 //  Output:  none
 //  Purpose: saves current state of all nodes and links to hotstart file.
 //
 {
+    if ( (hsfile.file = fopen(hsfile.name, "a+b")) == NULL)
+        {
+            report_writeErrorMsg(ERR_HOTSTART_FILE_OPEN, hsfile.name);
+            return FALSE;
+        }
+
     int   i, j;
     float x[3];
 
@@ -235,19 +247,19 @@ void  saveRouting()
     {
         x[0] = (float)Node[i].newDepth;
         x[1] = (float)Node[i].newLatFlow;
-        fwrite(x, sizeof(float), 2, Fhotstart2.file);
+        fwrite(x, sizeof(float), 2, hsfile.file);
 
         if ( Node[i].type == STORAGE )
         {
             j = Node[i].subIndex;
             x[0] = (float)Storage[j].hrt;
-            fwrite(&x[0], sizeof(float), 1, Fhotstart2.file);
+            fwrite(&x[0], sizeof(float), 1, hsfile.file);
         }
 
         for (j = 0; j < Nobjects[POLLUT]; j++)
         {
             x[0] = (float)Node[i].newQual[j];
-            fwrite(&x[0], sizeof(float), 1, Fhotstart2.file);
+            fwrite(&x[0], sizeof(float), 1, hsfile.file);
         }
     }
     for (i = 0; i < Nobjects[LINK]; i++)
@@ -255,20 +267,22 @@ void  saveRouting()
         x[0] = (float)Link[i].newFlow;
         x[1] = (float)Link[i].newDepth;
         x[2] = (float)Link[i].setting;
-        fwrite(x, sizeof(float), 3, Fhotstart2.file);
+        fwrite(x, sizeof(float), 3, hsfile.file);
         for (j = 0; j < Nobjects[POLLUT]; j++)
         {
             x[0] = (float)Link[i].newQual[j];
-            fwrite(&x[0], sizeof(float), 1, Fhotstart2.file);
+            fwrite(&x[0], sizeof(float), 1, hsfile.file);
         }
     }
+    fclose(hsfile.file);
+    return TRUE;
 }
 
 //=============================================================================
 
 void readRouting()
 //
-//  Input:   none 
+//  Input:   none
 //  Output:  none
 //  Purpose: reads initial state of all nodes, links and groundwater objects
 //           from hotstart file.
@@ -339,7 +353,7 @@ void readRouting()
         if ( !readFloat(&x, f) ) return;
         Link[i].setting = x;
 
-        // --- set link's target setting to saved setting 
+        // --- set link's target setting to saved setting
         Link[i].targetSetting = x;
         link_setTargetSetting(i);
         link_setSetting(i, 0.0);
@@ -355,16 +369,21 @@ void readRouting()
 
 //=============================================================================
 
-void  saveRunoff(void)
+int  saveRunoff(TFile hsfile)
 //
 //  Input:   none
 //  Output:  none
 //  Purpose: saves current state of all subcatchments to hotstart file.
 //
 {
+    if ( (hsfile.file = fopen(hsfile.name, "a+b")) == NULL)
+        {
+            report_writeErrorMsg(ERR_HOTSTART_FILE_OPEN, hsfile.name);
+            return FALSE;
+        }
+
     int   i, j, k, sizeX;
     double* x;
-    FILE*  f = Fhotstart2.file;
 
     sizeX = MAX(6, Nobjects[POLLUT]+1);
     x = (double *) calloc(sizeX, sizeof(double));
@@ -374,18 +393,19 @@ void  saveRunoff(void)
         // Ponded depths for each sub-area & total runoff (4 elements)
         for (j = 0; j < 3; j++) x[j] = Subcatch[i].subArea[j].depth;
         x[3] = Subcatch[i].newRunoff;
-        fwrite(x, sizeof(double), 4, f);
+	/*printf("%d", x[3]);*/
+	fwrite(x, sizeof(double), 4, hsfile.file);
 
         // Infiltration state (max. of 6 elements)
         for (j=0; j<sizeX; j++) x[j] = 0.0;
         infil_getState(i, InfilModel, x);
-        fwrite(x, sizeof(double), 6, f);
+	fwrite(x, sizeof(double), 6, hsfile.file);
 
         // Groundwater state (4 elements)
         if ( Subcatch[i].groundwater != NULL )
         {
             gwater_getState(i, x);
-            fwrite(x, sizeof(double), 4, f);
+            fwrite(x, sizeof(double), 4, hsfile.file);
         }
 
         // Snowpack state (5 elements for each of 3 snow surfaces)
@@ -394,7 +414,7 @@ void  saveRunoff(void)
             for (j=0; j<3; j++)
             {
                 snow_getState(i, j, x);
-                fwrite(x, sizeof(double), 5, f);
+                fwrite(x, sizeof(double), 5, hsfile.file);
             }
         }
 
@@ -403,24 +423,26 @@ void  saveRunoff(void)
         {
             // Runoff quality
             for (j=0; j<Nobjects[POLLUT]; j++) x[j] = Subcatch[i].newQual[j];
-            fwrite(x, sizeof(double), Nobjects[POLLUT], f);
+            fwrite(x, sizeof(double), Nobjects[POLLUT], hsfile.file);
 
             // Ponded quality
             for (j=0; j<Nobjects[POLLUT]; j++) x[j] = Subcatch[i].pondedQual[j];
-            fwrite(x, sizeof(double), Nobjects[POLLUT], f);
-            
+            fwrite(x, sizeof(double), Nobjects[POLLUT], hsfile.file);
+
             // Buildup and when streets were last swept
             for (k=0; k<Nobjects[LANDUSE]; k++)
             {
                 for (j=0; j<Nobjects[POLLUT]; j++)
                     x[j] = Subcatch[i].landFactor[k].buildup[j];
-                fwrite(x, sizeof(double), Nobjects[POLLUT], f);
+                fwrite(x, sizeof(double), Nobjects[POLLUT], hsfile.file);
                 x[0] = Subcatch[i].landFactor[k].lastSwept;
-                fwrite(x, sizeof(double), 1, f);
+                fwrite(x, sizeof(double), 1, hsfile.file);
             }
         }
     }
     free(x);
+    fclose(hsfile.file);
+    return TRUE;
 }
 
 //=============================================================================
@@ -459,7 +481,7 @@ void  readRunoff()
         // Snowpack state (5 elements for each of 3 snow surfaces)
         if ( Subcatch[i].snowpack != NULL )
         {
-            for (j=0; j<3; j++) 
+            for (j=0; j<3; j++)
             {
                 for (k=0; k<5; k++) if ( !readDouble(&x[k], f) ) return;
                 snow_setState(i, j, x);
@@ -467,7 +489,7 @@ void  readRunoff()
         }
 
         // Water quality
-        if ( Nobjects[POLLUT] > 0 ) 
+        if ( Nobjects[POLLUT] > 0 )
         {
             // Runoff quality
             for (j=0; j<Nobjects[POLLUT]; j++)
@@ -476,7 +498,7 @@ void  readRunoff()
             // Ponded quality
             for (j=0; j<Nobjects[POLLUT]; j++)
                 if ( !readDouble(&Subcatch[i].pondedQual[j], f) ) return;
-            
+
             // Buildup and when streets were last swept
             for (k=0; k<Nobjects[LANDUSE]; k++)
             {
@@ -525,7 +547,7 @@ int  readDouble(double* x, FILE* f)
 {
     // --- read a value from the file
     if ( feof(f) )
-    {    
+    {
         *(x) = 0.0;
         report_writeErrorMsg(ERR_HOTSTART_FILE_READ, "");
         return FALSE;
