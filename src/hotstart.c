@@ -87,12 +87,12 @@ int hotstart_open()
 
 //=============================================================================
 
-void hotstart_close()
+void hotstart_close(TFile hsfile)
 {
-    if (Fhotstart2.mode != NO_FILE)
+    if (hsfile.mode != NO_FILE)
     {
-        saveRunoff(Fhotstart2);
-        saveRouting(Fhotstart2);
+        saveRunoff(hsfile);
+        saveRouting(hsfile);
     }
 }
 

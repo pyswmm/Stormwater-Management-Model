@@ -2659,17 +2659,22 @@ int DLLEXPORT swmm_setGagePrecip(int index, double total_precip)
     return error_getCode(error_code_index);
 }
 
-void DLLEXPORT save_hotstart(char *hsfile)
+int DLLEXPORT swmm_saveHotstart(char *hsfile)
 //
 // Input:   hsfile = path of filename to save hotstart data to (e.g., 'myhotstart.hsf')
 // Output:  None
 // Purpose: save a hotstart file at any point in simulation
 {
-	  int errcode = 0;
+	  int error_code_index = 0;
     // Check if Open
     if(swmm_IsOpenFlag() == FALSE)
     {
-        errcode = ERR_API_INPUTNOTOPEN;
+        error_code_index = ERR_API_INPUTNOTOPEN;
+    }
+    // Check if Simulation is Running
+    else if (swmm_IsStartedFlag() == FALSE)
+    {
+      error_code_index = ERR_API_SIM_NRUNNING;
     }
     else
     {
@@ -2691,6 +2696,7 @@ void DLLEXPORT save_hotstart(char *hsfile)
             saveRouting(Fhotstart_custom);
         }
     }
+    return error_getCode(error_code_index);
 }
 
 //-------------------------------

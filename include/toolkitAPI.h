@@ -912,12 +912,6 @@ int DLLEXPORT swmm_setSimulationDateTime(int timetype, int year, int month,
                                          int day, int hour, int minute,
                                          int second);
 
-/**
- @brief Save hotstart file during simulation
- @param hsfile The file name of the hotstart file that user would like to save
-*/
-void DLLEXPORT save_hotstart(char *hsfile);
-
 //-------------------------------
 // Active Simulation Results API
 //-------------------------------
@@ -1102,6 +1096,12 @@ int DLLEXPORT swmm_setOutfallStage(int index, double stage);
 @return Error code
 */
 int DLLEXPORT swmm_setGagePrecip(int index, double total_precip);
+
+/**
+ @brief Save hotstart file during simulation
+ @param hsfile The file name of the hotstart file that user would like to save
+*/
+int DLLEXPORT swmm_saveHotstart(char *hsfile);
 
 /**
  @brief Helper function to free memory array allocated in SWMM.

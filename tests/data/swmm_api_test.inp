@@ -39,6 +39,10 @@ LAT_FLOW_TOL         5
 ;MINIMUM_STEP         0.5
 THREADS              1
 
+[FILES]
+SAVE HOTSTART hotstart/TestHSF.hsf
+
+
 [EVAPORATION]
 ;;Data Source    Parameters
 ;;-------------- ----------------
