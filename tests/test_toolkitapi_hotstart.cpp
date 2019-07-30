@@ -16,7 +16,7 @@
 #include <fstream>
 #include <iterator>
 
-#define BENCHMARK_HOTSTART "./hotstart/benchmark_hotstart.hsf"
+//#define BENCHMARK_HOTSTART "./hotstart/benchmark_hotstart.hsf"
 #define HOTSTART_SWMM_SAVE_NORMAL "./hotstart/TestHSF.hsf"
 #define HOTSTART_API_SAVE "./hotstart/swmm_api_test.hsf"
 #define HOTSTART_SWMM_SAVE_19980101_014000 "./hotstart/TestHSF_19980101_014000.hsf"
@@ -105,15 +105,15 @@ BOOST_AUTO_TEST_CASE(save_hotstart_file){
     swmm_close();
 
     // Diff the three hot start files that come from the model.
-    std::ifstream ifsbench1(BENCHMARK_HOTSTART);
-    std::ifstream ifsbench2(BENCHMARK_HOTSTART);
+    //std::ifstream ifsbench1(BENCHMARK_HOTSTART);
+    //std::ifstream ifsbench2(BENCHMARK_HOTSTART);
     std::ifstream ifsbench_1998(HOTSTART_SWMM_SAVE_19980101_014000);
     std::ifstream ifs1(HOTSTART_SWMM_SAVE_NORMAL);
     std::ifstream ifs2(HOTSTART_API_SAVE);
     std::ifstream ifs1_1998(HOTSTART_API_SAVE_19980101_014000);
 
-    std::istream_iterator<char> bbench(ifsbench1), ebench;
-    std::istream_iterator<char> bbench2(ifsbench2), ebench2;
+    //std::istream_iterator<char> bbench(ifsbench1), ebench;
+    //std::istream_iterator<char> bbench2(ifsbench2), ebench2;
     std::istream_iterator<char> bench_1998(ifsbench_1998), ebench_1998;
     std::istream_iterator<char> b1(ifs1), e1;
     std::istream_iterator<char> b2(ifs2), e2;
