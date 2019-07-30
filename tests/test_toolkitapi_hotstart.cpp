@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_SUITE(test_save_hotstart)
 
 // Testing Run Simulation and Generate Hot Start File using Model (as normal)
 // and save a hot start file using the API swmm_saveHotstart()
-BOOST_FIXTURE_TEST_CASE(save_hotstart_file, FixtureBeforeEnd){
+BOOST_AUTO_TEST_CASE(save_hotstart_file){
     int error, step_ind;
     int y, m, d, h, mn, s;
     double value;
