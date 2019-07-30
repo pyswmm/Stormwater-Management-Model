@@ -64,6 +64,7 @@ test_script:
   - cd %BUILD_HOME%\tests
   - ctest -C Release
     # Run regression tests
+  - cat ./Testing/Temporary/*
   - cd %SWMM_HOME%
   - tools\run-nrtest.cmd %REF_BUILD_ID% %SUT_BUILD_ID%
 

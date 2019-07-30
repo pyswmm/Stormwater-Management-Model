@@ -54,6 +54,7 @@ script:
   # run unit tests
   - cd tests
   - ctest
+  - cat ./Testing/Temporary/*
   - cd $SWMM_HOME
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       pip install --src build/packages -r tools/requirements.txt ;
