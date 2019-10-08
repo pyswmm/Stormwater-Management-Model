@@ -2190,17 +2190,17 @@ int DLLEXPORT swmm_getSubcatchStats(int index, SM_SubcatchStats **subcatchStats)
     a = Subcatch[index].area;
 
     // Cumulative Runon Volume
-    (*subcatchStats)->runon *= UCF(VOLUME);
+    (*subcatchStats)->runon *= (UCF(RAINDEPTH) / a);
     // Cumulative Infiltration Volume
-    (*subcatchStats)->infil *= UCF(VOLUME);
+    (*subcatchStats)->infil *= (UCF(RAINDEPTH) / a);
     // Cumulative Runoff Volume
-    (*subcatchStats)->runoff *= UCF(VOLUME);
+    (*subcatchStats)->runoff *= (UCF(RAINDEPTH) / a);
     // Maximum Runoff Rate
     (*subcatchStats)->maxFlow *= UCF(FLOW);
     // Cumulative Rainfall Depth
     (*subcatchStats)->precip *= (UCF(RAINDEPTH) / a);
     // Cumulative Evaporation Volume
-    (*subcatchStats)->evap *= UCF(VOLUME);
+    (*subcatchStats)->evap *= (UCF(RAINDEPTH) / a);
   }
 
     return error_getCode(error_code_index);
