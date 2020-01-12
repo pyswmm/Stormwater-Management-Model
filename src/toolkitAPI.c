@@ -2604,7 +2604,7 @@ int DLLEXPORT swmm_getLidUResult(int index, int lidIndex, int type, double *resu
     return error_getCode(error_code_index);
 }
 
-int DLLEXPORT swmm_getRDIIParams(int index, int Param, double **rdii_array)
+int DLLEXPORT swmm_getRDIIParams(int index, int Param, double *rdii_array)
 ///
 /// Input:   index = Index of the desired hydrograph
 ///			 Param = number from (0 through 12) to indicate month index (0 = ALL)
@@ -2617,7 +2617,6 @@ int DLLEXPORT swmm_getRDIIParams(int index, int Param, double **rdii_array)
 	int m = Param;  // month index
 	int i;
 	double t, k;
-	double *value;	
 
 	// Check if Open
 	if (swmm_IsOpenFlag() == FALSE) {
@@ -2630,25 +2629,21 @@ int DLLEXPORT swmm_getRDIIParams(int index, int Param, double **rdii_array)
 	else if (m < 0 || m > 12) {
 		errcode = ERR_API_OUTBOUNDS;
 	}
-	else if (MEMCHECK(value = newDoubleArray(18))) {
-		errcode = ERR_MEMORY;
-	}
 	else {
 		if (m > 0) m--;
 		for (i = 0; i < 3; i++) {
-			value[i] = UnitHyd[index].r[m][i];
+			rdii_array[i] = UnitHyd[index].r[m][i];
 			t = (double)UnitHyd[index].tPeak[m][i];
 			k = (double)UnitHyd[index].tBase[m][i];
 			k = k / t - 1;
 			t /= 3600.0;  // seconds to hour
-			value[i + 3] = t;
-			value[i + 6] = k;
-			value[i + 9] = UnitHyd[index].iaMax[m][i];
-			value[i + 12] = UnitHyd[index].iaRecov[m][i];
-			value[i + 15] = UnitHyd[index].iaInit[m][i];
+			rdii_array[i + 3] = t;
+			rdii_array[i + 6] = k;
+			rdii_array[i + 9] = UnitHyd[index].iaMax[m][i];
+			rdii_array[i + 12] = UnitHyd[index].iaRecov[m][i];
+			rdii_array[i + 15] = UnitHyd[index].iaInit[m][i];
 		}
 	}
-	*rdii_array = value;
 	return (errcode);
 }
 
