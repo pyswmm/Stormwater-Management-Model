@@ -19,13 +19,13 @@
 #include "toolkitAPI.h"
 
 // NOTE: Test Input File
-#define DATA_PATH_INP "rdii/swmm_rdii_test.inp"
-#define DATA_PATH_RPT "rdii/swmm_rdii_test.rpt"
-#define DATA_PATH_OUT "rdii/swmm_rdii_test.out"
+#define DATA_PATH_INP "rdii/swmm_rdii.inp"
+#define DATA_PATH_RPT "rdii/swmm_rdii.rpt"
+#define DATA_PATH_OUT "rdii/swmm_rdii.out"
 
-#define DATA_PATH_INP2 "rdii/swmm_rdii2_test.inp"
-#define DATA_PATH_RPT2 "rdii/swmm_rdii2_test.rpt"
-#define DATA_PATH_OUT2 "rdii/swmm_rdii2_test.out"
+#define DATA_PATH_INP2 "rdii/swmm_rdii2.inp"
+#define DATA_PATH_RPT2 "rdii/swmm_rdii2.rpt"
+#define DATA_PATH_OUT2 "rdii/swmm_rdii2.out"
 
 using namespace std;
 
