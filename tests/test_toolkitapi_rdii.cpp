@@ -16,6 +16,10 @@
 
 #define ERR_NONE 0
 #define ERR_API_OUTBOUNDS 501
+#define ERR_UNITHYD_RATIOS 153 
+#define ERR_API_OBJECT_INDEX 505
+#define ERR_API_INPUTNOTOPEN 502
+#define ERR_API_SIM_NRUNNING 503
 using namespace std;
 
 // Custom test to check the minimum number of correct decimal digits between
@@ -101,6 +105,37 @@ BOOST_FIXTURE_TEST_CASE(set_rtk, FixtureMatchFlow) {
 	// Compare the flow values from the two INPs
 	compare_vectors(flow1, flow2, 0.0001);
 }
+
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+BOOST_AUTO_TEST_SUITE(test_toolkitapi_rdii_negative_cases)
+
+BOOST_FIXTURE_TEST_CASE(set_rtk, FixtureGetRTK) {
+	// sum or r values greater than 1.0
+	for (int i = 0; i < 18; i++)
+		rtk[i] = 0.5;
+	BOOST_CHECK(ERR_API_OUTBOUNDS == swmm_setRDIIParams(unit_hyd_index, 13, rtk));
+	BOOST_CHECK(ERR_UNITHYD_RATIOS == swmm_setRDIIParams(unit_hyd_index, SM_RTK_ALL, rtk));
+	// invalid rtk values
+	for (int i = 0; i < 18; i++)
+		rtk[i] = -0.1;
+	BOOST_CHECK(ERR_UNITHYD_RATIOS == swmm_setRDIIParams(unit_hyd_index, SM_RTK_ALL, rtk));
+	// valid RTK, invalid unit hydrograph index
+	for (int i = 0; i < 18; i++)
+		rtk[i] = 0.1;
+	BOOST_CHECK(ERR_API_OBJECT_INDEX == swmm_setRDIIParams(10, SM_RTK_ALL, rtk));
+	// simulation started
+	swmm_start(0);
+	BOOST_CHECK(ERR_API_SIM_NRUNNING == swmm_setRDIIParams(unit_hyd_index, SM_RTK_ALL, rtk));
+
+}
+
+BOOST_AUTO_TEST_CASE(inp_not_open) {
+	BOOST_CHECK(ERR_API_INPUTNOTOPEN);
+}
+
 
 
 BOOST_AUTO_TEST_SUITE_END()
