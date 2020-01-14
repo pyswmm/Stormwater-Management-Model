@@ -1143,7 +1143,7 @@ int DLLEXPORT swmm_setGagePrecip(int index, double total_precip);
 @param[out] rdii_array The rtk values of the hydrograph.
 @return Error code
 */
-int DLLEXPORT swmm_getRDIIParams(int index, int Param, double **rdii_array);
+int DLLEXPORT swmm_getRDIIParams(int index, int Param, double *rdii_array);
 
 /**
 @brief Set rtk values for a specified hydrograph.
