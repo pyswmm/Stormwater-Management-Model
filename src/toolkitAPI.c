@@ -561,6 +561,7 @@ int DLLEXPORT swmm_setNodeParam(int index, int Param, double value)
 /// Purpose: Sets Node Parameter
 {
     int error_code_index = 0;
+	int unit_hyd_index = -1;
     // Check if Open
     if(swmm_IsOpenFlag() == FALSE)
     {
@@ -590,6 +591,25 @@ int DLLEXPORT swmm_setNodeParam(int index, int Param, double value)
                 Node[index].pondedArea = value / ( UCF(LENGTH) * UCF(LENGTH) ); break;
             case SM_INITDEPTH:
                 Node[index].initDepth = value / UCF(LENGTH); break;
+			case SM_RDIIIND:
+				unit_hyd_index = (int)round(value);
+				if (unit_hyd_index < 0 || unit_hyd_index >= Nobjects[SM_UNITHYD]) 
+				{
+					error_code_index = ERR_API_OBJECT_INDEX; break;
+				}
+				else 
+				{
+					Node[index].rdiiInflow->unitHyd = unit_hyd_index; break;
+				}
+			case SM_RDIIAREA:
+				if (value < 0.0) 
+				{
+					error_code_index = ERR_RDII_AREA; break;
+				}
+				else 
+				{
+					Node[index].rdiiInflow->area = value / UCF(LANDAREA); break;
+				}
             default: error_code_index = ERR_API_OUTBOUNDS; break;
         }
     }
@@ -2650,21 +2670,33 @@ int DLLEXPORT swmm_getRDIIParams(int index, int Param, double *rdii_array)
 int DLLEXPORT swmm_setRDIIParams(int index, int Param, double *value)
 ///
 /// Input:   index = Index of desired unit hydrograph
-///          value = an array of 18 doubles containing values to be set
+///          value = a 1-d array of 18 doubles containing rtk values to be set. 
+///                  The array should be ordered in columnwise fashion
+///					 as entered in the INP file with the same units, e.g., 
+///					 value[0] = r1, value[1] = r2, value[2] = r3, 
+///					 value[4] = t1, value[5] = t2, ...
 /// Output:  returns API Error
 /// Purpose: Sets RTK and IA values for a unit hydrograph
 {
-	// TODO: ensure sum of r is less than 1
-	// Validation of RDII parameters are done in 
-	// swmm_start() --> rain_open() --> rdii_openRdii() --> validateRdii();
 	int errcode = 0;
 	int m = Param;  // month index
 	int i, im, m1, m2;
 	double t, k;
 	long seconds;
 
+	// Check if values passed are all positive
+	for (i = 0; i < 18; i++) {
+		if (value[i] < 0) {
+			errcode = ERR_UNITHYD_RATIOS;
+			break;
+		}
+	}
+	// Check if sum of R values are <= 1
+	if ((value[0] + value[1] + value[2]) > 1.01) {
+		errcode = ERR_UNITHYD_RATIOS;
+	}
 	// Check if Open
-	if (swmm_IsOpenFlag() == FALSE) {
+	if (!errcode && (swmm_IsOpenFlag() == FALSE)) {
 		errcode = ERR_API_INPUTNOTOPEN;
 	}
 	else if (swmm_IsStartedFlag() == TRUE) {
@@ -2703,7 +2735,7 @@ int DLLEXPORT swmm_setRDIIParams(int index, int Param, double *value)
 			}
 		}
 	}
-	return (errcode);
+	return error_getCode(errcode);
 }
 
 //-------------------------------
