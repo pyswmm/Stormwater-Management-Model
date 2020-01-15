@@ -27,6 +27,10 @@
 #define DATA_PATH_RPT2 "rdii/swmm_rdii2.rpt"
 #define DATA_PATH_OUT2 "rdii/swmm_rdii2.out"
 
+#define DATA_PATH_INP3 "rdii/swmm_rdii3.inp"
+#define DATA_PATH_RPT3 "rdii/swmm_rdii3.rpt"
+#define DATA_PATH_OUT3 "rdii/swmm_rdii3.out"
+
 using namespace std;
 
 struct FixtureGetRTK {

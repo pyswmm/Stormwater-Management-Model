@@ -106,6 +106,77 @@ BOOST_FIXTURE_TEST_CASE(set_rtk, FixtureMatchFlow) {
 	compare_vectors(flow1, flow2, 0.0001);
 }
 
+// Tests setting of node area and changing of unit 
+// hydrograph index.
+//
+// INP3 is indentical to INP2 except that Node "47061"
+// has an area of 2.184 in INP3 and 21.84 in INP2, and
+// the unit hydrograph index of Node "47061" is 1 in INP3
+// and 0 in INP2.
+BOOST_FIXTURE_TEST_CASE(set_node_area, FixtureMatchFlow) {
+	int error, step_ind;
+	double value, area;
+	double elapsedTime = 0.0;
+	long newHour, oldHour, theDay, theHour;
+	step_ind = 0;
+	std::vector<double> flow1;
+	std::vector<double> flow2;
+	int linx = 128; // Index of link "2690"
+	int nodeinx, uhinx;
+					// Get RTK information from INP2 and also store flow values of link "2690".
+	char *nodeid = "47061";
+	BOOST_REQUIRE(ERR_NONE == swmm_open((char *)DATA_PATH_INP2, (char *)DATA_PATH_RPT2, (char *)DATA_PATH_OUT2));
+	BOOST_REQUIRE(ERR_NONE == swmm_getObjectIndex(SM_NODE, nodeid, &nodeinx));
+	BOOST_REQUIRE(ERR_NONE == swmm_getNodeParam(nodeinx, SM_RDIIAREA, &value)); 
+	area = value;
+	BOOST_REQUIRE(ERR_NONE == swmm_getNodeParam(nodeinx, SM_RDIIIND, &value)); 
+	uhinx = (int)round(value);
+	BOOST_REQUIRE(ERR_NONE == swmm_start(0));
+
+	oldHour = -1;
+	do {
+		error = swmm_step(&elapsedTime);
+		newHour = (long)(elapsedTime * 24.0);
+		if (newHour > oldHour) {
+			theDay = (long)elapsedTime;
+			theHour = (long)((elapsedTime - floor(elapsedTime)) * 24.0);
+			oldHour = newHour;
+			error = swmm_getLinkResult(linx, SM_LINKFLOW, &value);
+			flow2.push_back(value);
+		}
+	} while (elapsedTime != 0 && !error);
+	BOOST_REQUIRE(error == ERR_NONE);
+	//BOOST_TEST_MESSAGE("Size of flow2: " << flow2.size() << " \n");
+	BOOST_REQUIRE(flow2.size() == 96);
+	BOOST_REQUIRE(ERR_NONE == swmm_end());
+	BOOST_REQUIRE(ERR_NONE == swmm_close());
+
+	// Set RTK values of INP2 to INP1 and calculate flow values of link "2690"
+	BOOST_REQUIRE(ERR_NONE == swmm_open((char *)DATA_PATH_INP3, (char *)DATA_PATH_RPT3, (char *)DATA_PATH_OUT3));
+	BOOST_REQUIRE(ERR_NONE == swmm_setNodeParam(nodeinx, SM_RDIIAREA, area));
+	BOOST_REQUIRE(ERR_NONE == swmm_setNodeParam(nodeinx, SM_RDIIIND, uhinx));
+	BOOST_REQUIRE(ERR_NONE == swmm_start(0));
+	oldHour = -1;
+	do {
+		error = swmm_step(&elapsedTime);
+		newHour = (long)(elapsedTime * 24.0);
+		if (newHour > oldHour) {
+			theDay = (long)elapsedTime;
+			theHour = (long)((elapsedTime - floor(elapsedTime)) * 24.0);
+			oldHour = newHour;
+			error = swmm_getLinkResult(linx, SM_LINKFLOW, &value);
+			flow1.push_back(value);
+		}
+	} while (elapsedTime != 0 && !error);
+	BOOST_REQUIRE(error == ERR_NONE);
+	BOOST_REQUIRE(flow1.size() == 96);
+	BOOST_REQUIRE(ERR_NONE == swmm_end());
+	BOOST_REQUIRE(ERR_NONE == swmm_close());
+
+	// Compare the flow values from the two INPs
+	compare_vectors(flow1, flow2, 0.0001);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
