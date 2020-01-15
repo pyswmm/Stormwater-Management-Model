@@ -37,6 +37,7 @@ boost::test_tools::predicate_result compare_vectors(std::vector<double>& v1,
 	return true;
 }
 
+
 BOOST_AUTO_TEST_SUITE(test_toolkitapi_rdii)
 
 // Testing Results Getters (During Simulation)
@@ -177,7 +178,6 @@ BOOST_FIXTURE_TEST_CASE(set_node_area, FixtureMatchFlow) {
 	compare_vectors(flow1, flow2, 0.0001);
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()
 
 
@@ -200,13 +200,12 @@ BOOST_FIXTURE_TEST_CASE(set_rtk, FixtureGetRTK) {
 	// simulation started
 	swmm_start(0);
 	BOOST_CHECK(ERR_API_SIM_NRUNNING == swmm_setRDIIParams(unit_hyd_index, SM_RTK_ALL, rtk));
-
 }
 
 BOOST_AUTO_TEST_CASE(inp_not_open) {
-	BOOST_CHECK(ERR_API_INPUTNOTOPEN);
+	int nodeinx = 0;
+	double value;
+	BOOST_CHECK(ERR_API_INPUTNOTOPEN == swmm_getNodeParam(nodeinx, SM_RDIIIND, &value));
 }
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
