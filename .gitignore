@@ -26,6 +26,11 @@ buildprod*/
 *.o
 /Debug/
 /build-linux/
+/bin/
+/CMakeFiles/
+/MakeFile/
+/Testing/
+/lib/
 
 
 # Git merge files
@@ -42,3 +47,24 @@ tests/data/*_test.*
 # Generated files
 *_export.h
 /.vscode
+cmake_install.cmake
+CMakeCache.txt
+CTestTestfile.cmake
+Makefile
+tests/CMakeLists.txt
+tests/data/feng_r.txt
+tests/data/feng.txt
+tests/data/lid/*.out
+tests/data/lid/*.rpt
+tests/data/lid/revised/*.out
+tests/data/lid/revised/*.rpt
+tools/swmm-output/CMakeFiles/*
+tools/swmm-output/CMakeFiles/swmm-output.dir/build.make
+tools/swmm-output/CMakeFiles/swmm-output.dir/C.includecache
+tools/swmm-output/CMakeFiles/swmm-output.dir/cmake_clean.cmake
+tools/swmm-output/CMakeFiles/swmm-output.dir/depend.internal
+tools/swmm-output/CMakeFiles/swmm-output.dir/depend.make
+tools/swmm-output/CMakeFiles/swmm-output.dir/DependInfo.cmake
+tools/swmm-output/CMakeFiles/swmm-output.dir/flags.make
+tools/swmm-output/CMakeFiles/swmm-output.dir/link.txt
+tools/swmm-output/CMakeFiles/swmm-output.dir/progress.make

@@ -79,11 +79,13 @@ BOOST_AUTO_TEST_SUITE(test_toolkitapi)
 
 // Test Model Not Open
 BOOST_AUTO_TEST_CASE(model_not_open) {
-    int error, index;
+    int error, index, num, type;
     double val;
     double input_val = 0;
     double *result_array;
     char id[] = "test";
+    int arr;
+    int iscoupled;
 
     //Project
     error = swmm_getObjectIndex(SM_NODE, id, &index);
@@ -148,6 +150,41 @@ BOOST_AUTO_TEST_CASE(model_not_open) {
 
     error = swmm_getNodePollut(0, 0, &result_array);
     BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+
+
+    //Coupling
+    error = swmm_setNodeOpening(0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+
+    error = swmm_deleteNodeOpening(0, 0);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+
+    error = swmm_getNodeOpeningParam(0, 0, 0, &val);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+
+    error = swmm_getNodeOpeningFlow(0, 0, &val);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+
+    error = swmm_getNodeOpeningType(0, 0, &type);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+
+    error = swmm_getOpeningCouplingType(0, 0, &type);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+
+    error = swmm_getOpeningsNum(0, &num);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+
+    error = swmm_getOpeningsIndices(0, 0, &arr);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+
+    error = swmm_getNodeIsCoupled(0, &iscoupled);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+
+    error = swmm_closeOpening(0, 0);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+
+    error = swmm_openOpening(0, 0);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -190,15 +227,22 @@ BOOST_FIXTURE_TEST_CASE(sim_started_check, FixtureBeforeStep) {
 
     error = swmm_setLinkParam(0, SM_AVELOSS, 1);
     BOOST_CHECK_EQUAL(error, ERR_NONE);
+
+
+    //Coupling
+    error = swmm_setNodeOpening(0, 1, 1, 0.0, 0.0, 0.0, 0.0, 0.0);
+    BOOST_CHECK_EQUAL(error, ERR_API_SIM_NRUNNING);
 }
 
 
 // Testing for invalid object index
 BOOST_FIXTURE_TEST_CASE(object_bounds_check, FixtureOpenClose) {
-    int error;
+    int error, index, num, type;
     double val;
     double input_val = 0;
     double *result_array;
+    int arr;
+    int iscoupled;
 
     //Gage
     error = swmm_getGagePrecip(100, &result_array);
@@ -241,14 +285,47 @@ BOOST_FIXTURE_TEST_CASE(object_bounds_check, FixtureOpenClose) {
     
     error = swmm_getNodePollut(100, 0, &result_array);
     BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    //Coupling
+    error = swmm_setNodeOpening(100, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getNodeOpeningParam(100, 0, 0, &val);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getNodeOpeningFlow(100, 0, &val);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getNodeOpeningType(100, 0, &type);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getOpeningCouplingType(100, 0, &type);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getOpeningsNum(100, &num);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getOpeningsIndices(100, 0, &arr);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getNodeIsCoupled(100, &iscoupled);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_closeOpening(100, 0);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_openOpening(100, 0);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
 }
 
 
 // Testing for invalid parameter key
 BOOST_FIXTURE_TEST_CASE(key_bounds_check, FixtureOpenClose) {
-    int error;
+    int error, index, num, type;
     double val;
     char* error_msg=new char[256];
+    int arr;
+    int iscoupled;
 
     //Error codes
     swmm_getAPIError(341, error_msg);
@@ -277,6 +354,20 @@ BOOST_FIXTURE_TEST_CASE(key_bounds_check, FixtureOpenClose) {
 
     error = swmm_setLinkParam(0, 100, 1);
     BOOST_CHECK_EQUAL(error, ERR_API_OUTBOUNDS);
+
+
+    //Coupling
+    error = swmm_getNodeOpeningParam(0, 100, 0, &val);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getNodeOpeningType(0, 100, &type);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getOpeningCouplingType(0, 100, &type);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+    error = swmm_getOpeningsIndices(0, 100, &arr);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
 }
 
 
@@ -643,6 +734,42 @@ BOOST_FIXTURE_TEST_CASE(getset_node, FixtureOpenClose) {
     error = swmm_getNodeParam(node_ind, SM_INITDEPTH, &val);
     BOOST_REQUIRE(error == ERR_NONE);
     BOOST_CHECK_SMALL(val - 1, 0.0001);
+
+    // Get/Set Node SM_SURFAREA (Coupling)
+    error = swmm_getNodeParam(node_ind, SM_SURFAREA, &val); //Coupling
+    BOOST_REQUIRE(error == ERR_NONE);  //Coupling
+    BOOST_CHECK_SMALL(val - 0, 0.0001);  //Coupling
+
+    error = swmm_setNodeParam(node_ind, SM_SURFAREA, 1);  //Coupling
+    BOOST_REQUIRE(error == ERR_NONE);  //Coupling
+
+    error = swmm_getNodeParam(node_ind, SM_SURFAREA, &val);  //Coupling
+    BOOST_REQUIRE(error == ERR_NONE);  //Coupling
+    BOOST_CHECK_SMALL(val - 1, 0.0001);  //Coupling
+
+    // Get/Set Node SM_COUPAREA (Coupling)
+    error = swmm_getNodeParam(node_ind, SM_COUPAREA, &val); //Coupling
+    BOOST_REQUIRE(error == ERR_NONE);  //Coupling
+    BOOST_CHECK_SMALL(val - 0, 0.0001);  //Coupling
+
+    error = swmm_setNodeParam(node_ind, SM_COUPAREA, 1);  //Coupling
+    BOOST_REQUIRE(error == ERR_NONE);  //Coupling
+
+    error = swmm_getNodeParam(node_ind, SM_COUPAREA, &val);  //Coupling
+    BOOST_REQUIRE(error == ERR_NONE);  //Coupling
+    BOOST_CHECK_SMALL(val - 1, 0.0001);  //Coupling
+
+    // Get/Set Node SM_OVERLANDDEPTH (Coupling)
+    error = swmm_getNodeParam(node_ind, SM_OVERLANDDEPTH, &val); //Coupling
+    BOOST_REQUIRE(error == ERR_NONE);  //Coupling
+    BOOST_CHECK_SMALL(val - 0, 0.0001);  //Coupling
+
+    error = swmm_setNodeParam(node_ind, SM_SURFAREA, 1);  //Coupling
+    BOOST_REQUIRE(error == ERR_NONE);  //Coupling
+
+    error = swmm_getNodeParam(node_ind, SM_SURFAREA, &val);  //Coupling
+    BOOST_REQUIRE(error == ERR_NONE);  //Coupling
+    BOOST_CHECK_SMALL(val - 1, 0.0001);  //Coupling
 }
 
 

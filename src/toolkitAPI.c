@@ -32,6 +32,7 @@
 #include "swmm5.h"                     // declaration of exportable functions
 #include "toolkitAPI.h"
 #include "hash.h"
+#include "funcs.h"
 
 // Function Declarations for API
 int     massbal_getRoutingFlowTotal(SM_RoutingTotals *routingTot);
@@ -2862,11 +2863,11 @@ int DLLEXPORT swmm_setNodeOpening(int nodeID, int idx, int oType, double A,
     double u_A, u_l;
 
     // Check if Open
-    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
     // Check if Simulation is Running
-    if(swmm_IsStartedFlag() == TRUE) return(ERR_API_SIM_NRUNNING);
+    if(swmm_IsStartedFlag() == TRUE) return error_getCode(ERR_API_SIM_NRUNNING);
     // Check if object index is within bounds
-    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
 
     u_A = A / ( UCF(LENGTH) * UCF(LENGTH) );
     u_l = l / UCF(LENGTH);
@@ -2882,11 +2883,11 @@ int DLLEXPORT swmm_deleteNodeOpening(int nodeID, int idx)
 // Purpose: Remove an opening from a node.
 {
     // Check if Open
-    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
     // Check if Simulation is Running
-    if(swmm_IsStartedFlag() == TRUE) return(ERR_API_SIM_NRUNNING);
+    if(swmm_IsStartedFlag() == TRUE) return error_getCode(ERR_API_SIM_NRUNNING);
     // Check if object index is within bounds
-    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
 
     coupling_deleteOpening(nodeID, idx);
     return(0);
@@ -2902,9 +2903,9 @@ int DLLEXPORT swmm_getNodeOpeningParam(int nodeID, int idx, int Param, double *v
 // Purpose: Get Node opening parameters.
 {
     // Check if Open
-    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
     // Check if object index is within bounds
-    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
 
     TCoverOpening* opening;
 
@@ -2916,7 +2917,7 @@ int DLLEXPORT swmm_getNodeOpeningParam(int nodeID, int idx, int Param, double *v
         opening = opening->next;
     }
      // --- if it doesn't, return an error
-    if ( opening == NULL ) return(ERR_API_OBJECT_INDEX);
+    if ( opening == NULL ) return error_getCode(ERR_API_OBJECT_INDEX);
 
     switch(Param)
     {
@@ -2931,7 +2932,7 @@ int DLLEXPORT swmm_getNodeOpeningParam(int nodeID, int idx, int Param, double *v
         // coeffSubWeir
         case SUBMERGED_WEIR_COEFF: *value = opening->coeffSubWeir; break;
         // Type not available
-        default: return(ERR_API_OUTBOUNDS);
+        default: return error_getCode(ERR_API_OUTBOUNDS);
     }
     return(0);
 }
@@ -2945,11 +2946,11 @@ int DLLEXPORT swmm_getNodeOpeningFlow(int nodeID, int idx, double *inflow)
 // Purpose: Get opening inflow.
 {
     // Check if Open
-    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
     // Check if Simulation is Running
-    if(swmm_IsStartedFlag() == FALSE) return(ERR_API_SIM_NRUNNING);
+    // if(swmm_IsStartedFlag() == FALSE) return error_getCode(ERR_API_SIM_NRUNNING);
     // Check if object index is within bounds
-    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
 
     TCoverOpening* opening;
 
@@ -2961,7 +2962,7 @@ int DLLEXPORT swmm_getNodeOpeningFlow(int nodeID, int idx, double *inflow)
         opening = opening->next;
     }
      // --- if it doesn't, return an error
-    if ( opening == NULL ) return(ERR_API_OBJECT_INDEX);
+    if ( opening == NULL ) return error_getCode(ERR_API_OBJECT_INDEX);
 
     *inflow = opening->newInflow * UCF(FLOW);
     return(0);
@@ -2976,9 +2977,9 @@ int DLLEXPORT swmm_getNodeOpeningType(int nodeID, int idx, int *type)
 // Purpose: Get opening type.
 {
     // Check if Open
-    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
     // Check if object index is within bounds
-    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
 
     TCoverOpening* opening;
 
@@ -2990,7 +2991,7 @@ int DLLEXPORT swmm_getNodeOpeningType(int nodeID, int idx, int *type)
         opening = opening->next;
     }
      // --- if it doesn't, return an error
-    if ( opening == NULL ) return(ERR_API_OBJECT_INDEX);
+    if ( opening == NULL ) return error_getCode(ERR_API_OBJECT_INDEX);
 
     *type = opening->type;
     return(0);
@@ -3005,9 +3006,9 @@ int DLLEXPORT swmm_getOpeningCouplingType(int nodeID, int idx, int *coupling)
 // Purpose: Get opening coupling type.
 {
     // Check if Open
-    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
     // Check if object index is within bounds
-    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
 
     TCoverOpening* opening;
 
@@ -3019,7 +3020,7 @@ int DLLEXPORT swmm_getOpeningCouplingType(int nodeID, int idx, int *coupling)
         opening = opening->next;
     }
      // --- if it doesn't, return an error
-    if ( opening == NULL ) return(ERR_API_OBJECT_INDEX);
+    if ( opening == NULL ) return error_getCode(ERR_API_OBJECT_INDEX);
 
     *coupling = opening->couplingType;
     return(0);
@@ -3034,9 +3035,9 @@ int DLLEXPORT swmm_getOpeningsNum(int nodeID, int *num)
 // Purpose: Get the number of openings of a node.
 {
     // Check if Open
-    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
     // Check if object index is within bounds
-    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
 
     *num = coupling_countOpenings(nodeID);
 
@@ -3052,13 +3053,13 @@ int DLLEXPORT swmm_getOpeningsIndices(int nodeID, int arr_size, int *arr)
 // Purpose: Get the indices of all the openings in the node.
 {
     // Check if Open
-    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
     // Check if object index is within bounds
-    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
     // Check if array size is correct
     int num;
     swmm_getOpeningsNum(nodeID, &num);
-    if (num != arr_size) return(ERR_API_OBJECT_INDEX);
+    if (num != arr_size) return error_getCode(ERR_API_OBJECT_INDEX);
 
     int i = 0;
     TCoverOpening* opening;
@@ -3084,9 +3085,9 @@ int DLLEXPORT swmm_getNodeIsCoupled(int nodeID, int *iscoupled)
 // Purpose: Get the coupling status of a node.
 {
     // Check if Open
-    if(swmm_IsOpenFlag() == FALSE) return(ERR_API_INPUTNOTOPEN);
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
     // Check if object index is within bounds
-    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return(ERR_API_OBJECT_INDEX);
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
 
     *iscoupled = coupling_isNodeCoupled(nodeID);
 
@@ -3105,16 +3106,18 @@ int DLLEXPORT swmm_closeOpening(int nodeID, int idx)
     // Check if Open
     if (swmm_IsOpenFlag() == FALSE)
     {
-        errcode = ERR_API_INPUTNOTOPEN;
+        errcode =  error_getCode(ERR_API_INPUTNOTOPEN);
     }
     // Check if object index is within bounds
     else if (nodeID < 0 || nodeID >= Nobjects[NODE])
     {
-        errcode = ERR_API_OBJECT_INDEX;
+        errcode =  error_getCode(ERR_API_OBJECT_INDEX);
     }
-
+    else
+    {
     // Close the opening
-    errcode = coupling_closeOpening(nodeID, idx);
+        errcode = coupling_closeOpening(nodeID, idx);
+    }
     return errcode;
 }
 
@@ -3130,16 +3133,18 @@ int DLLEXPORT swmm_openOpening(int nodeID, int idx)
     // Check if Open
     if (swmm_IsOpenFlag() == FALSE)
     {
-        errcode = ERR_API_INPUTNOTOPEN;
+        errcode =  error_getCode(ERR_API_INPUTNOTOPEN);
     }
     // Check if object index is within bounds
     else if (nodeID < 0 || nodeID >= Nobjects[NODE])
     {
-        errcode = ERR_API_OBJECT_INDEX;
+        errcode =  error_getCode(ERR_API_OBJECT_INDEX);
     }
-
-    // Close the opening
-    errcode = coupling_closeOpening(nodeID, idx);
+    else
+    {
+        // Close the opening
+        errcode = coupling_closeOpening(nodeID, idx);
+    }
     return errcode;
 }
 
