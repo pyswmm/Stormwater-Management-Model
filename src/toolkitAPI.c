@@ -1798,6 +1798,8 @@ int DLLEXPORT swmm_getNodeResult(int index, int type, double *result)
                             + Node[index].invertElev) * UCF(LENGTH); break;
             case SM_LATINFLOW:
                 *result = Node[index].newLatFlow * UCF(FLOW); break;
+            case SM_COUPINFLOW:
+                *result = Node[index].couplingInflow * UCF(FLOW); break;
             default: error_code_index = ERR_API_OUTBOUNDS; break;
         }
     }
@@ -2872,7 +2874,7 @@ int DLLEXPORT swmm_setNodeOpening(int nodeID, int idx, int oType, double A,
     u_A = A / ( UCF(LENGTH) * UCF(LENGTH) );
     u_l = l / UCF(LENGTH);
     errcode = coupling_setOpening(nodeID, idx, oType, u_A, u_l, Co, Cfw, Csw);
-    return(errcode);
+    return(error_getCode(errcode));
 }
 
 int DLLEXPORT swmm_deleteNodeOpening(int nodeID, int idx)

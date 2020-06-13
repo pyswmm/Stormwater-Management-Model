@@ -4,7 +4,7 @@
  *   Created: 09/06/2020
  *   Author: Velitchko G. Tzatchkov
  *           Laurent Courty
- *           IMTA
+ *           IMTA, Mexico
  *
  *   Unit testing for SWMM coupling using Boost Test.
  */

@@ -33,6 +33,7 @@ include_directories (${Boost_INCLUDE_DIRS})
 # Test files are a separate source directory called tests
 file(GLOB TEST_SRCS . tests/test_*.cpp)
 
+#add_library(coupling . src/coupling.c)
 
 #Run through each source
 foreach(testSrc ${TEST_SRCS})
@@ -43,6 +44,7 @@ foreach(testSrc ${TEST_SRCS})
         add_executable(${testName} ${testSrc})
 
         #link to Boost libraries AND your targets and dependencies
+        #target_link_libraries(${testName} ${Boost_LIBRARIES} swmm5 swmm-output coupling)
         target_link_libraries(${testName} ${Boost_LIBRARIES} swmm5 swmm-output)
 
         #Finally add it to test execution - 
@@ -137,7 +139,7 @@ endif(OPENMP_FOUND)
 # Set up file groups for exe and lib targets
 file(GLOB SWMM_SOURCES RELATIVE ${PROJECT_SOURCE_DIR} src/*.c)
 list(REMOVE_ITEM SWMM_SOURCES "src/swmm5.c")
-set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h)
+set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h ; include/coupling.h)
 include_directories(include)
 
 
