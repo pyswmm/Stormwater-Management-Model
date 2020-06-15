@@ -413,6 +413,19 @@ BOOST_FIXTURE_TEST_CASE(project_info, FixtureOpenClose){
 
 }
 
+// Testing for Project Parameters after Open
+BOOST_FIXTURE_TEST_CASE(project_info_metric, FixtureBeforeStartMetric){
+    int error, paramType;
+    double value;
+    //Simulation parameters
+    error = swmm_getSimulationParam(SM_MINSURFAREA, &value);
+    BOOST_REQUIRE(error == ERR_NONE);
+    BOOST_CHECK_EQUAL(value, 1.2);
+
+        error = swmm_getSimulationParam(SM_HEADTOL, &value);
+    BOOST_REQUIRE(error == ERR_NONE);
+    BOOST_CHECK_EQUAL(value, 0.015);
+}
 
 // Testing for count Objects after Open
 BOOST_FIXTURE_TEST_CASE(count_objects, FixtureOpenClose){

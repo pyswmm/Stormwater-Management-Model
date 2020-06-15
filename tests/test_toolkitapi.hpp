@@ -31,6 +31,11 @@
 #define DATA_PATH_RPT "swmm_api_test.rpt"
 #define DATA_PATH_OUT "swmm_api_test.out"
 
+// NOTE: Test Input File in metric units
+#define DATA_PATH_INP_METRIC "swmm_api_test_metric.inp"
+#define DATA_PATH_RPT_METRIC "swmm_api_test_metric.rpt"
+#define DATA_PATH_OUT_METRIC "swmm_api_test_metric.out"
+
 // NOTE: Test RTK Input File
 #define DATA_PATH_INP_RTK "swmm_rtk_test.inp"
 #define DATA_PATH_RPT_RTK "swmm_rtk_test.rpt"
@@ -67,6 +72,33 @@ struct FixtureBeforeStart{
         swmm_open((char *)DATA_PATH_INP, (char *)DATA_PATH_RPT, (char *)DATA_PATH_OUT);
     }
     ~FixtureBeforeStart() {
+        swmm_start(0);
+        int error;
+        double elapsedTime = 0.0;
+        do
+        {
+            error = swmm_step(&elapsedTime);
+        }while (elapsedTime != 0 && !error);
+        if (!error) swmm_end();
+        if (!error) swmm_report();
+
+        swmm_close();
+    }
+};
+
+/* Fixture Before Start
+ 1. Opens Model
+ *. can choose to start simulation 
+ 2. Starts Simulation
+ 3. Runs Simlation
+ 4. Ends simulation
+ 5. Closes Model 
+*/
+struct FixtureBeforeStartMetric{
+    FixtureBeforeStartMetric() {
+        swmm_open((char *)DATA_PATH_INP_METRIC, (char *)DATA_PATH_RPT_METRIC, (char *)DATA_PATH_OUT_METRIC);
+    }
+    ~FixtureBeforeStartMetric() {
         swmm_start(0);
         int error;
         double elapsedTime = 0.0;
