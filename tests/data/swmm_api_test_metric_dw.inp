@@ -6,7 +6,7 @@ Example 1
 ;;Option             Value
 FLOW_UNITS           CMS
 INFILTRATION         HORTON
-FLOW_ROUTING         KINWAVE
+FLOW_ROUTING         DYNWAVE
 LINK_OFFSETS         DEPTH
 MIN_SLOPE            0.001
 ALLOW_PONDING        NO

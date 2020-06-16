@@ -36,6 +36,11 @@
 #define DATA_PATH_RPT_METRIC "swmm_api_test_metric.rpt"
 #define DATA_PATH_OUT_METRIC "swmm_api_test_metric.out"
 
+// NOTE: Test Input File in metric units with DW routing
+#define DATA_PATH_INP_METRIC_DW "swmm_api_test_metric_dw.inp"
+#define DATA_PATH_RPT_METRIC_DW "swmm_api_test_metric_dw.rpt"
+#define DATA_PATH_OUT_METRIC_DW "swmm_api_test_metric_dw.out"
+
 // NOTE: Test RTK Input File
 #define DATA_PATH_INP_RTK "swmm_rtk_test.inp"
 #define DATA_PATH_RPT_RTK "swmm_rtk_test.rpt"
@@ -59,6 +64,28 @@ struct FixtureOpenClose{
     }
 };
 
+struct FixtureOpenCloseMetric{
+    FixtureOpenCloseMetric() {
+        swmm_open((char *)DATA_PATH_INP_METRIC,
+                  (char *)DATA_PATH_RPT_METRIC,
+                  (char *)DATA_PATH_OUT_METRIC);
+    }
+    ~FixtureOpenCloseMetric() {
+        swmm_close();
+    }
+};
+
+struct FixtureOpenCloseMetricDW{
+    FixtureOpenCloseMetricDW() {
+        swmm_open((char *)DATA_PATH_INP_METRIC_DW,
+                  (char *)DATA_PATH_RPT_METRIC_DW,
+                  (char *)DATA_PATH_OUT_METRIC_DW);
+    }
+    ~FixtureOpenCloseMetricDW() {
+        swmm_close();
+    }
+};
+
 /* Fixture Before Start
  1. Opens Model
  *. can choose to start simulation 
@@ -72,33 +99,6 @@ struct FixtureBeforeStart{
         swmm_open((char *)DATA_PATH_INP, (char *)DATA_PATH_RPT, (char *)DATA_PATH_OUT);
     }
     ~FixtureBeforeStart() {
-        swmm_start(0);
-        int error;
-        double elapsedTime = 0.0;
-        do
-        {
-            error = swmm_step(&elapsedTime);
-        }while (elapsedTime != 0 && !error);
-        if (!error) swmm_end();
-        if (!error) swmm_report();
-
-        swmm_close();
-    }
-};
-
-/* Fixture Before Start
- 1. Opens Model
- *. can choose to start simulation 
- 2. Starts Simulation
- 3. Runs Simlation
- 4. Ends simulation
- 5. Closes Model 
-*/
-struct FixtureBeforeStartMetric{
-    FixtureBeforeStartMetric() {
-        swmm_open((char *)DATA_PATH_INP_METRIC, (char *)DATA_PATH_RPT_METRIC, (char *)DATA_PATH_OUT_METRIC);
-    }
-    ~FixtureBeforeStartMetric() {
         swmm_start(0);
         int error;
         double elapsedTime = 0.0;
