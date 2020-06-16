@@ -130,3 +130,7 @@ target_compile_definitions(run-swmm PRIVATE CLE=TRUE)
 if(NOT WIN32)
     target_link_libraries(run-swmm PUBLIC m pthread)
 endif(NOT WIN32)
+
+install(TARGETS swmm5 run-swmm
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib)
