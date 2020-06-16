@@ -12,7 +12,7 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "License :: OSI Approved :: MIT License",
                "Operating System :: MacOS :: MacOS X",
                "Operating System :: POSIX :: Linux",
-               "Operating System :: Microsoft :: Windows"
+               "Operating System :: Microsoft :: Windows",
                "Programming Language :: C",
                "Topic :: Scientific/Engineering",
                "Topic :: Scientific/Engineering :: Hydrology",
