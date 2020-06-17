@@ -9,12 +9,12 @@ matrix:
           os: osx
           osx_image: xcode10
           language: generic
-        # - name: 'manylinux2010'
-        #   sudo: required
-        #   services:
-        #     - docker
-        #   env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-        #        PLAT=manylinux2010_x86_64
+        - name: 'manylinux2010'
+          sudo: required
+          services:
+            - docker
+          env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+               PLAT=manylinux2010_x86_64
 
 
 #compiler:
@@ -41,9 +41,9 @@ before_install:
       sudo apt-get install -y libboost-test-dev ;
       sudo apt-get install -y swig ;
     fi
-  # - if [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
-  #     docker pull $DOCKER_IMAGE;
-  #   fi
+  - if [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
+      docker pull $DOCKER_IMAGE;
+    fi
 
 #install:
 
