@@ -20,14 +20,16 @@ environment:
       BOOST_ROOT: "C:/Libraries/boost_1_67_0"
       PLATFORM: "win32"
       REF_BUILD_ID: "323_1"
-      PYTHON: 'C:\Python36\\python.exe'
+      PYTHON3: 'C:\Python36\\python.exe'
+      PYTHON2: 'C:\Python27\\python.exe'
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       GENERATOR: "Visual Studio 15 2017 Win64"
       GROUP: "EXPERIMENTAL"
       BOOST_ROOT: "C:/Libraries/boost_1_67_0"
       PLATFORM: "win64"
       REF_BUILD_ID: "323_2"
-      PYTHON: 'C:\Python36-x64\\python.exe'
+      PYTHON3: 'C:\Python36-x64\\python.exe'
+      PYTHON2: 'C:\Python27\\python.exe'
 
 init:
   - set SUT_BUILD_ID=%APPVEYOR_BUILD_NUMBER%_%APPVEYOR_JOB_NUMBER%
@@ -44,8 +46,8 @@ init:
 
 install:
   # Install nrtest and dependencies for regression tests
-  - '%PYTHON% -m pip install -r tools\requirements-appveyor.txt'
-  - '%PYTHON% -m pip install scikit-build'
+  - '%PYTHON2% -m pip install -r tools\requirements-appveyor.txt'
+  - '%PYTHON3% -m pip install scikit-build'
 
 before_build:
   - mkdir %BUILD_HOME%
@@ -58,7 +60,7 @@ before_build:
 build_script:
   - cmake --build . --config Release
   - cd %SWMM_HOME%
-  - '%PYTHON% setup.py build sdist bdist_wheel'
+  - '%PYTHON3% setup.py build sdist bdist_wheel'
 
 before_test:
   - cd %SWMM_HOME%
