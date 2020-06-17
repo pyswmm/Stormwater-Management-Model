@@ -1,20 +1,20 @@
 language: python
 
 matrix:
-    include:
-        - name: 'linux'
-          os: linux
-          python: 3.6
-        - name: 'osx'
-          os: osx
-          osx_image: xcode10
-          language: generic
-        # - name: 'manylinux2010'
-        #   sudo: required
-        #   env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-        #        PLAT=manylinux2010_x86_64
-        #   services:
-        #     - docker
+  include:
+    - os: 'linux'
+      name: linux
+      python: 3.6
+    - os: osx
+      # name: 'osx'
+      osx_image: xcode10
+      language: generic
+  # - name: 'manylinux2010'
+  #   sudo: required
+  #   env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+  #        PLAT=manylinux2010_x86_64
+  #   services:
+  #     - docker
 
 
 #compiler:
@@ -41,9 +41,9 @@ before_install:
       sudo apt-get install -y libboost-test-dev ;
       sudo apt-get install -y swig ;
     fi
-  # - if [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
-  #     docker pull $DOCKER_IMAGE;
-  #   fi
+  - if [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
+      docker pull $DOCKER_IMAGE;
+    fi
 
 #install:
 
@@ -52,10 +52,9 @@ before_script:
   - mkdir -p $RELEASE_HOME
 
 script:
-    - cd $BUILD_HOME ;
-  # - if ! [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
-  #     cd $BUILD_HOME ;
-  #   fi
+  - if ! [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
+      cd $BUILD_HOME ;
+    fi
   - if [[ "$TRAVIS_JOB_NAME" == "linux" ]]; then
       cmake ../ -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON .. ;
     fi
@@ -64,7 +63,6 @@ script:
     fi
   - if ! [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
       cmake --build . ;
-      # run unit tests
       cd tests ;
       ctest ;
       cd $SWMM_HOME ;
@@ -74,11 +72,10 @@ script:
       tools/before-test.sh $TEST_HOME $SWMM_HOME/$BUILD_HOME/bin $TRAVIS_COMMIT ;
       tools/run-nrtest.sh -c -t $TEST_HOME -v $TRAVIS_COMMIT ;
     fi
-  - cd $SWMM_HOME
-  # - if [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
-  #     docker run --rm -e PLAT=$PLAT -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/tools/build-wheels.sh
-  #     ls wheelhouse/
-  #   fi
+  - if [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
+      docker run --rm -e PLAT=$PLAT -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/tools/build-wheels.sh
+      ls wheelhouse/
+    fi
   
 deploy:
   provider: releases
