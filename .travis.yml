@@ -2,11 +2,22 @@ language: python
 
 matrix:
     include:
-        - os: linux
+        - name: 'linux'
+          os: linux
           python: 3.6
-        - os: osx
+        - name: 'osx'
+          os: osx
           osx_image: xcode10
           language: generic
+        - name: 'manylinux2010'
+          sudo: required
+          services:
+            - docker
+          env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+               PLAT=manylinux2010_x86_64
+
+
+
 
 #compiler:
 #  - gcc
@@ -23,14 +34,17 @@ env:
     - GIT_RELEASE_DIR=GIT_RELEASE
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+  - if [[ "$TRAVIS_JOB_NAME" == "osx" ]]; then
       brew update ;
       brew install libomp ;
     fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  - if [[ "$TRAVIS_JOB_NAME" == "linux" ]]; then
       sudo apt-get -qq update ;
       sudo apt-get install -y libboost-test-dev ;
       sudo apt-get install -y swig ;
+    fi
+  - if [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
+      docker pull $DOCKER_IMAGE;
     fi
 
 #install:
@@ -40,28 +54,32 @@ before_script:
   - mkdir -p $RELEASE_HOME
 
 script:
-
-  - cd $BUILD_HOME
-
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  - if ! [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
+      cd $BUILD_HOME;
+    fi
+  - if [[ "$TRAVIS_JOB_NAME" == "linux" ]]; then
       cmake ../ -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON .. ;
     fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+  - if [[ "$TRAVIS_JOB_NAME" == "osx" ]]; then
       cmake ../ -DBUILD_TESTS=ON .. ;
     fi
-
-  - cmake --build .
-  # run unit tests
-  - cd tests
-  - ctest
-  - cd $SWMM_HOME
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  - if ! [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
+      cmake --build .;
+      # run unit tests
+      cd tests;
+      ctest;
+      cd $SWMM_HOME;
+    fi
+  - if [[ "$TRAVIS_JOB_NAME" == "linux" ]]; then
       pip install --src build/packages -r tools/requirements.txt ;
       tools/before-test.sh $TEST_HOME $SWMM_HOME/$BUILD_HOME/bin $TRAVIS_COMMIT ;
       tools/run-nrtest.sh -c -t $TEST_HOME -v $TRAVIS_COMMIT ;
     fi
   - cd $SWMM_HOME
-  
+  - if [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
+      docker run --rm -e PLAT=$PLAT -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/tools/build-wheels.sh
+      ls wheelhouse/
+    fi
   
 deploy:
   provider: releases
@@ -102,6 +120,6 @@ after_success:
   - echo "OWA-SWMM-$TRAVIS_OS_NAME-$SWMM_VERSION.zip"
   - cd $GIT_RELEASE_DIR/$TRAVIS_OS_NAME
   - zip -r "../../OWA-SWMM-$TRAVIS_OS_NAME-$SWMM_VERSION.zip" ./lib/ ./bin/ ./include/
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  - if [[ "$TRAVIS_JOB_NAME" == "linux" ]]; then
       bash <(curl -s https://codecov.io/bash) ;
     fi
