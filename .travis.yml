@@ -2,48 +2,49 @@ language: python
 
 matrix:
   include:
-    - os: 'linux'
-      name: linux
-      python: 3.6
-      before_install:
-        - sudo apt-get -qq update
-        - sudo apt-get install -y libboost-test-dev
-        - sudo apt-get install -y swig
-      script:
-        - cd $BUILD_HOME
-        - cmake ../ -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON ..
-        - cmake --build .
-        - cd tests
-        - ctest
-        - cd $SWMM_HOME 
-        - pip install --src build/packages -r tools/requirements.txt
-        - tools/before-test.sh $TEST_HOME $SWMM_HOME/$BUILD_HOME/bin $TRAVIS_COMMIT
-        - tools/run-nrtest.sh -c -t $TEST_HOME -v $TRAVIS_COMMIT
+    # - os: 'linux'
+    #   name: linux
+    #   python: 3.6
+    #   before_install:
+    #     - sudo apt-get -qq update
+    #     - sudo apt-get install -y libboost-test-dev
+    #     - sudo apt-get install -y swig
+    #   script:
+    #     - cd $BUILD_HOME
+    #     - cmake ../ -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON ..
+    #     - cmake --build .
+    #     - cd tests
+    #     - ctest
+    #     - cd $SWMM_HOME
+    #     - pip install --src build/packages -r tools/requirements.txt
+    #     - tools/before-test.sh $TEST_HOME $SWMM_HOME/$BUILD_HOME/bin $TRAVIS_COMMIT
+    #     - tools/run-nrtest.sh -c -t $TEST_HOME -v $TRAVIS_COMMIT
 
-    - os: osx
-      name: 'osx'
-      osx_image: xcode10
-      language: generic
-      before_install:
-        - brew update
-        - brew install libomp
-      script:
-        - cd $BUILD_HOME
-        - cmake ../ -DBUILD_TESTS=ON .. 
-        - cmake --build .
-        - cd tests
-        - ctest
-        - cd $SWMM_HOME 
+    # - os: osx
+    #   name: 'osx'
+    #   osx_image: xcode10
+    #   language: generic
+    #   before_install:
+    #     - brew update
+    #     - brew install libomp
+    #   script:
+    #     - cd $BUILD_HOME
+    #     - cmake ../ -DBUILD_TESTS=ON ..
+    #     - cmake --build .
+    #     - cd tests
+    #     - ctest
+    #     - cd $SWMM_HOME
 
-    - name: 'manylinux2010'
+    - name: 'manylinux2014'
       sudo: required
-      env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-           PLAT=manylinux2010_x86_64
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux2014_x86_64
+           PLAT=manylinux2014_x86_64
       services:
         - docker
       before_install:
         - docker pull $DOCKER_IMAGE
       script:
+        - mkdir -p wheelhouse/
         - docker run --rm -e PLAT=$PLAT -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/tools/build-wheels.sh
         - ls wheelhouse/
 
