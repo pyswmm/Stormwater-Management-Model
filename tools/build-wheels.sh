@@ -15,7 +15,7 @@ function repair_wheel {
 
 # Compile wheels
 for PYBIN in /opt/python/*/bin; do
-    "${PYBIN}/pip" install scikit-build pytest
+    "${PYBIN}/pip" install scikit-build
     "${PYBIN}/pip" wheel /io/ --no-deps -w wheelhouse/
 done
 
@@ -27,5 +27,5 @@ done
 # Install packages and test
 for PYBIN in /opt/python/*/bin/; do
     "${PYBIN}/pip" install swmm --no-index -f /io/wheelhouse
-    (cd "$HOME"; "${PYBIN}/pytest")
+    (cd "$HOME"; "run-swmm --version")
 done
