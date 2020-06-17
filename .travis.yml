@@ -9,12 +9,12 @@ matrix:
       # name: 'osx'
       osx_image: xcode10
       language: generic
-  # - name: 'manylinux2010'
-  #   sudo: required
-  #   env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-  #        PLAT=manylinux2010_x86_64
-  #   services:
-  #     - docker
+    - name: 'manylinux2010'
+      sudo: required
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+           PLAT=manylinux2010_x86_64
+      services:
+        - docker
 
 
 #compiler:
@@ -73,8 +73,8 @@ script:
       tools/run-nrtest.sh -c -t $TEST_HOME -v $TRAVIS_COMMIT ;
     fi
   - if [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
-      docker run --rm -e PLAT=$PLAT -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/tools/build-wheels.sh
-      ls wheelhouse/
+      docker run --rm -e PLAT=$PLAT -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/tools/build-wheels.sh ;
+      ls wheelhouse/ ;
     fi
   
 deploy:
