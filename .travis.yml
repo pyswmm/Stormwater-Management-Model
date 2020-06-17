@@ -63,11 +63,11 @@ script:
       cmake ../ -DBUILD_TESTS=ON .. ;
     fi
   - if ! [[ "$TRAVIS_JOB_NAME" == "manylinux2010" ]]; then
-      cmake --build .;
+      cmake --build . ;
       # run unit tests
-      cd tests;
-      ctest;
-      cd $SWMM_HOME;
+      cd tests ;
+      ctest ;
+      cd $SWMM_HOME ;
     fi
   - if [[ "$TRAVIS_JOB_NAME" == "linux" ]]; then
       pip install --src build/packages -r tools/requirements.txt ;
