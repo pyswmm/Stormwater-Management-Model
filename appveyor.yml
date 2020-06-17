@@ -44,8 +44,8 @@ init:
 
 install:
   # Install nrtest and dependencies for regression tests
-  - %PYTHON% -m pip install -r tools\requirements-appveyor.txt
-  - %PYTHON% -m pip install scikit-build
+  - '%PYTHON% -m pip install -r tools\requirements-appveyor.txt'
+  - '%PYTHON% -m pip install scikit-build'
 
 before_build:
   - mkdir %BUILD_HOME%
@@ -58,7 +58,7 @@ before_build:
 build_script:
   - cmake --build . --config Release
   - cd %SWMM_HOME%
-  - %PYTHON% setup.py build sdist bdist_wheel
+  - '%PYTHON% setup.py build sdist bdist_wheel'
 
 before_test:
   - cd %SWMM_HOME%
