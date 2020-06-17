@@ -44,7 +44,6 @@ matrix:
       before_install:
         - docker pull $DOCKER_IMAGE
       script:
-        - mkdir -p wheelhouse/
         - docker run --rm -e PLAT=$PLAT -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/tools/build-wheels.sh
         - ls wheelhouse/
 
