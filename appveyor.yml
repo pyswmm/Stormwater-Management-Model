@@ -55,7 +55,7 @@ before_build:
 
 build_script:
   - cmake --build . --config Release
-  - python ./setup.py build sdist bdist_wheel
+  - python %SWMM_HOME%/setup.py build sdist bdist_wheel
 
 before_test:
   - cd %SWMM_HOME%
