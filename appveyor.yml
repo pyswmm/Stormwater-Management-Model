@@ -101,7 +101,8 @@ for:
       - '%PYTHON% setup.py build bdist_wheel'
     on_success:
       # - cd dist
-      - appveyor PushArtifact dist\*.*
+      # - appveyor PushArtifact *.whl
+      - ps: Get-ChildItem .\*.whl | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 
 
