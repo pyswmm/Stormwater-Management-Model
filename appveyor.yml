@@ -13,21 +13,21 @@ matrix:
 
 environment:
   matrix:
-    # Python 3.4
+    # Python 3.6, as in travis.yml
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       GENERATOR: "Visual Studio 15 2017"
       GROUP: "SUPPORTED"
       BOOST_ROOT: "C:/Libraries/boost_1_67_0"
       PLATFORM: "win32"
       REF_BUILD_ID: "323_1"
-      PYTHON: 'C:\Python34'
+      PYTHON: 'C:\Python36\\python.exe'
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       GENERATOR: "Visual Studio 15 2017 Win64"
       GROUP: "EXPERIMENTAL"
       BOOST_ROOT: "C:/Libraries/boost_1_67_0"
       PLATFORM: "win64"
       REF_BUILD_ID: "323_2"
-      PYTHON: 'C:\Python34-x64'
+      PYTHON: 'C:\Python36-x64\\python.exe'
 
 init:
   - set SUT_BUILD_ID=%APPVEYOR_BUILD_NUMBER%_%APPVEYOR_JOB_NUMBER%
