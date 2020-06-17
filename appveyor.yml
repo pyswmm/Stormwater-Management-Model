@@ -55,7 +55,8 @@ before_build:
 
 build_script:
   - cmake --build . --config Release
-  - python %SWMM_HOME%/setup.py build sdist bdist_wheel
+  - cd %SWMM_HOME%
+  - python setup.py build sdist bdist_wheel
 
 before_test:
   - cd %SWMM_HOME%
@@ -77,6 +78,8 @@ on_success:
   - appveyor PushArtifact run-swmm.exe 
   - appveyor PushArtifact swmm5.dll
   - appveyor PushArtifact swmm-output.dll
+  - cd %SWMM_HOME%\dist
+  - appveyor PushArtifact *
   
 on_failure:
   - cd %TEST_HOME%\benchmark
