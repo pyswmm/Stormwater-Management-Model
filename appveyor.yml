@@ -98,13 +98,12 @@ for:
       - '%PYTHON% -m pip install scikit-build'
 
     build_script:
-      - '%PYTHON% setup.py build bdist_wheel'
+      # - '%PYTHON% setup.py build bdist_wheel'
+      - '%PYTHON% -m pip wheel . --no-deps -w dist'
     on_success:
-      # - cd dist
+      - cd dist
       # - appveyor PushArtifact *.whl
       - ps: Get-ChildItem .\*.whl | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-
-
 
 #cache:
 #  - C:\ProgramData\chocolatey\bin -> appveyor.yml
