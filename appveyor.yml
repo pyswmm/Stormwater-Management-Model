@@ -13,7 +13,7 @@ matrix:
 
 environment:
   matrix:
-    Python 3.6, as in travis.yml
+    # Python 3.6, as in travis.yml
     - job_name: "win32"
       job_group: "std_build"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
