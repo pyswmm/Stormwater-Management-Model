@@ -19,9 +19,9 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Topic :: Software Development :: Libraries"]
 
 DESCR = "OWA Stormwater Management Model "
-LONG_DESCR = """SWMM is a dynamic hydrology-hydraulic water quality simulation model. It is 
-                used for single event or long-term (continuous) simulation of runoff quantity 
-                and quality from primarily urban areas."""
+LONG_DESCR = ("SWMM is a dynamic hydrology-hydraulic water quality simulation model. "
+              "It is used for single event or long-term (continuous) simulation of runoff quantity "
+              "and quality from primarily urban areas.")
 
 metadata = dict(name='swmm',
                 version=VERSION,
