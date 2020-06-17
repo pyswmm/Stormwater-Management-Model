@@ -94,11 +94,11 @@ for:
       only:
         - job_group: "wheel"
     install:
-      - '%PYTHON3% -m pip install --upgrade pip'
-      - '%PYTHON3% -m pip install scikit-build'
+      - '%PYTHON% -m pip install --upgrade pip'
+      - '%PYTHON% -m pip install scikit-build'
 
     build_script:
-      - '%PYTHON3% setup.py build bdist_wheel'
+      - '%PYTHON% setup.py build bdist_wheel'
     on_success:
       - cd dist
       - appveyor PushArtifact *
