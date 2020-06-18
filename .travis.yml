@@ -45,7 +45,7 @@ matrix:
       name: 'osx wheel'
       osx_image: xcode10
       language: generic
-      before_install:
+      install:
         - brew update
         - brew install libomp
         - pip install --upgrade pip
