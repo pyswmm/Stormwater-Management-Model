@@ -23,16 +23,3 @@ done
 for whl in wheelhouse/*.whl; do
     repair_wheel "$whl"
 done
-
-# Install packages and test
-for PYBIN in /opt/python/*/bin/; do
-    cd "$HOME"
-    mkdir -p local
-    "${PYBIN}/pip" install swmm --no-index -f /io/wheelhouse --prefix ./local
-    ls -R ./local
-    printenv
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/local/lib
-    ldd ./local/bin/run-swmm
-    chmod a-s ./local/bin/run-swmm
-    ./local/bin/run-swmm --version
-done

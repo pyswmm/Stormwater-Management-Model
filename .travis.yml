@@ -35,6 +35,18 @@ matrix:
     #     - ctest
     #     - cd $SWMM_HOME
 
+    - os: osx
+      name: 'osx wheel'
+      osx_image: xcode10
+      language: generic
+      before_install:
+        - brew update
+        - brew install libomp
+        - pip install --upgrade pip
+        - pip install scikit-build
+      script:
+        - pip wheel . --no-deps -w dist
+
     - name: 'manylinux2014'
       sudo: required
       env: DOCKER_IMAGE=quay.io/pypa/manylinux2014_x86_64
