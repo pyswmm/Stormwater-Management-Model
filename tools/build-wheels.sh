@@ -32,5 +32,6 @@ for PYBIN in /opt/python/*/bin/; do
     ls -R ./local
     printenv
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/local
+    ldd ./local/bin/run-swmm
     ./local/bin/run-swmm --version
 done
