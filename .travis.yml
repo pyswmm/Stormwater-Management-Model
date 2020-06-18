@@ -1,5 +1,10 @@
 language: python
 
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+
 matrix:
   include:
     # - os: 'linux'
@@ -22,6 +27,7 @@ matrix:
 
     # - os: osx
     #   name: 'osx'
+    #   python: 3.6
     #   osx_image: xcode10
     #   language: generic
     #   before_install:
@@ -48,6 +54,7 @@ matrix:
         - pip wheel . --no-deps -w dist
 
     - name: 'manylinux2014'
+      python: "3.6"
       sudo: required
       env: DOCKER_IMAGE=quay.io/pypa/manylinux2014_x86_64
            PLAT=manylinux2014_x86_64
