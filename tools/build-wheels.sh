@@ -27,8 +27,5 @@ done
 # Install packages and test
 for PYBIN in /opt/python/*/bin/; do
     "${PYBIN}/pip" install swmm --no-index -f /io/wheelhouse --prefix .
-    ls .
-    ls ./bin
-    ls ./lib
-    (cd "$HOME"; "./bin/run-swmm --version")
+    ./bin/run-swmm --version
 done
