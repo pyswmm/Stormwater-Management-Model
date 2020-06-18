@@ -2,39 +2,39 @@ language: python
 
 matrix:
   include:
-    # - os: 'linux'
-    #   name: linux
-    #   python: 3.6
-    #   before_install:
-    #     - sudo apt-get -qq update
-    #     - sudo apt-get install -y libboost-test-dev
-    #     - sudo apt-get install -y swig
-    #   script:
-    #     - cd $BUILD_HOME
-    #     - cmake ../ -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON ..
-    #     - cmake --build .
-    #     - cd tests
-    #     - ctest
-    #     - cd $SWMM_HOME
-    #     - pip install --src build/packages -r tools/requirements.txt
-    #     - tools/before-test.sh $TEST_HOME $SWMM_HOME/$BUILD_HOME/bin $TRAVIS_COMMIT
-    #     - tools/run-nrtest.sh -c -t $TEST_HOME -v $TRAVIS_COMMIT
+    - os: 'linux'
+      name: linux
+      python: 3.6
+      before_install:
+        - sudo apt-get -qq update
+        - sudo apt-get install -y libboost-test-dev
+        - sudo apt-get install -y swig
+      script:
+        - cd $BUILD_HOME
+        - cmake ../ -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON ..
+        - cmake --build .
+        - cd tests
+        - ctest
+        - cd $SWMM_HOME
+        - pip install --src build/packages -r tools/requirements.txt
+        - tools/before-test.sh $TEST_HOME $SWMM_HOME/$BUILD_HOME/bin $TRAVIS_COMMIT
+        - tools/run-nrtest.sh -c -t $TEST_HOME -v $TRAVIS_COMMIT
 
-    # - os: osx
-    #   name: 'osx'
-    #   python: 3.6
-    #   osx_image: xcode10
-    #   language: generic
-    #   before_install:
-    #     - brew update
-    #     - brew install libomp
-    #   script:
-    #     - cd $BUILD_HOME
-    #     - cmake ../ -DBUILD_TESTS=ON ..
-    #     - cmake --build .
-    #     - cd tests
-    #     - ctest
-    #     - cd $SWMM_HOME
+    - os: osx
+      name: 'osx'
+      python: 3.6
+      osx_image: xcode10
+      language: generic
+      before_install:
+        - brew update
+        - brew install libomp
+      script:
+        - cd $BUILD_HOME
+        - cmake ../ -DBUILD_TESTS=ON ..
+        - cmake --build .
+        - cd tests
+        - ctest
+        - cd $SWMM_HOME
 
     - os: osx
       name: 'osx wheel'
