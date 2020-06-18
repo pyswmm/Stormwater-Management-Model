@@ -93,12 +93,17 @@ for:
     matrix:
       only:
         - job_group: "wheel"
-    install:
-      - '%PYTHON% -m pip install --upgrade pip'
-      - '%PYTHON% -m pip install scikit-build'
+    script:
+      - ps: ($PYBIN in C:\Python3?-x64\\python.exe){
+        '& $PYBIN -m pip install --upgrade pip'
+        '& $PYBIN -m pip install scikit-build'
+        '& $PYBIN -m pip wheel . --no-deps -w dist'
+      }
+      # - '%PYTHON% -m pip install --upgrade pip'
+      # - '%PYTHON% -m pip install scikit-build'
 
-    build_script:
-      - '%PYTHON% -m pip wheel . --no-deps -w dist'
+    # build_script:
+    #   - '%PYTHON% -m pip wheel . --no-deps -w dist'
     on_success:
       - cd dist
       - ps: Get-ChildItem .\*.whl | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
