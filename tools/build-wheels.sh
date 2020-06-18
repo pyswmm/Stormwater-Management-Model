@@ -15,6 +15,7 @@ function repair_wheel {
 
 # Compile wheels
 for PYBIN in /opt/python/*/bin; do
+    echo "${PYBIN}"
     "${PYBIN}/pip" install scikit-build
     "${PYBIN}/pip" wheel /io/ --no-deps -w wheelhouse/
 done
