@@ -31,7 +31,8 @@ for PYBIN in /opt/python/*/bin/; do
     "${PYBIN}/pip" install swmm --no-index -f /io/wheelhouse --prefix ./local
     ls -R ./local
     printenv
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/local
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/local/lib
     ldd ./local/bin/run-swmm
+    chmod a-s /local/bin/run-swmm
     ./local/bin/run-swmm --version
 done
