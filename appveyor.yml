@@ -14,22 +14,22 @@ matrix:
 environment:
   matrix:
     # Python 3.6, as in travis.yml
-    - job_name: "win32"
-      job_group: "std_build"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      GENERATOR: "Visual Studio 15 2017"
-      GROUP: "SUPPORTED"
-      BOOST_ROOT: "C:/Libraries/boost_1_67_0"
-      PLATFORM: "win32"
-      REF_BUILD_ID: "323_1"
-    - job_name: "win64"
-      job_group: "std_build"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      GENERATOR: "Visual Studio 15 2017 Win64"
-      GROUP: "EXPERIMENTAL"
-      BOOST_ROOT: "C:/Libraries/boost_1_67_0"
-      PLATFORM: "win64"
-      REF_BUILD_ID: "323_2"
+    # - job_name: "win32"
+    #   job_group: "std_build"
+    #   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    #   GENERATOR: "Visual Studio 15 2017"
+    #   GROUP: "SUPPORTED"
+    #   BOOST_ROOT: "C:/Libraries/boost_1_67_0"
+    #   PLATFORM: "win32"
+    #   REF_BUILD_ID: "323_1"
+    # - job_name: "win64"
+    #   job_group: "std_build"
+    #   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    #   GENERATOR: "Visual Studio 15 2017 Win64"
+    #   GROUP: "EXPERIMENTAL"
+    #   BOOST_ROOT: "C:/Libraries/boost_1_67_0"
+    #   PLATFORM: "win64"
+    #   REF_BUILD_ID: "323_2"
     - job_name: "win64_wheel"
       job_group: "wheel"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -94,11 +94,7 @@ for:
       only:
         - job_group: "wheel"
     script:
-      - ps: ($PYBIN in C:\Python3?-x64\\python.exe){
-        '& $PYBIN -m pip install --upgrade pip'
-        '& $PYBIN -m pip install scikit-build'
-        '& $PYBIN -m pip wheel . --no-deps -w dist'
-      }
+      - ps: tools\build_wheels.ps1
       # - '%PYTHON% -m pip install --upgrade pip'
       # - '%PYTHON% -m pip install scikit-build'
 
