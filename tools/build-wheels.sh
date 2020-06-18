@@ -29,5 +29,7 @@ for PYBIN in /opt/python/*/bin/; do
     cd "$HOME"
     mkdir -p local
     "${PYBIN}/pip" install swmm --no-index -f /io/wheelhouse --prefix ./local
+    ls ./local
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/local
     ./local/bin/run-swmm --version
 done
