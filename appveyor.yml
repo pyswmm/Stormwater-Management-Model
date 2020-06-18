@@ -93,7 +93,7 @@ for:
     matrix:
       only:
         - job_group: "wheel"
-    script:
+    build_script:
       - ps: tools\build_wheels.ps1
       # - '%PYTHON% -m pip install --upgrade pip'
       # - '%PYTHON% -m pip install scikit-build'
