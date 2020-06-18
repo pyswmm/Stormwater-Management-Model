@@ -33,6 +33,6 @@ for PYBIN in /opt/python/*/bin/; do
     printenv
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/local/lib
     ldd ./local/bin/run-swmm
-    chmod a-s /local/bin/run-swmm
+    chmod a-s ./local/bin/run-swmm
     ./local/bin/run-swmm --version
 done
