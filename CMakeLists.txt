@@ -8,6 +8,10 @@
 # Modified by: Michael E. Tryby
 #              US EPA ORD/NRMRL
 # 
+# Modified by: Velitchko G. Tzatchkov
+#              IMTA (Mexican Institute of Water Technology)
+#	       June 29, 2020
+# 
 
 cmake_minimum_required (VERSION 3.0)
 

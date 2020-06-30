@@ -28,10 +28,11 @@
 int opening_findCouplingType(double crestElev, double nodeHead, double overlandHead, 
                              double overflowArea, double weirWidth)
 //
-//  Input:   nodeHead = water elevation in the node (ft)
-//           crestElev = elevation of the node crest (= ground) (ft)
+//  Input:   crestElev = elevation of the node crest (= ground) (ft)
+//           nodeHead = water elevation in the node (ft)
 //           overlandHead = water elevation in the overland model (ft)
-//           ...
+//           overflowArea = node surface area (ft2)
+//           weirWidth = weir width (ft)
 //  Output:  Type of Coupling
 //  Purpose: determine the coupling type of an opening
 //           according the the relative water elevations in node and surface
@@ -56,8 +57,7 @@ int opening_findCouplingType(double crestElev, double nodeHead, double overlandH
 
     // --- set the coupling type
     if ( !overflow && !drainage ) return NO_COUPLING_FLOW;
-    else if ( overflowOrifice || drainageOrifice )
-        return ORIFICE_COUPLING;
+    else if ( overflowOrifice || drainageOrifice ) return ORIFICE_COUPLING;
     else if ( submergedWeir ) return SUBMERGED_WEIR_COUPLING;
     else if ( freeWeir ) return FREE_WEIR_COUPLING;
     else return NO_COUPLING_FLOW;
@@ -68,10 +68,14 @@ double opening_findCouplingInflow(int couplingType, double crestElev,
                                 double freeWeirCoeff, double subWeirCoeff, double overflowArea, 
                                 double weirWidth)
 //
-//  Input:   nodeHead = water elevation in the node (ft)
+//  Input:   couplingType = Type of Coupling
+//           nodeHead = water elevation in the node (ft)
 //           crestElev = elevation of the node crest (= ground) (ft)
 //           overlandHead = water elevation in the overland model (ft)
-//           ..
+//           orificeCoeff = orifice coefficient
+//           freeWeirCoeff = free weir coefficient
+//           overflowArea = node surface area (ft2)
+//           weirWidth = weir width (ft)
 //  Output:  the flow entering through the opening (ft3/s)
 //  Purpose: computes the coupling flow of the opening
 //
@@ -98,7 +102,7 @@ double opening_findCouplingInflow(int couplingType, double crestElev,
                              pow(depthUp, exponente) * sqrt2g;
             break;
         case SUBMERGED_WEIR_COUPLING:
-            sweir_v = sqrt(2. * GRAVITY * depthUp);
+            sweir_v = sqrt(2. * GRAVITY * headDiff);
             u_couplingFlow = subWeirCoeff * weirWidth * depthUp * sweir_v;
             break;
         default: u_couplingFlow = 0.0; break;
@@ -119,7 +123,7 @@ double opening_findCouplingInflow(int couplingType, double crestElev,
 //=============================================================================
 void coupling_adjustInflows(TCoverOpening* opening, double inflowAdjustingFactor)
 //
-//  Input:   opening = ...
+//  Input:   opening = pointer to node opening data
 //           inflowAdjustingFactor = an inflow adjusting coefficient
 //  Output:  none
 //  Purpose: adjust the inflow according to an adjusting factor
@@ -139,9 +143,12 @@ double coupling_findNodeInflow(double tStep, double Node_invertElev, double Node
 							   TCoverOpening * opening, double Node_couplingArea)
 //
 //  Input:   tStep = time step of the drainage model (s)
+//           Node_invertElev = invert elevation (ft)
+//           Node_fullDepth = dist. from invert to surface (ft)
+//           Node_newDepth = current water depth (ft)
 //           overlandDepth = water depth in the overland model (ft)
-//           overlandSurfArea = surface in the overland model that is coupled to this node (ft2)
-//           ...
+//           opening = pointer to node opening data
+//           Node_couplingArea = coupling area in the overland model (ft2)
 //  Output:  coupling inflow
 //  Purpose: compute the coupling inflow for each node's opening].overlandDepth
 //
@@ -164,14 +171,18 @@ double coupling_findNodeInflow(double tStep, double Node_invertElev, double Node
     while ( opening )
     {
         // --- do nothing if not coupled
-        if ( opening->couplingType == NO_COUPLING ) continue;
+        if ( opening->couplingType == NO_COUPLING) 
+        {
+            opening = opening->next;
+            continue;
+        }
         // --- compute types and inflows
         opening->couplingType = opening_findCouplingType(crestElev, nodeHead, overlandHead, opening->area, opening->length);
         opening->newInflow = opening_findCouplingInflow(opening->couplingType, crestElev, nodeHead, overlandHead,
                                                         opening->coeffOrifice, opening->coeffFreeWeir, 
                                                         opening->coeffSubWeir, opening->area, 
                                                         opening->length);
-        // --- prevent oscillations
+       // --- prevent oscillations
         inflow2outflow = (opening->oldInflow > 0.0) && (opening->newInflow < 0.0);
         outflow2inflow = (opening->oldInflow < 0.0) && (opening->newInflow > 0.0);
         if (inflow2outflow || outflow2inflow)
@@ -187,7 +198,6 @@ double coupling_findNodeInflow(double tStep, double Node_invertElev, double Node
     if (totalCouplingInflow > 0.0)
     {
         rawMaxInflow = (Node_overlandDepth * Node_couplingArea) / tStep;
-        // maxInflow = fmin(rawMaxInflow, totalCouplingInflow);
         maxInflow = fmin(rawMaxInflow, totalCouplingInflow);
         inflowAdjustingFactor = maxInflow / totalCouplingInflow;
         coupling_adjustInflows(First_opening, inflowAdjustingFactor);
@@ -281,11 +291,13 @@ int coupling_closeOpening(int j, int idx)
 
     // --- Find the opening
     opening = Node[j].coverOpening;
+
     while ( opening )
     {
         if ( opening->ID == idx ) break;
         opening = opening->next;
     }
+
     // --- if opening doesn't exist, return an error
     if ( opening == NULL )
     {
@@ -295,6 +307,7 @@ int coupling_closeOpening(int j, int idx)
     // --- Close the opening
     opening->couplingType  = NO_COUPLING;
     return 0;
+
 }
 
 //=============================================================================
@@ -378,7 +391,6 @@ int coupling_setOpening(int j, int idx, int oType, double A, double l, double Co
     opening->couplingType  = NO_COUPLING_FLOW;
     opening->oldInflow     = 0.0;
     opening->newInflow     = 0.0;
-
     return(errcode);
 }
 
@@ -464,6 +476,7 @@ void coupling_deleteOpenings(int j)
         free(opening1);
         opening1 = opening2;
     }
+    Node[j].coverOpening = NULL;
 }
 
 //=============================================================================
