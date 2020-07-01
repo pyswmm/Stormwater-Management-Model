@@ -116,7 +116,27 @@ typedef enum {
     SM_SURCHDEPTH   = 2,  /**< Surcharge Depth */
     SM_PONDAREA     = 3,  /**< Ponding Area */
     SM_INITDEPTH    = 4,  /**< Initial Depth */
+	SM_RDIIIND      = 5,  /**< Unit hydrograph index */
+	SM_RDIIAREA     = 6,  /**< Contributing area for the node */
 } SM_NodeProperty;
+
+/// Unit hydrograph property codes
+typedef enum {
+	SM_RTK_ALL = 0,  /**< RTK for ALL */
+	SM_RTK_JAN = 1,  /**< RTK for JAN */
+	SM_RTK_FEB = 2,  /**< RTK for FEB */
+	SM_RTK_MAR = 3,  /**< RTK for MAR */
+	SM_RTK_APR = 4,  /**< RTK for APR */
+	SM_RTK_MAY = 5,  /**< RTK for MAY */
+	SM_RTK_JUN = 6,  /**< RTK for JUN */
+	SM_RTK_JUL = 7,  /**< RTK for JUL */
+	SM_RTK_AUG = 8,  /**< RTK for AUG */
+	SM_RTK_SEP = 9,  /**< RTK for SEP */
+	SM_RTK_OCT = 10, /**< RTK for OCT */
+	SM_RTK_NOV = 11, /**< RTK for NOV */
+	SM_RTK_DEC = 12, /**< RTK for DEC */
+	SM_RAINGAGE = 13,  /**< Rain gage for the hydrograph */
+} SM_HydrographProp;
 
 /// Link property codes
 typedef enum {
@@ -1115,6 +1135,25 @@ int DLLEXPORT swmm_setOutfallStage(int index, double stage);
 @return Error code
 */
 int DLLEXPORT swmm_setGagePrecip(int index, double total_precip);
+
+/**
+@brief Get rtk values for a specified hydrograph.
+@param index The index of a hydrograph
+@param Param The property type code(See @ref SM_HydrographProp)
+@param[out] rdii_array The rtk values of the hydrograph.
+@return Error code
+*/
+int DLLEXPORT swmm_getRDIIParams(int index, int Param, double *rdii_array);
+
+/**
+@brief Set rtk values for a specified hydrograph.
+@param index The index of a hydrograph
+@param Param The property type code(See @ref SM_HydrographProp)
+@param[out] value The rtk values of the hydrograph to be set.
+@return Error code
+*/
+int DLLEXPORT swmm_setRDIIParams(int index, int Param, double *value);
+
 
 /**
  @brief Helper function to free memory array allocated in SWMM.

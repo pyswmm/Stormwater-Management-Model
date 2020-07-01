@@ -560,6 +560,10 @@ int DLLEXPORT swmm_getNodeParam(int index, int Param, double *value)
                 *value = Node[index].pondedArea * UCF(LENGTH) * UCF(LENGTH); break;
             case SM_INITDEPTH:
                 *value = Node[index].initDepth * UCF(LENGTH); break;
+			case SM_RDIIIND:
+				*value = (double)Node[index].rdiiInflow->unitHyd; break;
+			case SM_RDIIAREA:
+				*value = Node[index].rdiiInflow->area * UCF(LANDAREA); break;
             default: error_code_index = ERR_API_OUTBOUNDS; break;
         }
     }
@@ -575,6 +579,7 @@ int DLLEXPORT swmm_setNodeParam(int index, int Param, double value)
 /// Purpose: Sets Node Parameter
 {
     int error_code_index = 0;
+	int unit_hyd_index = -1;
     // Check if Open
     if(swmm_IsOpenFlag() == FALSE)
     {
@@ -604,6 +609,25 @@ int DLLEXPORT swmm_setNodeParam(int index, int Param, double value)
                 Node[index].pondedArea = value / ( UCF(LENGTH) * UCF(LENGTH) ); break;
             case SM_INITDEPTH:
                 Node[index].initDepth = value / UCF(LENGTH); break;
+			case SM_RDIIIND:
+				unit_hyd_index = (int)round(value);
+				if (unit_hyd_index < 0 || unit_hyd_index >= Nobjects[SM_UNITHYD]) 
+				{
+					error_code_index = ERR_API_OBJECT_INDEX; break;
+				}
+				else 
+				{
+					Node[index].rdiiInflow->unitHyd = unit_hyd_index; break;
+				}
+			case SM_RDIIAREA:
+				if (value < 0.0) 
+				{
+					error_code_index = ERR_RDII_AREA; break;
+				}
+				else 
+				{
+					Node[index].rdiiInflow->area = value / UCF(LANDAREA); break;
+				}
             default: error_code_index = ERR_API_OUTBOUNDS; break;
         }
     }
@@ -2616,6 +2640,120 @@ int DLLEXPORT swmm_getLidUResult(int index, int lidIndex, int type, double *resu
         }
     }
     return error_getCode(error_code_index);
+}
+
+int DLLEXPORT swmm_getRDIIParams(int index, int Param, double *rdii_array)
+///
+/// Input:   index = Index of the desired hydrograph
+///			 Param = number from (0 through 12) to indicate month index (0 = ALL)
+/// Output:  an 1d-array of size 18 containing the rtk and ia values of the hydrograph 
+///          in a columnwise fashion (as they are structured in the INP file).
+/// Return:  API Error
+/// Purpose: get all information about a particular hydrograph
+{
+	int errcode = 0;
+	int m = Param;  // month index
+	int i;
+	double t, k;
+
+	// Check if Open
+	if (swmm_IsOpenFlag() == FALSE) {
+		errcode = ERR_API_INPUTNOTOPEN;
+	}
+	// Check if object index is within bounds
+	else if (index < 0 || index >= Nobjects[UNITHYD]) {
+		errcode = ERR_API_OBJECT_INDEX;
+	}
+	else if (m < 0 || m > 12) {
+		errcode = ERR_API_OUTBOUNDS;
+	}
+	else {
+		if (m > 0) m--;
+		for (i = 0; i < 3; i++) {
+			rdii_array[i] = UnitHyd[index].r[m][i];
+			t = (double)UnitHyd[index].tPeak[m][i];
+			k = (double)UnitHyd[index].tBase[m][i];
+			k = k / t - 1;
+			t /= 3600.0;  // seconds to hour
+			rdii_array[i + 3] = t;
+			rdii_array[i + 6] = k;
+			rdii_array[i + 9] = UnitHyd[index].iaMax[m][i];
+			rdii_array[i + 12] = UnitHyd[index].iaRecov[m][i];
+			rdii_array[i + 15] = UnitHyd[index].iaInit[m][i];
+		}
+	}
+	return (errcode);
+}
+
+int DLLEXPORT swmm_setRDIIParams(int index, int Param, double *value)
+///
+/// Input:   index = Index of desired unit hydrograph
+///          value = a 1-d array of 18 doubles containing rtk values to be set. 
+///                  The array should be ordered in columnwise fashion
+///					 as entered in the INP file with the same units, e.g., 
+///					 value[0] = r1, value[1] = r2, value[2] = r3, 
+///					 value[4] = t1, value[5] = t2, ...
+/// Output:  returns API Error
+/// Purpose: Sets RTK and IA values for a unit hydrograph
+{
+	int errcode = 0;
+	int m = Param;  // month index
+	int i, im, m1, m2;
+	double t, k;
+	long seconds;
+
+	// Check if values passed are all positive
+	for (i = 0; i < 18; i++) {
+		if (value[i] < 0) {
+			errcode = ERR_UNITHYD_RATIOS;
+			break;
+		}
+	}
+	// Check if sum of R values are <= 1
+	if ((value[0] + value[1] + value[2]) > 1.01) {
+		errcode = ERR_UNITHYD_RATIOS;
+	}
+	// Check if Open
+	if (!errcode && (swmm_IsOpenFlag() == FALSE)) {
+		errcode = ERR_API_INPUTNOTOPEN;
+	}
+	else if (swmm_IsStartedFlag() == TRUE) {
+		errcode = ERR_API_SIM_NRUNNING;
+	}
+	// Check if object index is within bounds
+	else if (index < 0 || index >= Nobjects[UNITHYD]) {
+		errcode = ERR_API_OBJECT_INDEX;
+	}
+	else if (m < 0 || m > 12) {
+		errcode = ERR_API_OUTBOUNDS;
+	}
+	else {
+		if (m > 0) {
+			m1 = m - 1;
+			m2 = m1 + 1;
+		}
+		else {
+			m1 = 0;
+			m2 = m1 + 12;
+		}
+
+		for (im = m1; im < m2; im++) {
+			for (i = 0; i < 3; i++) {
+				UnitHyd[index].r[im][i] = value[i];
+				t = value[i + 3] * 3600;
+				seconds = (long)t;
+				UnitHyd[index].tPeak[im][i] = seconds;
+				k = value[i + 6];
+				k = (1 + k) * t;  // tbase
+				seconds = (long)k;
+				UnitHyd[index].tBase[im][i] = seconds;
+				UnitHyd[index].iaMax[im][i] = value[i + 9];
+				UnitHyd[index].iaRecov[im][i] = value[i + 12];
+				UnitHyd[index].iaInit[im][i] = value[i + 15];
+			}
+		}
+	}
+	return error_getCode(errcode);
 }
 
 //-------------------------------
