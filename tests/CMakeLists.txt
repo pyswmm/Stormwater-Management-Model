@@ -71,7 +71,7 @@ option(BUILD_COVERAGE "Build library for coverage" OFF)
 
 # Adds a subdirectory to the build. Paths are relative to the directory
 # containing root CMakeLists.txt file.
-add_subdirectory( . /tools/swmm-output)
+add_subdirectory(tools/swmm-output)
 
 IF (BUILD_TESTS)
     add_subdirectory(. tests)
