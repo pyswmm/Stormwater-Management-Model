@@ -21,7 +21,7 @@
 
 
 # Sets for output directory for executables and libraries. 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} . /bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} ../bin)
 
 
 if(UNIX)
@@ -37,7 +37,7 @@ include_directories (${Boost_INCLUDE_DIRS})
 # Test files are a separate source directory called tests
 file(GLOB TEST_SRCS . tests/test_*.cpp)
 
-#add_library(coupling . src/coupling.c)
+#add_library(coupling . /src/coupling.c)
 
 #Run through each source
 foreach(testSrc ${TEST_SRCS})
@@ -71,7 +71,7 @@ option(BUILD_COVERAGE "Build library for coverage" OFF)
 
 # Adds a subdirectory to the build. Paths are relative to the directory
 # containing root CMakeLists.txt file.
-add_subdirectory(. tools/swmm-output)
+add_subdirectory( . /tools/swmm-output)
 
 IF (BUILD_TESTS)
     add_subdirectory(. tests)
@@ -158,7 +158,7 @@ set(CMAKE_C_FLAGS_DEBUG "-O0")
 
 # Creates swmm5 shared library
 add_library(swmm_objs OBJECT ${SWMM_SOURCES})
-add_library(swmm5 SHARED src/swmm5.c $<TARGET_OBJECTS:swmm_objs>)
+add_library(swmm5 SHARED . src/swmm5.c $<TARGET_OBJECTS:swmm_objs>)
 target_include_directories(swmm5 PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 
