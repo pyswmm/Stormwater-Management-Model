@@ -48,7 +48,6 @@ foreach(testSrc ${TEST_SRCS})
         add_executable(${testName} ${testSrc})
 
         #link to Boost libraries AND your targets and dependencies
-        #target_link_libraries(${testName} ${Boost_LIBRARIES} swmm5 swmm-output coupling)
         target_link_libraries(${testName} ${Boost_LIBRARIES} swmm5 swmm-output)
 
         #Finally add it to test execution - 
@@ -72,10 +71,10 @@ option(BUILD_COVERAGE "Build library for coverage" OFF)
 
 # Adds a subdirectory to the build. Paths are relative to the directory
 # containing root CMakeLists.txt file.
-add_subdirectory(tools/swmm-output)
+add_subdirectory(. tools/swmm-output)
 
 IF (BUILD_TESTS)
-    add_subdirectory(tests)
+    add_subdirectory(. tests)
 ENDIF (BUILD_TESTS)
 
 
@@ -141,8 +140,8 @@ endif(OPENMP_FOUND)
 
 
 # Set up file groups for exe and lib targets
-file(GLOB SWMM_SOURCES RELATIVE ${PROJECT_SOURCE_DIR} src/*.c)
-list(REMOVE_ITEM SWMM_SOURCES "src/swmm5.c")
+file(GLOB SWMM_SOURCES RELATIVE ${PROJECT_SOURCE_DIR} . src/*.c)
+list(REMOVE_ITEM SWMM_SOURCES ". src/swmm5.c")
 set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h ; include/coupling.h)
 #set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h)
 include_directories(include)
@@ -168,7 +167,7 @@ ELSE (BUILD_COVERAGE)
 
 # Creates swmm5 shared library
 add_library(swmm_objs OBJECT ${SWMM_SOURCES})
-add_library(swmm5 SHARED src/swmm5.c $<TARGET_OBJECTS:swmm_objs>)
+add_library(swmm5 SHARED . src/swmm5.c $<TARGET_OBJECTS:swmm_objs>)
 
 # Add includes and libraries to use when linking the swmm5 library
 target_include_directories(swmm5 PUBLIC ${PROJECT_SOURCE_DIR}/include)
@@ -185,7 +184,7 @@ ENDIF (BUILD_COVERAGE)
 
 
 # Creates the swmm5 command line executable
-add_executable(run-swmm src/swmm5.c $<TARGET_OBJECTS:swmm_objs> ${SWMM_API_HEADERS})
+add_executable(run-swmm . src/swmm5.c $<TARGET_OBJECTS:swmm_objs> ${SWMM_API_HEADERS})
 target_compile_definitions(run-swmm PRIVATE CLE=TRUE)
 if(NOT WIN32)
     target_link_libraries(run-swmm PUBLIC m pthread)
