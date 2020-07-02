@@ -12,14 +12,129 @@
 #define BOOST_TEST_MODULE "coupling"
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/data/test_case.hpp>
-#include "swmm5.h"
-#include "toolkitAPI.h"
-#include "enums.h"
-#include "error.h"
-#include "consts.h"
-#include "objects.h"
-#include "coupling.h"
+//#include "swmm5.h"
+//#include "toolkitAPI.h"
+//#include "enums.h"
+//#include "error.h"
+//#include "consts.h"
+//#include "objects.h"
 #include "test_toolkitapi_coupling.hpp"
+
+struct CoverOpening
+{
+   int            ID;              // opening index number
+   int            type;            // type of opening (grate, etc). From an enum
+   int            couplingType;    // type of surface coupling (enum SurfaceCouplingType)
+   double         area;            // area of the opening (ft2)
+   double         length;          // length of the opening (~circumference, ft)
+   double         coeffOrifice;    // orifice coefficient
+   double         coeffFreeWeir;   // free weir coefficient
+   double         coeffSubWeir;    // submerged weir coefficient
+   double         oldInflow;       // inflow during last time-step
+   double         newInflow;       // current inflow
+   struct CoverOpening* next;      // pointer to next opening data object
+};
+typedef struct CoverOpening TCoverOpening;
+
+struct ExtInflow
+{
+   int            param;         // pollutant index (flow = -1)
+   int            type;          // CONCEN or MASS
+   int            tSeries;       // index of inflow time series
+   int            basePat;       // baseline time pattern
+   double         cFactor;       // units conversion factor for mass inflow
+   double         baseline;      // constant baseline value
+   double         sFactor;       // time series scaling factor
+   double         extIfaceInflow;// external interfacing inflow
+   struct ExtInflow* next;       // pointer to next inflow data object
+};
+typedef struct ExtInflow TExtInflow;
+
+struct DwfInflow
+{
+   int            param;          // pollutant index (flow = -1)
+   double         avgValue;       // average value (cfs or concen.)
+   int            patterns[4];    // monthly, daily, hourly, weekend time patterns
+   struct DwfInflow* next;        // pointer to next inflow data object
+};
+typedef struct DwfInflow TDwfInflow;
+
+typedef struct
+{
+   int           unitHyd;         // index of unit hydrograph
+   double        area;            // area of sewershed (ft2)
+}  TRdiiInflow;
+
+//  Node in a tokenized math expression list
+struct ExprNode
+{
+    int    opcode;                // operator code
+    int    ivar;                  // variable index
+    double fvalue;                // numerical value
+	struct ExprNode *prev;        // previous node
+    struct ExprNode *next;        // next node
+};
+typedef struct ExprNode MathExpr;
+
+typedef struct
+{
+    int          treatType;       // treatment equation type: REMOVAL/CONCEN
+    MathExpr*    equation;        // treatment eqn. as tokenized math terms
+} TTreatment;
+
+typedef struct
+{
+   char*         ID;              // node ID
+   int           type;            // node type code
+   int           subIndex;        // index of node's sub-category
+   char          rptFlag;         // reporting flag
+   double        invertElev;      // invert elevation (ft)
+   double        initDepth;       // initial storage level (ft)
+   double        fullDepth;       // dist. from invert to surface (ft)
+   double        surDepth;        // added depth under surcharge (ft)
+   double        pondedArea;      // area filled by ponded water (ft2)
+   double        surfaceArea;     // area used to calculate node's volume (ft2)
+   TExtInflow*   extInflow;       // pointer to external inflow data
+   TDwfInflow*   dwfInflow;       // pointer to dry weather flow inflow data
+   TRdiiInflow*  rdiiInflow;      // pointer to RDII inflow data
+   TTreatment*   treatment;       // array of treatment data
+   //-----------------------------
+   TCoverOpening* coverOpening;   // pointer to node opening data
+   double        couplingArea;    // coupling area in the overland model (ft2)
+   double        overlandDepth;   // water depth in the overland model (ft)
+   double        couplingInflow;  // flow from the overland model (cfs)
+   //-----------------------------
+   int           degree;          // number of outflow links
+   char          updated;         // true if state has been updated
+   double        crownElev;       // top of highest flowing closed conduit (ft)
+   double        inflow;          // total inflow (cfs)
+   double        outflow;         // total outflow (cfs)
+   double        losses;          // evap + exfiltration loss (ft3)
+   double        oldVolume;       // previous volume (ft3)
+   double        newVolume;       // current volume (ft3)
+   double        fullVolume;      // max. storage available (ft3)
+   double        overflow;        // overflow rate (cfs)
+   double        oldDepth;        // previous water depth (ft)
+   double        newDepth;        // current water depth (ft)
+   double        oldLatFlow;      // previous lateral inflow (cfs)
+   double        newLatFlow;      // current lateral inflow (cfs)
+   double*       oldQual;         // previous quality state
+   double*       newQual;         // current quality state
+   double        oldFlowInflow;   // previous flow inflow
+   double        oldNetInflow;    // previous net inflow
+}  TNode;
+
+enum  OverlandCouplingType {
+      NO_COUPLING,
+      NO_COUPLING_FLOW,
+      ORIFICE_COUPLING,
+      FREE_WEIR_COUPLING,
+      SUBMERGED_WEIR_COUPLING};
+
+#include "coupling.h"
+
+#define MAX_OBJ_TYPES 16
+#define ERR_NONE 0
 
 // The following two declarations are required by coupling.c to work
 TNode* Node = new TNode[2];

@@ -144,6 +144,7 @@ endif(OPENMP_FOUND)
 file(GLOB SWMM_SOURCES RELATIVE ${PROJECT_SOURCE_DIR} src/*.c)
 list(REMOVE_ITEM SWMM_SOURCES "src/swmm5.c")
 set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h ; include/coupling.h)
+#set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h)
 include_directories(include)
 
 

@@ -27,7 +27,7 @@ extern "C" {
 
 #define _CRT_SECURE_NO_DEPRECATE
 
-#include "../include/datetime.h"
+#include "../src/datetime.h"
 
 /// Object type codes
 typedef enum {
