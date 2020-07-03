@@ -112,6 +112,7 @@
 #include "text.h"                      // listing of all text strings 
 #define  EXTERN                        // defined as 'extern' in headers.h
 #include "globals.h"                   // declaration of all global variables
+#include "coupling.h"                  // declaration of coupling functions
 
 #include "swmm5.h"                     // declaration of exportable functions
 #include "toolkitAPI.h"
