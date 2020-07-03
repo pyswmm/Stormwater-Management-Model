@@ -30,7 +30,7 @@ find_package(Boost REQUIRED)
 include_directories (${Boost_INCLUDE_DIRS})
 
 # Test files are a separate source directory called tests
-file(GLOB TEST_SRCS . tests/test_*.cpp)
+file(GLOB TEST_SRCS . /tests/test_*.cpp)
 
 #add_library(coupling . /src/coupling.c)
 
