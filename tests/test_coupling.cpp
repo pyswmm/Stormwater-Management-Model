@@ -131,6 +131,16 @@ enum  OverlandCouplingType {
       FREE_WEIR_COUPLING,
       SUBMERGED_WEIR_COUPLING};
 
+#define   GRAVITY            32.2           // accel. of gravity in US units
+#define MAX_OBJ_TYPES 16
+#define ERR_NONE 0
+#define ERR_API_OBJECT_INDEX 505
+#define ERR_MEMORY 101
+
+// The following two declarations are required by coupling.c to work
+TNode* Node = new TNode[2];
+int Nobjects[MAX_OBJ_TYPES];
+
 //#include "coupling.h"
 
 int opening_findCouplingType(double crestElev, double nodeHead, double overlandHead, 
@@ -417,7 +427,8 @@ int coupling_setOpening(int j, int idx, int oType, double A, double l, double Co
         opening = (TCoverOpening *) malloc(sizeof(TCoverOpening));
         if ( opening == NULL )
         {
-            return error_setInpError(ERR_MEMORY, "");
+            //return error_setInpError(ERR_MEMORY, "");
+            return 101;
         }
         opening->next = Node[j].coverOpening;
         Node[j].coverOpening = opening;
@@ -524,14 +535,6 @@ void coupling_deleteOpenings(int j)
 }
 
 //=============================================================================
-
-
-#define MAX_OBJ_TYPES 16
-#define ERR_NONE 0
-
-// The following two declarations are required by coupling.c to work
-TNode* Node = new TNode[2];
-int Nobjects[MAX_OBJ_TYPES];
 
 int couplingType;
 double CouplingInflow;
