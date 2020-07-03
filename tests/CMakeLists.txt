@@ -49,5 +49,5 @@ foreach(testSrc ${TEST_SRCS})
         #Notice the WORKING_DIRECTORY and COMMAND
         add_test(NAME ${testName}
                  COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${testName}  
-                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests/data)
+                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data)
 endforeach(testSrc)
