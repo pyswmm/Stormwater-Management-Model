@@ -30,7 +30,7 @@ endif(UNIX)
 
 
 #Prep ourselves for compiling boost
-#find_package(Boost REQUIRED)
+find_package(Boost REQUIRED)
 include_directories (${Boost_INCLUDE_DIRS})
 
 
