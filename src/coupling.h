@@ -1,8 +1,8 @@
 // --- use "C" linkage for C++ programs
 
-#ifdef __cplusplus
+//#ifdef __cplusplus
 extern "C" { 
-#endif 
+//#endif 
 
 int opening_findCouplingType(double crestElev, double nodeHead, double overlandHead, double overflowArea, double weirWidth);
 double opening_findCouplingInflow(int couplingType, double crestElev,
@@ -20,6 +20,6 @@ int coupling_openOpening(int j, int idx);
 int coupling_closeOpening(int j, int idx);
 void coupling_deleteOpenings(int j);
 
-#ifdef __cplusplus 
+//#ifdef __cplusplus 
 }   // matches the linkage specification from above */ 
-#endif
+//#endif
