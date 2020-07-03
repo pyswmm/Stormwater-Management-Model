@@ -17,7 +17,7 @@
 
 
 #Setup CMake to run tests
-#enable_testing()
+enable_testing()
 
 
 # Sets for output directory for executables and libraries. 
