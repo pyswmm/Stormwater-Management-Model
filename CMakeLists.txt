@@ -37,7 +37,7 @@ include_directories (${Boost_INCLUDE_DIRS})
 # Test files are a separate source directory called tests
 file(GLOB TEST_SRCS . tests/test_*.cpp)
 
-#add_library(coupling . src/coupling.c)
+add_library(coupling . src/coupling.c)
 
 #Run through each source
 foreach(testSrc ${TEST_SRCS})
@@ -48,8 +48,7 @@ foreach(testSrc ${TEST_SRCS})
         add_executable(${testName} ${testSrc})
 
         #link to Boost libraries AND your targets and dependencies
-        #target_link_libraries(${testName} ${Boost_LIBRARIES} swmm5 swmm-output coupling)
-        target_link_libraries(${testName} ${Boost_LIBRARIES} swmm5 swmm-output)
+        target_link_libraries(${testName} ${Boost_LIBRARIES} swmm5 swmm-output coupling)
 
         #Finally add it to test execution - 
         #Notice the WORKING_DIRECTORY and COMMAND
