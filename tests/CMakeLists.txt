@@ -13,7 +13,7 @@
 #	       June 29, 2020
 # 
 
-#cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.0)
 
 #Setup CMake to run tests
 enable_testing()
@@ -31,8 +31,6 @@ include_directories (${Boost_INCLUDE_DIRS})
 
 # Test files are a separate source directory called tests
 file(GLOB TEST_SRCS . test_*.cpp)
-
-#add_library(coupling . /src/coupling.c)
 
 #Run through each source
 foreach(testSrc ${TEST_SRCS})

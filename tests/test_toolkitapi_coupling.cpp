@@ -216,9 +216,9 @@ BOOST_FIXTURE_TEST_CASE(key_bounds_check, FixtureOpenClose) {
 // Testing for node get/set
 BOOST_FIXTURE_TEST_CASE(getset_node, FixtureOpenClose) {
 
-    int error, node_ind;
+    int error;
+    int node_ind = 1;
     double val;
-    char id[] = "O7";
 
     // Get/Set Node SM_SURFAREA (Coupling)
     error = swmm_getNodeParam(node_ind, SM_SURFAREA, &val); //Coupling
