@@ -62,7 +62,7 @@ before_test:
 test_script:
   # run unit tests
   - cd %BUILD_HOME%\tests
-  - ctest -C Release
+  - ctest -VV -C Release
     # Run regression tests
   - cd %SWMM_HOME%
   - tools\run-nrtest.cmd %REF_BUILD_ID% %SUT_BUILD_ID%
@@ -77,14 +77,10 @@ on_success:
   - appveyor PushArtifact swmm-output.dll
   
 on_failure:
-  - cd %SWMM_HOME%
-  - cd %BUILD_HOME%
-  #- cd %TEST_HOME%\benchmark
+  - cd %TEST_HOME%\benchmark
   # zip up the SUT benchmarks
-  #- 7z a benchmark-%PLATFORM%-%SUT_BUILD_ID%.zip .\swmm-%SUT_BUILD_ID%
-  - 7z a projectDirectory.zip C:/projects/stormwater-management-model/*.*
-  #- appveyor PushArtifact benchmark-%PLATFORM%-%SUT_BUILD_ID%.zip
-  - appveyor PushArtifact projectDirectory.zip
+  - 7z a benchmark-%PLATFORM%-%SUT_BUILD_ID%.zip .\swmm-%SUT_BUILD_ID%
+  - appveyor PushArtifact benchmark-%PLATFORM%-%SUT_BUILD_ID%.zip
 
 #cache:
 #  - C:\ProgramData\chocolatey\bin -> appveyor.yml
