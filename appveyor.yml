@@ -77,6 +77,7 @@ on_success:
   - appveyor PushArtifact swmm-output.dll
   
 on_failure:
+  - cd %SWMM_HOME%
   - cd %TEST_HOME%\benchmark
   # zip up the SUT benchmarks
   - 7z a benchmark-%PLATFORM%-%SUT_BUILD_ID%.zip .\swmm-%SUT_BUILD_ID%
