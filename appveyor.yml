@@ -83,7 +83,7 @@ on_failure:
   #- 7z a benchmark-%PLATFORM%-%SUT_BUILD_ID%.zip .\swmm-%SUT_BUILD_ID%
   - 7z a testsDirectory.zip *.*
   #- appveyor PushArtifact benchmark-%PLATFORM%-%SUT_BUILD_ID%.zip
-  - appveyor PushArtifact Directorytests.zip
+  - appveyor PushArtifact testsDirectory.zip
 
 #cache:
 #  - C:\ProgramData\chocolatey\bin -> appveyor.yml
