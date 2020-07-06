@@ -1223,6 +1223,13 @@ int DLLEXPORT swmm_getNodeIsCoupled(int nodeID, int *iscoupled);
 @param total_precip The new total precipitation intensity.
 @return Error code
 */
+int DLLEXPORT swmm_countOpenings(int nodeID, int *num);
+/**
+@brief ...
+@param ....
+@param ....
+@return Error code
+*/
 int DLLEXPORT swmm_setGagePrecip(int index, double total_precip);
 
 /**

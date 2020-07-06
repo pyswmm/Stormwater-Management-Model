@@ -3150,3 +3150,28 @@ int DLLEXPORT swmm_openOpening(int nodeID, int idx)
     return errcode;
 }
 
+int DLLEXPORT swmm_countOpenings(int nodeID, int *num)
+//
+// Input:   nodeID = Index of desired node
+// Return:  API error
+// Purpose: Open an opening.
+{
+    int errcode = 0;
+
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+    {
+        errcode =  error_getCode(ERR_API_INPUTNOTOPEN);
+    }
+    // Check if object index is within bounds
+    else if (nodeID < 0 || nodeID >= Nobjects[NODE])
+    {
+        errcode =  error_getCode(ERR_API_OBJECT_INDEX);
+    }
+    else
+    {
+        // Close the opening
+        *num = coupling_countOpenings(nodeID);
+    }
+    return errcode;
+}
