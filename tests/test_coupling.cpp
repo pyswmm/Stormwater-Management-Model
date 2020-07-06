@@ -193,7 +193,7 @@ double ExpectedQ[11] =    {0.0,  0.0,  -18.49294,
                                                                                        0.0};
         
 BOOST_AUTO_TEST_SUITE(test_coupling)
-
+/*
     BOOST_DATA_TEST_CASE(ParameterizedCouplingInflowTest, boost::unit_test::data::xrange(0, 11), var)
     {
 
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         BOOST_CHECK_SMALL(CouplingInflow - ExpectedQ[var], 0.005);
 
     }
-
+*/
     BOOST_FIXTURE_TEST_CASE(NodeOpeningTests, FixtureOpenClose) 
     {
         int error, node_ind, no_of_deleted_openings;
