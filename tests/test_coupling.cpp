@@ -592,10 +592,10 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         int error, node_ind, no_of_deleted_openings, no_of_openings;
         double area, width;
         double NodeInflow;
-        char node_id[] = "J1";
+        char node_id[] = "J0";
         error = swmm_getObjectIndex(SM_NODE, node_id, &node_ind);
         BOOST_REQUIRE(error == ERR_NONE);
-        BOOST_REQUIRE(node_ind == 1);
+        BOOST_REQUIRE(node_ind == 0);
 
         // No openings added
         no_of_openings= coupling_countOpenings(node_ind);
@@ -608,47 +608,8 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         // Add a first opening to Node[node_ind]
         area = 25.0;
         width = 1.0;
-//        error = swmm_setNodeOpening(node_ind, 0, 0, area, width, 0.167, 0.54, 0.056);
-//        BOOST_CHECK_EQUAL(error, ERR_NONE);
-        // ----------------------------------------------
-            int errcode = 0, idx = 0;
-    TCoverOpening* opening;  // opening object
-
-    // --- check if an opening object with this index already exists
-    opening = Node[node_ind].coverOpening;
-    while ( opening )
-    {
-        if ( opening->ID == idx ) break;
-        opening = opening->next;
-    }
-
-    // --- if it doesn't exist, then create it
-    if ( opening == NULL )
-    {
-        opening = (TCoverOpening *) malloc(sizeof(TCoverOpening));
-        if ( opening == NULL )
-        {
-            // return error_setInpError(ERR_MEMORY, "");
-            BOOST_REQUIRE(opening != NULL);
-        }
-        opening->next = Node[node_ind].coverOpening;
-        Node[node_ind].coverOpening = opening;
-    }
-
-    // Assign values to the opening object
-    opening->ID            = 0;
-    opening->type          = 0;
-    opening->area          = area / (.3048 * .3048);
-    opening->length        = width / .3048;
-    opening->coeffOrifice  = .167;
-    opening->coeffFreeWeir = .54;
-    opening->coeffSubWeir  = .056;
-    // --- default values
-    opening->couplingType  = NO_COUPLING_FLOW;
-    opening->oldInflow     = 0.0;
-    opening->newInflow     = 0.0;
-        // ----------------------------------------------
-
+        error = swmm_setNodeOpening(node_ind, 0, 0, area, width, 0.167, 0.54, 0.056);
+        BOOST_CHECK_EQUAL(error, ERR_NONE);
         BOOST_CHECK (Node[node_ind].coverOpening != NULL);
         // One opening added
         no_of_openings= coupling_countOpenings(node_ind);
