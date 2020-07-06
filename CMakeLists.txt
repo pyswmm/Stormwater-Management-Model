@@ -102,8 +102,8 @@ endif(OPENMP_FOUND)
 # Set up file groups for exe and lib targets
 file(GLOB SWMM_SOURCES RELATIVE ${PROJECT_SOURCE_DIR} src/*.c)
 list(REMOVE_ITEM SWMM_SOURCES "src/swmm5.c")
-#set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h ; include/coupling.h)
-set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h)
+set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h ; src/coupling.h)
+#set(SWMM_API_HEADERS include/swmm5.h; include/toolkitAPI.h)
 include_directories(include)
 
 
