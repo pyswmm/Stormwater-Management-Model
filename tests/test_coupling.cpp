@@ -142,8 +142,8 @@ TNode* Node = new TNode;
 //TNode* Node[2];
 int Nobjects[MAX_OBJ_TYPES];
 
-//#include "coupling.h"
-
+#include "../src/coupling.h"
+/*
 int opening_findCouplingType(double crestElev, double nodeHead, double overlandHead, 
                              double overflowArea, double weirWidth)
 //
@@ -536,7 +536,7 @@ void coupling_deleteOpenings(int j)
 }
 
 //=============================================================================
-
+*/
 int couplingType;
 double CouplingInflow;
 double orificeCoeff = 0.167;
