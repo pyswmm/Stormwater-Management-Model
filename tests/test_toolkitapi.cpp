@@ -151,40 +151,6 @@ BOOST_AUTO_TEST_CASE(model_not_open) {
     error = swmm_getNodePollut(0, 0, &result_array);
     BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
 
-
-    //Coupling
-    error = swmm_setNodeOpening(0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
-
-    error = swmm_deleteNodeOpening(0, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
-
-    error = swmm_getNodeOpeningParam(0, 0, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
-
-    error = swmm_getNodeOpeningFlow(0, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
-
-    error = swmm_getNodeOpeningType(0, 0, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
-
-    error = swmm_getOpeningCouplingType(0, 0, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
-
-    error = swmm_getOpeningsNum(0, &num);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
-
-    error = swmm_getOpeningsIndices(0, 0, &arr);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
-
-    error = swmm_getNodeIsCoupled(0, &iscoupled);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
-
-    error = swmm_closeOpening(0, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
-
-    error = swmm_openOpening(0, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -228,10 +194,6 @@ BOOST_FIXTURE_TEST_CASE(sim_started_check, FixtureBeforeStep) {
     error = swmm_setLinkParam(0, SM_AVELOSS, 1);
     BOOST_CHECK_EQUAL(error, ERR_NONE);
 
-
-    //Coupling
-    error = swmm_setNodeOpening(0, 1, 1, 0.0, 0.0, 0.0, 0.0, 0.0);
-    BOOST_CHECK_EQUAL(error, ERR_API_SIM_NRUNNING);
 }
 
 
@@ -286,36 +248,6 @@ BOOST_FIXTURE_TEST_CASE(object_bounds_check, FixtureOpenClose) {
     error = swmm_getNodePollut(100, 0, &result_array);
     BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
 
-    //Coupling
-    error = swmm_setNodeOpening(100, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getNodeOpeningParam(100, 0, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getNodeOpeningFlow(100, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getNodeOpeningType(100, 0, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getOpeningCouplingType(100, 0, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getOpeningsNum(100, &num);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getOpeningsIndices(100, 0, &arr);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getNodeIsCoupled(100, &iscoupled);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_closeOpening(100, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_openOpening(100, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
 }
 
 
@@ -355,19 +287,6 @@ BOOST_FIXTURE_TEST_CASE(key_bounds_check, FixtureOpenClose) {
     error = swmm_setLinkParam(0, 100, 1);
     BOOST_CHECK_EQUAL(error, ERR_API_OUTBOUNDS);
 
-
-    //Coupling
-    error = swmm_getNodeOpeningParam(0, 100, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getNodeOpeningType(0, 100, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getOpeningCouplingType(0, 100, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-
-    error = swmm_getOpeningsIndices(0, 100, &arr);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
 }
 
 

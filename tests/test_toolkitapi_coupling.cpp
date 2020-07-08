@@ -131,6 +131,13 @@ BOOST_AUTO_TEST_CASE(model_not_open) {
 
     error = swmm_openOpening(0, 0);
     BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+
+    error = swmm_coupling_findNodeInflow(0.0, 0.0, 0.0, 0.0, 0.0, NULL, 0.0, NULL);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+
+    error = swmm_deleteNodeOpenings(0);
+    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -184,8 +191,11 @@ BOOST_FIXTURE_TEST_CASE(object_bounds_check, FixtureOpenClose) {
 
     error = swmm_openOpening(100, 0);
     BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
-}
 
+    error = swmm_deleteNodeOpenings(100);
+    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+
+}
 
 // Testing for invalid parameter key
 BOOST_FIXTURE_TEST_CASE(key_bounds_check, FixtureOpenClose) {

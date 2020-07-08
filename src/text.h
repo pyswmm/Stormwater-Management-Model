@@ -316,7 +316,7 @@
 #define  w_CONTINUITY        "CONTINUITY"
 #define  w_FLOWSTATS         "FLOWSTATS"
 #define  w_CONTROLS          "CONTROL"
-#define  w_NODESTATS         "NODSTATS"
+#define  w_NODESTATS         "NODESTATS"
 #define  w_AVERAGES          "AVERAGES"                                        //(5.1.013)
 
 // Interface File Types

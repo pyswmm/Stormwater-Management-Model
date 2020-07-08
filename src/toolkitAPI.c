@@ -3031,7 +3031,7 @@ int DLLEXPORT swmm_getOpeningCouplingType(int nodeID, int idx, int *coupling)
 int DLLEXPORT swmm_getOpeningsNum(int nodeID, int *num)
 //
 // Input:   nodeID   = Index of desired node
-//          idx      = opening's index
+//          pointer to the number of openings
 // Output   coupling = coupling type to be output
 // Return:  API Error
 // Purpose: Get the number of openings of a node.
@@ -3096,7 +3096,6 @@ int DLLEXPORT swmm_getNodeIsCoupled(int nodeID, int *iscoupled)
     return(0);
 }
 
-
 int DLLEXPORT swmm_closeOpening(int nodeID, int idx)
 //
 // Input:   nodeID = Index of desired node
@@ -3123,7 +3122,6 @@ int DLLEXPORT swmm_closeOpening(int nodeID, int idx)
     return errcode;
 }
 
-
 int DLLEXPORT swmm_openOpening(int nodeID, int idx)
 //
 // Input:   nodeID = Index of desired node
@@ -3144,17 +3142,61 @@ int DLLEXPORT swmm_openOpening(int nodeID, int idx)
     }
     else
     {
-        // Close the opening
-        errcode = coupling_closeOpening(nodeID, idx);
+        // Open the opening
+        errcode = coupling_openOpening(nodeID, idx);
     }
     return errcode;
 }
 
-int DLLEXPORT swmm_countOpenings(int nodeID, int *num)
+int DLLEXPORT swmm_couplingType(double crestElev, double nodeHead, double overlandHead, double overflowArea, 
+                                double weirWidth)
 //
-// Input:   nodeID = Index of desired node
-// Return:  API error
-// Purpose: Open an opening.
+//  Input:   crestElev =  (ft)
+//           nodeHead = water elevation in the node (ft)
+//           overlandHead = water elevation in the overland model (ft)
+//           overflowArea = node surface area (ft2)
+//           weirWidth = weir width (ft)
+//  Output:  Type of Coupling
+//  Purpose: determine the coupling type of an opening according the the relative water elevations in node and surface
+{
+        return opening_findCouplingType(crestElev, nodeHead, overlandHead, overflowArea, weirWidth);
+}
+
+double DLLEXPORT swmm_findCouplingInflow(int couplingType, double crestElev,
+                                double nodeHead, double overlandHead, double orificeCoeff, 
+                                double freeWeirCoeff, double subWeirCoeff, double overflowArea, 
+                                double weirWidth)
+//
+//  Input:   couplingType = Type of Coupling
+//           nodeHead = water elevation in the node (ft)
+//           crestElev = elevation of the node crest (= ground) (ft)
+//           overlandHead = water elevation in the overland model (ft)
+//           orificeCoeff = orifice coefficient
+//           freeWeirCoeff = free weir coefficient
+//           subWeirCoeff = submerged weir coefficient
+//           overflowArea = node surface area (ft2)
+//           weirWidth = weir width (ft)
+//  Output:  the flow entering through the opening (ft3/s)
+//  Purpose: computes the coupling flow of the opening
+//
+{
+        return opening_findCouplingInflow(couplingType, crestElev, nodeHead, overlandHead, orificeCoeff, freeWeirCoeff, 
+                                          subWeirCoeff, overflowArea, weirWidth);
+}
+
+int DLLEXPORT swmm_coupling_findNodeInflow(double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
+							   TCoverOpening * opening, double Node_couplingArea, double* coupling_NodeInflow)
+//
+//  Input:   tStep = time step of the drainage model (s)
+//           Node_invertElev = invert elevation (ft)
+//           Node_fullDepth = dist. from invert to surface (ft)
+//           Node_newDepth = current water depth (ft)
+//           Node_overlandDepth = water depth in the overland model (ft)
+//           opening = pointer to node opening's data
+//           Node_couplingArea = coupling area in the overland model (ft2)
+//  Output:  node coupling inflow
+//  Purpose: compute the sum of opening coupling inflows at a node
+
 {
     int errcode = 0;
 
@@ -3163,15 +3205,24 @@ int DLLEXPORT swmm_countOpenings(int nodeID, int *num)
     {
         errcode =  error_getCode(ERR_API_INPUTNOTOPEN);
     }
-    // Check if object index is within bounds
-    else if (nodeID < 0 || nodeID >= Nobjects[NODE])
-    {
-        errcode =  error_getCode(ERR_API_OBJECT_INDEX);
-    }
     else
     {
-        // Close the opening
-        *num = coupling_countOpenings(nodeID);
+        *coupling_NodeInflow = coupling_findNodeInflow(tStep, Node_invertElev, Node_fullDepth, Node_newDepth, Node_overlandDepth, 
+							   opening, Node_couplingArea);
     }
     return errcode;
+}
+
+int DLLEXPORT swmm_deleteNodeOpenings(int nodeID)
+//
+// Input:   nodeID = Index of desired node
+// Return:  Error code
+// Purpose: Remove all openings from a node.
+{
+    // Check if Open
+    if(swmm_IsOpenFlag() == FALSE) return error_getCode(ERR_API_INPUTNOTOPEN);
+    // Check if object index is within bounds
+    if (nodeID < 0 || nodeID >= Nobjects[NODE]) return error_getCode(ERR_API_OBJECT_INDEX);
+    coupling_deleteOpenings(nodeID);
+    return(0);
 }

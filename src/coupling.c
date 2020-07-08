@@ -74,6 +74,7 @@ double opening_findCouplingInflow(int couplingType, double crestElev,
 //           overlandHead = water elevation in the overland model (ft)
 //           orificeCoeff = orifice coefficient
 //           freeWeirCoeff = free weir coefficient
+//           subWeirCoeff = submerged weir coefficient
 //           overflowArea = node surface area (ft2)
 //           weirWidth = weir width (ft)
 //  Output:  the flow entering through the opening (ft3/s)
@@ -146,11 +147,11 @@ double coupling_findNodeInflow(double tStep, double Node_invertElev, double Node
 //           Node_invertElev = invert elevation (ft)
 //           Node_fullDepth = dist. from invert to surface (ft)
 //           Node_newDepth = current water depth (ft)
-//           overlandDepth = water depth in the overland model (ft)
-//           opening = pointer to node opening data
+//           Node_overlandDepth = water depth in the overland model (ft)
+//           opening = pointer to node opening's data
 //           Node_couplingArea = coupling area in the overland model (ft2)
-//  Output:  coupling inflow
-//  Purpose: compute the coupling inflow for each node's opening].overlandDepth
+//  Output:  node coupling inflow
+//  Purpose: compute the sum of opening coupling inflows at a node
 //
 {
     double crestElev, overlandHead, nodeHead;

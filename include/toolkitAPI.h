@@ -1218,16 +1218,62 @@ int DLLEXPORT swmm_getOpeningsIndices(int nodeID, int arr_size, int *arr);
 int DLLEXPORT swmm_getNodeIsCoupled(int nodeID, int *iscoupled);
 
 /**
+@brief Determine the coupling type of an opening according the relative water elevations at node and surface
+@param elevation of the node crest (= ground)
+@param water elevation at the node
+@param water elevation in the overland model
+@param node surface area
+@param weirWidth
+@return coupling flow type
+*/
+int DLLEXPORT swmm_couplingType(double crestElev, double nodeHead, double overlandHead, double overflowArea, double weirWidth);
+
+/**
+@brief computes the coupling flow of the opening
+@param Type of Coupling
+@param elevation of the node crest (= ground)
+@param water elevation at the node
+@param orificeCoeff = orifice coefficient
+@param free weir coefficient
+@param submerged weir coefficient
+@param node surface area
+@param weir width
+@param node surface area
+@param weir width
+@return the flow entering through the opening
+*/
+double DLLEXPORT swmm_findCouplingInflow(int couplingType, double crestElev, double nodeHead, double overlandHead, 
+                                double orificeCoeff, double freeWeirCoeff, double subWeirCoeff, double overflowArea, 
+                                double weirWidth);
+
+#ifndef TCoverOpening
+typedef struct CoverOpening TCoverOpening;
+#endif
+
+/**
+@brief compute the sum of opening coupling inflows at a node
+@param time step of the drainage model
+@param node invert elevation
+@param dist. from invert to surface
+@param current water depth
+@param water depth in the overland model
+@param pointer to opening's data
+@param coupling area in the overland model
+@return Error code
+*/
+int DLLEXPORT swmm_coupling_findNodeInflow(double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
+							   TCoverOpening * opening, double Node_couplingArea, double* coupling_NodeInflow);
+/**
+@brief Remove all openings from a node.
+@param Index of desired node.
+@return Error code
+*/
+int DLLEXPORT swmm_deleteNodeOpenings(int nodeID);
+
+/**
 @brief Set a total precipitation intensity to the gage.
 @param index The gage index.
 @param total_precip The new total precipitation intensity.
-@return Error code
-*/
-int DLLEXPORT swmm_countOpenings(int nodeID, int *num);
-/**
-@brief ...
-@param ....
-@param ....
 @return Error code
 */
 int DLLEXPORT swmm_setGagePrecip(int index, double total_precip);
