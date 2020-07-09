@@ -228,7 +228,7 @@ void coupling_execute(double tStep)
     {
         if ( !coupling_isNodeCoupled(j) ) continue;
 		Node[j].couplingInflow = coupling_findNodeInflow(tStep, Node[j].invertElev, Node[j].fullDepth, Node[j].newDepth, Node[j].overlandDepth, 
-							   Node[j].coverOpening, Node[j].couplingArea);    }
+							                             Node[j].coverOpening, Node[j].couplingArea);    }
 }
 
 //=============================================================================
@@ -422,7 +422,7 @@ int coupling_deleteOpening(int j, int idx)
 //
 //  Input:   j = node index
 //           idx = opening index
-//  Output:  none
+//  Return:  error code
 //  Purpose: delete an opening from a node.
 //
 {

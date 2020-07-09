@@ -367,7 +367,7 @@ int     coupling_openOpening(int j, int idx);
 int     coupling_closeOpening(int j, int idx);
 int     coupling_deleteOpening(int j, int idx);
 int     coupling_isNodeCoupled(int j);
-//void    coupling_execute(double tStep);
+void    coupling_execute(double tStep);
 void    coupling_deleteOpenings(int node);
 void    coupling_setOldState(int j);
 

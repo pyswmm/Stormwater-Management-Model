@@ -1238,8 +1238,6 @@ int DLLEXPORT swmm_couplingType(double crestElev, double nodeHead, double overla
 @param submerged weir coefficient
 @param node surface area
 @param weir width
-@param node surface area
-@param weir width
 @return the flow entering through the opening
 */
 double DLLEXPORT swmm_findCouplingInflow(int couplingType, double crestElev, double nodeHead, double overlandHead, 
