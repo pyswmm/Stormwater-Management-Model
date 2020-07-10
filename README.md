@@ -36,5 +36,3 @@ To run the test suite for please refer to the [REGRESSION_TESTING.md](https://gi
 # Code of conduct
 
 The SWMM Project follows the [Contributor Covenant Code of Conduct](https://github.com/OpenWaterAnalytics/Stormwater-Management-Model/blob/develop/.github/CODE_OF_CONDUCT.md)
-
-Testing
