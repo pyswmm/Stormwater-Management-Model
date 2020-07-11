@@ -374,7 +374,8 @@ int coupling_setOpening(int j, int idx, int oType, double A, double l, double Co
         opening = (TCoverOpening *) malloc(sizeof(TCoverOpening));
         if ( opening == NULL )
         {
-            return error_setInpError(ERR_MEMORY, "");
+            //return error_setInpError(ERR_MEMORY, "");
+            return ERR_MEMORY;
         }
         opening->next = Node[j].coverOpening;
         Node[j].coverOpening = opening;
