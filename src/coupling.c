@@ -362,7 +362,8 @@ int coupling_setOpening(int j, int idx, int oType, double A, double l, double Co
 
     // --- check if an opening object with this index already exists
     opening = Node[j].coverOpening;
-    while ( opening )
+//    while ( opening )
+    while ( opening != NULL )
     {
         if ( opening->ID == idx ) break;
         opening = opening->next;
