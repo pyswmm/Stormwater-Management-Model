@@ -219,6 +219,20 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         Node[node_ind].newDepth = 3.0  / .3048;
         Node[node_ind].overlandDepth = 0.0 / .3048;
         Node[node_ind].couplingArea = 1.0 / (.3048 * .3048);
+
+        couplingType = swmm_couplingType(Node[node_ind].invertElev + Node[node_ind].fullDepth, Node[node_ind].invertElev + Node[node_ind].newDepth, 
+                                                Node[node_ind].invertElev + Node[node_ind].fullDepth + Node[node_ind].overlandDepth, 
+                                                Node[node_ind].couplingArea, width);
+        BOOST_CHECK_EQUAL(couplingType, ORIFICE_COUPLING);
+        int overflow, drainage;
+        int overflowOrifice, drainageOrifice, submergedWeir, freeWeir;
+        overflow = Node[node_ind].invertElev + Node[node_ind].newDepth > Node[node_ind].invertElev + Node[node_ind].fullDepth + Node[node_ind].overlandDepth;
+        drainage = Node[node_ind].invertElev + Node[node_ind].newDepth < Node[node_ind].invertElev + Node[node_ind].fullDepth + Node[node_ind].overlandDepth;
+        BOOST_CHECK_EQUAL(overflow, 1);
+        BOOST_CHECK_EQUAL(drainage, 0);
+        overflowOrifice = overflow && (nodeHead > crestElev);    
+        BOOST_CHECK_EQUAL(overflowOrifice, 1);
+
     	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
 						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
