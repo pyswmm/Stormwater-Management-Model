@@ -196,7 +196,6 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         error = swmm_getOpeningsNum(node_ind, &no_of_openings);
         BOOST_REQUIRE(error == ERR_NONE);
         BOOST_CHECK_EQUAL(no_of_openings, 0);
-        Node[node_ind].coverOpening = nullptr;
     	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
 						                      Node[node_ind].couplingArea, &NodeInflow);
@@ -208,7 +207,6 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         width = 1.0;
         error = swmm_setNodeOpening(node_ind, 0, 0, area, width, 0.167, 0.54, 0.056);
         BOOST_CHECK_EQUAL(error, ERR_NONE);
-        BOOST_CHECK (Node[node_ind].coverOpening != nullptr);
         // One opening added
         error = swmm_getOpeningsNum(node_ind, &no_of_openings);
         BOOST_REQUIRE(error == ERR_NONE);
