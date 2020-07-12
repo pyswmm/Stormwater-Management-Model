@@ -191,6 +191,7 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         error = swmm_getObjectIndex(SM_NODE, node_id, &node_ind);
         BOOST_REQUIRE(error == ERR_NONE);
         BOOST_REQUIRE(node_ind == 1);
+        Node[node_ind].coverOpening = nullptr;
 
         // No openings added
         error = swmm_getOpeningsNum(node_ind, &no_of_openings);
