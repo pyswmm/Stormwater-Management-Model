@@ -1250,6 +1250,7 @@ typedef struct CoverOpening TCoverOpening;
 
 /**
 @brief compute the sum of opening coupling inflows at a node
+@param node ID index
 @param time step of the drainage model
 @param node invert elevation
 @param dist. from invert to surface
@@ -1259,8 +1260,8 @@ typedef struct CoverOpening TCoverOpening;
 @param coupling area in the overland model
 @return Error code
 */
-int DLLEXPORT swmm_coupling_findNodeInflow(double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
-							   TCoverOpening * opening, double Node_couplingArea, double* coupling_NodeInflow);
+int DLLEXPORT swmm_coupling_findNodeInflow(int j, double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
+							   double Node_couplingArea, double* coupling_NodeInflow);
 /**
 @brief Remove all openings from a node.
 @param Index of desired node.

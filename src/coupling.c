@@ -140,8 +140,8 @@ void coupling_adjustInflows(TCoverOpening* opening, double inflowAdjustingFactor
 
 //=============================================================================
 
-double coupling_findNodeInflow(double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
-							   TCoverOpening * opening, double Node_couplingArea)
+double coupling_findNodeInflow(int j, double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
+							   double Node_couplingArea)
 //
 //  Input:   tStep = time step of the drainage model (s)
 //           Node_invertElev = invert elevation (ft)
@@ -158,7 +158,10 @@ double coupling_findNodeInflow(double tStep, double Node_invertElev, double Node
     double totalCouplingInflow;
     double rawMaxInflow, maxInflow, inflowAdjustingFactor;
     int inflow2outflow, outflow2inflow;
-	TCoverOpening* First_opening = opening;
+	TCoverOpening* opening;
+	TCoverOpening* First_opening;
+    opening = Node[j].coverOpening; 
+	First_opening = opening;
 
     // --- calculate elevations
     crestElev = Node_invertElev + Node_fullDepth;
@@ -227,8 +230,8 @@ void coupling_execute(double tStep)
     for ( j = 0; j < Nobjects[NODE]; j++ )
     {
         if ( !coupling_isNodeCoupled(j) ) continue;
-		Node[j].couplingInflow = coupling_findNodeInflow(tStep, Node[j].invertElev, Node[j].fullDepth, Node[j].newDepth, Node[j].overlandDepth, 
-							                             Node[j].coverOpening, Node[j].couplingArea);    }
+		Node[j].couplingInflow = coupling_findNodeInflow(j, tStep, Node[j].invertElev, Node[j].fullDepth, Node[j].newDepth, Node[j].overlandDepth, 
+							                             Node[j].couplingArea);    }
 }
 
 //=============================================================================

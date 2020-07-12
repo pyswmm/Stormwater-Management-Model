@@ -3185,10 +3185,11 @@ double DLLEXPORT swmm_findCouplingInflow(int couplingType, double crestElev,
                                           subWeirCoeff, overflowArea, weirWidth);
 }
 
-int DLLEXPORT swmm_coupling_findNodeInflow(double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
-							   TCoverOpening * opening, double Node_couplingArea, double* coupling_NodeInflow)
+int DLLEXPORT swmm_coupling_findNodeInflow(int j, double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
+							   double Node_couplingArea, double* coupling_NodeInflow)
 //
-//  Input:   tStep = time step of the drainage model (s)
+//  Input:   j = node ID index
+//           tStep = time step of the drainage model (s)
 //           Node_invertElev = invert elevation (ft)
 //           Node_fullDepth = dist. from invert to surface (ft)
 //           Node_newDepth = current water depth (ft)
@@ -3208,8 +3209,8 @@ int DLLEXPORT swmm_coupling_findNodeInflow(double tStep, double Node_invertElev,
     }
     else
     {
-        *coupling_NodeInflow = coupling_findNodeInflow(tStep, Node_invertElev, Node_fullDepth, Node_newDepth, Node_overlandDepth, 
-							   opening, Node_couplingArea);
+        *coupling_NodeInflow = coupling_findNodeInflow(j, tStep, Node_invertElev, Node_fullDepth, Node_newDepth, Node_overlandDepth, 
+							   Node_couplingArea);
     }
     return errcode;
 }

@@ -360,8 +360,8 @@ double  opening_findCouplingInflow(int couplingType, double crestElev,
                                 double nodeHead, double overlandHead, double orificeCoeff, 
                                 double freeWeirCoeff, double subWeirCoeff, double overflowArea, 
                                 double weirWidth);
-double coupling_findNodeInflow(double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
-							   TCoverOpening * opening, double Node_couplingArea);
+double coupling_findNodeInflow(int j, double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
+							   double Node_couplingArea);
 int     coupling_countOpenings(int j);
 int     coupling_openOpening(int j, int idx);
 int     coupling_closeOpening(int j, int idx);

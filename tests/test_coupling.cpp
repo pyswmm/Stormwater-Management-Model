@@ -197,9 +197,9 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         BOOST_REQUIRE(error == ERR_NONE);
         BOOST_CHECK_EQUAL(no_of_openings, 0);
         Node[node_ind].coverOpening = nullptr;
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         BOOST_CHECK_EQUAL(NodeInflow, 0.0);
         
@@ -224,18 +224,18 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
                                                 Node[node_ind].invertElev + Node[node_ind].fullDepth + Node[node_ind].overlandDepth, 
                                                 Node[node_ind].couplingArea, width);
         BOOST_CHECK_EQUAL(couplingType, ORIFICE_COUPLING);
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         // Type of coupling is ORIFICE_COUPLING
         BOOST_REQUIRE(error == ERR_NONE);
         BOOST_CHECK_SMALL(NodeInflow * (.3048 * .3048 * .3048)- ExpectedQ[2], 0.005);
         // Test case 4 with one opening
         Node[node_ind].newDepth = 1.0  / .3048;
         Node[node_ind].overlandDepth = -1.0 / .3048;
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         // Type of coupling is NO_COUPLING_FLOW
         BOOST_CHECK_EQUAL(NodeInflow, 0.0);
@@ -247,18 +247,18 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         width = 5.0;
         error = swmm_setNodeOpening(node_ind, 0, 0, area, width, 0.167, 0.54, 0.056);
         BOOST_CHECK_EQUAL(error, ERR_NONE);
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         // Type of coupling is FREE_WEIR_COUPLING
         BOOST_CHECK_SMALL(NodeInflow * (.3048 * .3048 * .3048)- ExpectedQ[6], 0.005);
         // Test case 8 with one opening
         Node[node_ind].newDepth = 3.0  / .3048;
         Node[node_ind].overlandDepth = 1.5 / .3048;
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         // Type of coupling is SUBMERGED_WEIR_COUPLING
         BOOST_CHECK_SMALL(NodeInflow * (.3048 * .3048 * .3048)- ExpectedQ[8], 0.005);
@@ -281,18 +281,18 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         // Test case 2 with two openings
         Node[node_ind].newDepth = 3.0  / .3048;
         Node[node_ind].overlandDepth = 0.0 / .3048;
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         // Type of coupling is ORIFICE_COUPLING
         BOOST_CHECK_SMALL(NodeInflow * (.3048 * .3048 * .3048)- (ExpectedQ[2]-7.39718), 0.01);
         // Test case 4 with two openings
         Node[node_ind].newDepth = 1.0  / .3048;
         Node[node_ind].overlandDepth = -1.0 / .3048;
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         // Type of coupling is NO_COUPLING_FLOW
         BOOST_CHECK_EQUAL(NodeInflow, 0.0);
@@ -309,18 +309,18 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         width = 1.0;
         error = swmm_setNodeOpening(node_ind, 1, 0, area, width, 0.167, 0.54, 0.056);
         BOOST_CHECK_EQUAL(error, ERR_NONE);
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         // Type of coupling is FREE_WEIR_COUPLING
         BOOST_CHECK_SMALL(NodeInflow * (.3048 * .3048 * .3048)- (ExpectedQ[6]+1.5946), 0.005);
         // Test case 8 with two openings
         Node[node_ind].newDepth = 3.0  / .3048;
         Node[node_ind].overlandDepth = 1.5 / .3048;
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         // Type of coupling is SUBMERGED_WEIR_COUPLING
         BOOST_CHECK_SMALL(NodeInflow * (.3048 * .3048 * .3048)- (ExpectedQ[8]+.26310), 0.005);
@@ -339,9 +339,9 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         BOOST_CHECK_EQUAL(no_of_openings, 2);
         Node[node_ind].newDepth = 3.0  / .3048;
         Node[node_ind].overlandDepth = 0.0 / .3048;
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         // Type of coupling is ORIFICE_COUPLING
         BOOST_CHECK_SMALL(NodeInflow * (.3048 * .3048 * .3048)- ExpectedQ[2], 0.005);
@@ -355,9 +355,9 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         width = 5.0;
         error = swmm_setNodeOpening(node_ind, 1, 0, area, width, 0.167, 0.54, 0.056);
         BOOST_CHECK_EQUAL(error, ERR_NONE);
-    	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
+    	error =  swmm_coupling_findNodeInflow(node_ind, tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
-						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
+						                      Node[node_ind].couplingArea, &NodeInflow);
         BOOST_REQUIRE(error == ERR_NONE);
         // Type of coupling is ORIFICE_COUPLING
         BOOST_CHECK_SMALL(NodeInflow * (.3048 * .3048 * .3048)- (ExpectedQ[2]-7.39718), 0.01);
