@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         int error, node_ind, no_of_deleted_openings;
         int no_of_openings;
         double area, width;
-        double NodeInflow;
+        double NodeInflow = 0.0;
         char node_id[] = "J1";
         error = swmm_getObjectIndex(SM_NODE, node_id, &node_ind);
         BOOST_REQUIRE(error == ERR_NONE);
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         error = swmm_getOpeningsNum(node_ind, &no_of_openings);
         BOOST_REQUIRE(error == ERR_NONE);
         BOOST_CHECK_EQUAL(no_of_openings, 0);
-        Node[node_ind].coverOpening = NULL;
+        Node[node_ind].coverOpening = nullptr;
     	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
 						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);
@@ -208,49 +208,7 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
         width = 1.0;
         error = swmm_setNodeOpening(node_ind, 0, 0, area, width, 0.167, 0.54, 0.056);
         BOOST_CHECK_EQUAL(error, ERR_NONE);
-//===================================================================================================================
-// Copied from coupling.c============================================================================================
-    TCoverOpening* opening;  // opening object
-    int idx = 0;
-    opening = Node[node_ind].coverOpening;
-//    while ( opening )
-    while ( opening )
-    {
-        if ( opening->ID == idx ) break;
-        opening = opening->next;
-    }
-
-    // --- if it doesn't exist, then create it
-    if ( opening == NULL )
-    {
-        opening = (TCoverOpening *) malloc(sizeof(TCoverOpening));
-        if ( opening == NULL )
-        {
-            //return error_setInpError(ERR_MEMORY, "");
-            //return ERR_MEMORY;
-            error = 1;
-            BOOST_REQUIRE(error == ERR_NONE);
-        }
-        opening->next = Node[node_ind].coverOpening;
-        Node[node_ind].coverOpening = opening;
-    }
-
-    // Assign values to the opening object
-    opening->ID            = idx;
-    opening->type          = 0;
-    opening->area          = area / (.3048 * .3048);
-    opening->length        = width  / .3048;
-    opening->coeffOrifice  = 0.167;
-    opening->coeffFreeWeir = 0.54;
-    opening->coeffSubWeir  = 0.056;
-    // --- default values
-    opening->couplingType  = NO_COUPLING_FLOW;
-    opening->oldInflow     = 0.0;
-    opening->newInflow     = 0.0;
-//===================================================================================================================
-
-
-        BOOST_CHECK (Node[node_ind].coverOpening != NULL);
+        BOOST_CHECK (Node[node_ind].coverOpening != nullptr);
         // One opening added
         error = swmm_getOpeningsNum(node_ind, &no_of_openings);
         BOOST_REQUIRE(error == ERR_NONE);
@@ -266,14 +224,6 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
                                                 Node[node_ind].invertElev + Node[node_ind].fullDepth + Node[node_ind].overlandDepth, 
                                                 Node[node_ind].couplingArea, width);
         BOOST_CHECK_EQUAL(couplingType, ORIFICE_COUPLING);
-        int overflow, drainage, overflowOrifice;
-        overflow = Node[node_ind].invertElev + Node[node_ind].newDepth > Node[node_ind].invertElev + Node[node_ind].fullDepth + Node[node_ind].overlandDepth;
-        drainage = Node[node_ind].invertElev + Node[node_ind].newDepth < Node[node_ind].invertElev + Node[node_ind].fullDepth + Node[node_ind].overlandDepth;
-        BOOST_CHECK_EQUAL(overflow, 1);
-        BOOST_CHECK_EQUAL(drainage, 0);
-        overflowOrifice = overflow && (nodeHead > crestElev);    
-        BOOST_CHECK_EQUAL(overflowOrifice, 1);
-
     	error =  swmm_coupling_findNodeInflow(tStep, Node[node_ind].invertElev, Node[node_ind].fullDepth, 
                                               Node[node_ind].newDepth, Node[node_ind].overlandDepth, 
 						                      Node[node_ind].coverOpening, Node[node_ind].couplingArea, &NodeInflow);

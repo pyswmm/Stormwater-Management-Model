@@ -89,7 +89,6 @@ BOOST_AUTO_TEST_CASE(model_not_open) {
     int error, index, num, type;
     double val;
     double input_val = 0;
-    double *result_array;
     char id[] = "test";
     int arr;
     int iscoupled;
@@ -155,10 +154,9 @@ BOOST_FIXTURE_TEST_CASE(sim_started_check, FixtureBeforeStep) {
 
 // Testing for invalid object index
 BOOST_FIXTURE_TEST_CASE(object_bounds_check, FixtureOpenClose) {
-    int error, index, num, type;
+    int error, num, type;
     double val;
     double input_val = 0;
-    double *result_array;
     int arr;
     int iscoupled;
 
@@ -199,11 +197,10 @@ BOOST_FIXTURE_TEST_CASE(object_bounds_check, FixtureOpenClose) {
 
 // Testing for invalid parameter key
 BOOST_FIXTURE_TEST_CASE(key_bounds_check, FixtureOpenClose) {
-    int error, index, num, type;
+    int error, type;
     double val;
     char* error_msg=new char[256];
     int arr;
-    int iscoupled;
 
     //Error codes
     swmm_getAPIError(341, error_msg);
