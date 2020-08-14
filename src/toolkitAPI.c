@@ -1832,6 +1832,38 @@ int DLLEXPORT swmm_getNodePollut(int index, int type, double **PollutArray)
     return error_getCode(error_code_index);
 }
 
+int DLLEXPORT swmm_setNodePollut(int index, int pollutant_index, double pollutant_value)
+///
+/// Input:   index = Index of desired ID
+///          pollutant_index = Index of desired polluant
+//           pollutant_value = Value of the pollutant
+/// Return:  API Error
+/// Purpose: Set pollutant concentration in nodes at the current time step
+{
+	int error_code_index = 0;
+
+	// Check if Open
+	if(swmm_IsOpenFlag() == FALSE)
+	{
+	    error_code_index = ERR_API_INPUTNOTOPEN;
+	}
+	// Check if object index is within bounds
+	else if (index < 0 || index >= Nobjects[NODE])
+	{
+	    error_code_index = ERR_API_OBJECT_INDEX;
+	}
+	else
+	{
+		if (pollutant_index <= Nobjects[POLLUT])
+		{
+			Node[index].extQual[pollutant_index] = pollutant_value;
+	    		Node[index].extPollutFlag[pollutant_index] = 1;
+		}
+	}
+	return error_getCode(error_code_index);
+}
+
+
 int DLLEXPORT swmm_getLinkResult(int index, int type, double *result)
 ///
 /// Input:   index = Index of desired ID

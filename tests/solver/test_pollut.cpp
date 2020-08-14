@@ -3,20 +3,19 @@
  *
  *   Created: 07/20/2018
  *   Author: Katherine M. Ratliff
+ *   
+ *   Edited: 08/13/2020
+ *   Author: Abhiram Mullapudi
  *
  *   Unit testing mechanics for the pollutant API using Boost Test.
  */
 
  #include <boost/test/unit_test.hpp>
-
- #include "test_solver.hpp"
-
-
-#define ERR_NONE 0
+ #include "test_pollutants.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_toolkitapi_pollut)
 
-// Testing Rain Gage Setter
+// Testing Pollutant Getter
 BOOST_FIXTURE_TEST_CASE(get_pollut_values, FixtureBeforeStep){
     int error, step_ind;
     int subc_ind;
@@ -140,6 +139,43 @@ BOOST_FIXTURE_TEST_CASE(get_pollut_values, FixtureBeforeStep){
     freeArray((void**) &buildup_array);
     freeArray((void**) &ponded_array);
 
+    swmm_end();
+}
+
+// Testing Pollutant Setter
+BOOST_FIXTURE_TEST_CASE(set_node_pollut_values, FixtureBeforeStepPollut){
+    
+    int error, step_ind;
+    int node_ind1;
+    double* node_qual;
+    double elapsedTime = 0.0;
+    double total_pollutant = 0.0;
+
+    // Pollutant IDs
+    int C1 = 0;
+
+    std::string nodeid1 = std::string("Tank");
+    node_ind1 = swmm_getObjectIndex(SM_NODE, (char *)nodeid1.c_str(), &error);
+    BOOST_REQUIRE(error == ERR_NONE);
+
+    step_ind = 0;
+    do
+    {
+	
+	error = swmm_setNodePollut(node_ind1, C1, 0.0);
+	BOOST_REQUIRE(error == ERR_NONE);
+
+	error = swmm_getNodePollut(node_ind1, SM_NODEQUAL, &node_qual);
+	BOOST_REQUIRE(error == ERR_NONE);
+
+	total_pollutant = total_pollutant + node_qual[C1];
+	printf("%f \n", total_pollutant);
+        // Route Model Forward
+        error = swmm_step(&elapsedTime);
+        step_ind+=1;
+    }while (elapsedTime != 0 && !error);
+    BOOST_REQUIRE(error == ERR_NONE);
+    BOOST_CHECK_SMALL(total_pollutant, 0.00);
     swmm_end();
 }
 

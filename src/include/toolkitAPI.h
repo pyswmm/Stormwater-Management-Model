@@ -948,12 +948,22 @@ int DLLEXPORT swmm_getNodeResult(int index, int type, double *result);
 int DLLEXPORT swmm_getNodePollut(int index, int type, double **PollutArray);
 
 /**
- @brief Get a result value for specified link.
+ @brief Get pollutant concentration in nodes at the current time step
  @param index The index of a link
  @param type The property type code (See @ref SM_LinkResult)
  @param[out] result The result of the link's property
  @return Error code
 */
+
+int DLLEXPORT swmm_setNodePollut(int index, int pollutant_index, double pollutant_value);
+
+/**
+ @brief Set pollutant concentration in nodes at the current time step.
+ @param pollutant_index Index of desired polluant
+ @param pollutant_value Value of the pollutant
+ @return Error code
+*/
+
 int DLLEXPORT swmm_getLinkResult(int index, int type, double *result);
 
 /**

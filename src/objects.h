@@ -482,6 +482,7 @@ typedef struct
    char*         ID;              // node ID
    int           type;            // node type code
    int           subIndex;        // index of node's sub-category
+   int*          extPollutFlag;   // external pollutant flag
    char          rptFlag;         // reporting flag
    double        invertElev;      // invert elevation (ft)
    double        initDepth;       // initial storage level (ft)
@@ -509,6 +510,7 @@ typedef struct
    double        newLatFlow;      // current lateral inflow (cfs)
    double*       oldQual;         // previous quality state
    double*       newQual;         // current quality state
+   double*	 extQual;	  // external quality state
    double        oldFlowInflow;   // previous flow inflow
    double        oldNetInflow;    // previous net inflow
 }  TNode;
