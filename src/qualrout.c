@@ -131,7 +131,7 @@ void qualrout_execute(double tStep)
             if ( qIn < ZERO ) qIn = 0.0;
             treatmnt_setInflow(qIn, Node[j].newQual);
         }
-       
+
         // --- find new quality at the node 
         if ( Node[j].type == STORAGE || Node[j].oldVolume > FUDGE )
         {
@@ -464,6 +464,7 @@ void  findStorageQual(int j, double tStep)
 
         // --- assign new concen. to node
         Node[j].newQual[p] = c2;
+	Node[j].reactorQual[p] = c2;
     }
 }
 

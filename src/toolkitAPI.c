@@ -1791,7 +1791,7 @@ int DLLEXPORT swmm_getNodeResult(int index, int type, double *result)
 int DLLEXPORT swmm_getNodePollut(int index, int type, double **PollutArray)
 ///
 /// Input:   index = Index of desired ID
-///          type = Result Type (SM_NodePollut)
+///          type = Result Type (SM_NodePollut or SM_NODECIN or SM_NODEREACTORC)
 /// Output:  PollutArray pointer (pollutant data desired, byref)
 /// Return:  API Error
 /// Purpose: Gets Node Simulated Water Quality Value at Current Time
@@ -1826,6 +1826,20 @@ int DLLEXPORT swmm_getNodePollut(int index, int type, double **PollutArray)
                     result[p] = Node[index].newQual[p];
                 } *PollutArray = result;
             } break;
+	    case SM_NODECIN:
+	    {
+		for (p=0; p < Nobjects[POLLUT]; p++)
+		{
+		    result[p] = Node[index].inQual[p];
+		} *PollutArray = result;
+	    } break;
+	    case SM_NODEREACTORC:
+	    {
+		for (p=0; p < Nobjects[POLLUT]; p++)
+		{
+		    result[p] = Node[index].reactorQual[p];
+		} *PollutArray = result;
+	    } break;
             default: error_code_index = ERR_API_OUTBOUNDS; break;
         }
     }

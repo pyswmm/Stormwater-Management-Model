@@ -147,12 +147,14 @@ typedef enum {
     SM_NODEFLOOD      = 4,  /**< Flooding Rate */
     SM_NODEDEPTH      = 5,  /**< Node Depth */
     SM_NODEHEAD       = 6,  /**< Node Head */
-    SM_LATINFLOW      = 7   /**< Lateral Inflow Rate */
+    SM_LATINFLOW      = 7,  /**< Lateral Inflow Rate */
 } SM_NodeResult;
 
 /// Node pollutant result property codes
 typedef enum {
     SM_NODEQUAL       = 0,  /**< Current Node Quality */
+    SM_NODECIN        = 1,  /**< Inflow Quality */
+    SM_NODEREACTORC   = 2,   /**< Node Reactor Quality */
 } SM_NodePollut;
 
 /// Link result property codes
@@ -164,7 +166,7 @@ typedef enum {
     SM_DSSURFAREA      = 4,  /**< Downstream Surface Area */
     SM_SETTING         = 5,  /**< Setting */
     SM_TARGETSETTING   = 6,  /**< Target Setting */
-    SM_FROUDE          = 7   /**< Froude Number */
+    SM_FROUDE          = 7,  /**< Froude Number */
 } SM_LinkResult;
 
 /// Link pollutant result property codes

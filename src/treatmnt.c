@@ -236,7 +236,6 @@ void  treatmnt_treat(int j, double q, double v, double tStep)
         else getRemoval(p);
     }
 
-
     // --- check for error condition
     if ( ErrCode == ERR_CYCLIC_TREATMENT )
     {
@@ -277,7 +276,11 @@ void  treatmnt_treat(int j, double q, double v, double tStep)
         {
             cOut = (1.0 - R[p]) * Node[j].newQual[p];
         }
-        // --- mass lost must account for any initial mass in storage 
+	
+       	// --- store inflow concentration for the timestep 	
+	Node[j].inQual[p] = Cin[p];
+
+ 	// --- mass lost must account for any initial mass in storage 
         massLost = (Cin[p]*q*tStep + Node[j].oldQual[p]*Node[j].oldVolume - 
                    cOut*(q*tStep + Node[j].oldVolume)) / tStep; 
         massLost = MAX(0.0, massLost); 

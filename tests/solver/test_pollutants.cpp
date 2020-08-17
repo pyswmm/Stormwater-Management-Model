@@ -13,6 +13,8 @@
  #include <boost/test/unit_test.hpp>
  #include "test_pollutants.hpp"
 
+using namespace std;
+
 BOOST_AUTO_TEST_SUITE(test_toolkitapi_pollut)
 
 // Testing Pollutant Getter
@@ -33,9 +35,9 @@ BOOST_FIXTURE_TEST_CASE(get_pollut_values, FixtureBeforeStep){
     int TSS = 0;
     int Lead = 1;
 
-    std::string subid = std::string("1");
-    std::string nodeid = std::string("9");
-    std::string linkid = std::string("1");
+    string subid = string("1");
+    string nodeid = string("9");
+    string linkid = string("1");
 
     subc_ind = swmm_getObjectIndex(SM_SUBCATCH, (char *)subid.c_str(), &error);
     BOOST_REQUIRE(error == ERR_NONE);
@@ -142,39 +144,106 @@ BOOST_FIXTURE_TEST_CASE(get_pollut_values, FixtureBeforeStep){
     swmm_end();
 }
 
-// Testing Pollutant Setter
-BOOST_FIXTURE_TEST_CASE(set_node_pollut_values, FixtureBeforeStepPollut){
+// Testing Node influent
+BOOST_FIXTURE_TEST_CASE(get_node_pollutant_values_cin, FixtureBeforeStep_Pollut){
     
     int error, step_ind;
-    int node_ind1;
     double* node_qual;
     double elapsedTime = 0.0;
     double total_pollutant = 0.0;
 
     // Pollutant IDs
-    int C1 = 0;
-
-    std::string nodeid1 = std::string("Tank");
-    node_ind1 = swmm_getObjectIndex(SM_NODE, (char *)nodeid1.c_str(), &error);
-    BOOST_REQUIRE(error == ERR_NONE);
+    int P1 = 0;
+    double cin = 10;
 
     step_ind = 0;
     do
     {
+ 	
+	error = swmm_getNodePollut(1, SM_NODECIN, &node_qual);
+	BOOST_REQUIRE(error == ERR_NONE);
+
+	// Check for constant influent
+	if (step_ind > 5) BOOST_CHECK_SMALL(cin - node_qual[P1], 0.00);
+
+	// Route Model Forward
+        error = swmm_step(&elapsedTime);
+        step_ind+=1;
+
+    }while (elapsedTime != 0 && !error);
+    BOOST_REQUIRE(error == ERR_NONE);
+    
+    swmm_end();
+}
+
+// Testing Reactor Concentration
+BOOST_FIXTURE_TEST_CASE(get_node_reactor_pollutant, FixtureBeforeStep_Pollut){
+    
+    int error, step_ind;
+    double* old_qual;
+    double* new_qual;
+    double elapsedTime = 0.0;
+    double total_pollutant = 0.0;
+
+    // Pollutant IDs
+    int P1 = 0;
+
+    step_ind = 0;
+    do
+    {	
+	// Check for steady state after 1000 steps.
+	// 1000 is a aribitarly long time duration, it can be any value as long 
+	// the system reaches a steady state
+
+	// Get reactor concentration
+	error = swmm_getNodePollut(1, SM_NODECIN, &new_qual);
+	BOOST_REQUIRE(error == ERR_NONE);
+
+	if (step_ind > 1000)
+	{
+		BOOST_CHECK_SMALL(old_qual[P1] - new_qual[P1], 0.00);
+	}
 	
-	error = swmm_setNodePollut(node_ind1, C1, 0.0);
-	BOOST_REQUIRE(error == ERR_NONE);
+	old_qual = new_qual;
 
-	error = swmm_getNodePollut(node_ind1, SM_NODEQUAL, &node_qual);
-	BOOST_REQUIRE(error == ERR_NONE);
-
-	total_pollutant = total_pollutant + node_qual[C1];
-	printf("%f \n", total_pollutant);
         // Route Model Forward
         error = swmm_step(&elapsedTime);
         step_ind+=1;
     }while (elapsedTime != 0 && !error);
     BOOST_REQUIRE(error == ERR_NONE);
+    swmm_end();
+}
+
+
+// Testing Pollutant Setter
+BOOST_FIXTURE_TEST_CASE(set_node_pollutant_values, FixtureBeforeStep_Pollut){
+    
+    int error, step_ind;
+    double* node_qual;
+    double elapsedTime = 0.0;
+    double total_pollutant = 0.0;
+
+    // Pollutant IDs
+    int P1 = 0;
+
+    step_ind = 0;
+    do
+    {
+	// Set pollutant
+	error = swmm_setNodePollut(1, P1, 0.0);
+	BOOST_REQUIRE(error == ERR_NONE);
+	// Get pollutant
+	error = swmm_getNodePollut(1, SM_NODEQUAL, &node_qual);
+	BOOST_REQUIRE(error == ERR_NONE);
+	// Record cumulative pollutant 
+	total_pollutant = total_pollutant + node_qual[P1];
+        // Route Model Forward
+        error = swmm_step(&elapsedTime);
+        step_ind+=1;
+    }while (elapsedTime != 0 && !error);
+    BOOST_REQUIRE(error == ERR_NONE);
+
+    // Cumulative must be 0.00
     BOOST_CHECK_SMALL(total_pollutant, 0.00);
     swmm_end();
 }

@@ -500,6 +500,7 @@ typedef struct
    double        inflow;          // total inflow (cfs)
    double        outflow;         // total outflow (cfs)
    double        losses;          // evap + exfiltration loss (ft3)
+   double        hrt;		  // hydraulic retention time
    double        oldVolume;       // previous volume (ft3)
    double        newVolume;       // current volume (ft3)
    double        fullVolume;      // max. storage available (ft3)
@@ -511,6 +512,8 @@ typedef struct
    double*       oldQual;         // previous quality state
    double*       newQual;         // current quality state
    double*	 extQual;	  // external quality state
+   double*	 inQual;          // inflow quality state
+   double*	 reactorQual;     // concentration in the mixed reactor   
    double        oldFlowInflow;   // previous flow inflow
    double        oldNetInflow;    // previous net inflow
 }  TNode;
