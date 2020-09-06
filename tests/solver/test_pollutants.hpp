@@ -16,16 +16,11 @@
 
 // Add shared data paths here
 #define DATA_PATH_INP "test_example1.inp"
+#define DATA_PATH_INP_POLLUT_NODE "pollutants/node_constantinflow_constanteffluent.inp"
+#define DATA_PATH_INP_POLLUT_LINK "pollutants/link_constantinflow.inp"
 #define DATA_PATH_RPT "tmp.rpt"
 #define DATA_PATH_OUT "tmp.out"
 
-#define DATA_PATH_INP_POLLUT_NODE "pollutants/node_constantinflow_constanteffluent.inp"
-#define DATA_PATH_RPT_POLLUT_NODE "pollutants/tmp.rpt"
-#define DATA_PATH_OUT_POLLUT_NODE "pollutants/tmp.out"
-
-#define DATA_PATH_INP_POLLUT_LINK "pollutants/link_constantinflow.inp"
-#define DATA_PATH_RPT_POLLUT_LINK "pollutants/tmp.rpt"
-#define DATA_PATH_OUT_POLLUT_LINK "pollutants/tmp.out"
 
 struct FixtureBeforeStep{
     FixtureBeforeStep() {
@@ -39,7 +34,7 @@ struct FixtureBeforeStep{
 
 struct FixtureBeforeStep_Pollut_Node{
     FixtureBeforeStep_Pollut_Node() {
-        swmm_open(DATA_PATH_INP_POLLUT_NODE, DATA_PATH_RPT_POLLUT_NODE, DATA_PATH_OUT_POLLUT_NODE);
+        swmm_open(DATA_PATH_INP_POLLUT_NODE, DATA_PATH_RPT, DATA_PATH_OUT);
         swmm_start(0);
     }
     ~FixtureBeforeStep_Pollut_Node() {
@@ -49,7 +44,7 @@ struct FixtureBeforeStep_Pollut_Node{
 
 struct FixtureBeforeStep_Pollut_Link{
     FixtureBeforeStep_Pollut_Link() {
-        swmm_open(DATA_PATH_INP_POLLUT_LINK, DATA_PATH_RPT_POLLUT_LINK, DATA_PATH_OUT_POLLUT_LINK);
+        swmm_open(DATA_PATH_INP_POLLUT_LINK, DATA_PATH_RPT, DATA_PATH_OUT);
         swmm_start(0);
     }
     ~FixtureBeforeStep_Pollut_Link() {
