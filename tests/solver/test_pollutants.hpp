@@ -19,9 +19,13 @@
 #define DATA_PATH_RPT "tmp.rpt"
 #define DATA_PATH_OUT "tmp.out"
 
-#define DATA_PATH_INP_POLLUT "pollutants/tank_constantinflow_constanteffluent.inp"
-#define DATA_PATH_RPT_POLLUT "pollutants/tank_constantinflow_constanteffluent.rpt"
-#define DATA_PATH_OUT_POLLUT "pollutants/tank_constantinflow_constanteffluent.out"
+#define DATA_PATH_INP_POLLUT_NODE "pollutants/node_constantinflow_constanteffluent.inp"
+#define DATA_PATH_RPT_POLLUT_NODE "pollutants/tmp.rpt"
+#define DATA_PATH_OUT_POLLUT_NODE "pollutants/tmp.out"
+
+#define DATA_PATH_INP_POLLUT_LINK "pollutants/link_constantinflow.inp"
+#define DATA_PATH_RPT_POLLUT_LINK "pollutants/tmp.rpt"
+#define DATA_PATH_OUT_POLLUT_LINK "pollutants/tmp.out"
 
 struct FixtureBeforeStep{
     FixtureBeforeStep() {
@@ -33,15 +37,26 @@ struct FixtureBeforeStep{
     }
 };
 
-struct FixtureBeforeStep_Pollut{
-    FixtureBeforeStep_Pollut() {
-        swmm_open(DATA_PATH_INP_POLLUT, DATA_PATH_RPT_POLLUT, DATA_PATH_OUT_POLLUT);
+struct FixtureBeforeStep_Pollut_Node{
+    FixtureBeforeStep_Pollut_Node() {
+        swmm_open(DATA_PATH_INP_POLLUT_NODE, DATA_PATH_RPT_POLLUT_NODE, DATA_PATH_OUT_POLLUT_NODE);
         swmm_start(0);
     }
-    ~FixtureBeforeStep_Pollut() {
+    ~FixtureBeforeStep_Pollut_Node() {
         swmm_close();
     }
 };
+
+struct FixtureBeforeStep_Pollut_Link{
+    FixtureBeforeStep_Pollut_Link() {
+        swmm_open(DATA_PATH_INP_POLLUT_LINK, DATA_PATH_RPT_POLLUT_LINK, DATA_PATH_OUT_POLLUT_LINK);
+        swmm_start(0);
+    }
+    ~FixtureBeforeStep_Pollut_Link() {
+        swmm_close();
+    }
+};
+
 
 
 #endif

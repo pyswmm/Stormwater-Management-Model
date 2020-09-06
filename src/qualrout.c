@@ -107,7 +107,7 @@ void qualrout_execute(double tStep)
     // --- find mass flow each link contributes to its downstream node
     for ( i = 0; i < Nobjects[LINK]; i++ ) findLinkMassFlow(i, tStep);
 
-    // --- find new water quality concentration at each node  
+    // --- check for external treatment in nodes or links
     for (j = 0; j < Nobjects[NODE]; j++)
     {
 	// --- check for external pollutant
@@ -120,6 +120,27 @@ void qualrout_execute(double tStep)
 		}
 
 	}
+
+    }
+
+    for (i = 0; i < Nobjects[LINK]; i++)
+    {
+	// --- check for external pollutant
+	for ( p = 0; p < Nobjects[POLLUT]; p++)
+	{
+		if (Link[i].extPollutFlag[p] == 1)
+		{
+			extPollutFlag = 1;
+			break;
+		}
+
+	}
+
+    }
+
+    // --- find new water quality concentration at each node  
+    for (j = 0; j < Nobjects[NODE]; j++)
+    {
 
         // --- get node inflow and average volume
         qIn = Node[j].inflow;
@@ -320,7 +341,21 @@ void findLinkQual(int i, double tStep)
     for (p = 0; p < Nobjects[POLLUT]; p++)
     {
         // --- start with concen. at start of time step
-        c1 = Link[i].oldQual[p];
+	if (Link[i].extPollutFlag[p] == 0)
+	{
+            c1 = Link[i].oldQual[p];
+	}
+	// --- external pollutant, accounting for seepage and evaporation loss
+	else if( Link[i].extPollutFlag[p] == 1)
+	{
+	    c1 = Link[i].extQual[p];
+	}
+	// --- external pollutant overwrite - complete overwrite 
+	else if( Link[i].extPollutFlag[p] == 2)
+	{
+	    Link[i].newQual[p] = Link[i].extQual[p];
+	    break;
+	}
 
         // --- update mass balance accounting for seepage loss
         massbal_addSeepageLoss(p, qSeep*c1);
@@ -341,9 +376,8 @@ void findLinkQual(int i, double tStep)
             massbal_addToFinalStorage(p, c2 * v2);
             c2 = 0.0;
         }
-
         // --- assign new concen. to link
-        Link[i].newQual[p] = c2;
+        Link[i].newQual[p] = c2;	
     }
 }
 

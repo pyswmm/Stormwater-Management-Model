@@ -39,13 +39,13 @@ BOOST_FIXTURE_TEST_CASE(get_pollut_values, FixtureBeforeStep){
     string nodeid = string("9");
     string linkid = string("1");
 
-    subc_ind = swmm_getObjectIndex(SM_SUBCATCH, (char *)subid.c_str(), &error);
+    error = swmm_getObjectIndex(SM_SUBCATCH, (char *)subid.c_str(), &subc_ind);
     BOOST_REQUIRE(error == ERR_NONE);
 
-    node_ind = swmm_getObjectIndex(SM_NODE, (char *)nodeid.c_str(), &error);
+    error = swmm_getObjectIndex(SM_NODE, (char *)nodeid.c_str(), &node_ind);
     BOOST_REQUIRE(error == ERR_NONE);
 
-    link_ind = swmm_getObjectIndex(SM_LINK, (char *)linkid.c_str(), &error);
+    error = swmm_getObjectIndex(SM_LINK, (char *)linkid.c_str(), &link_ind);
     BOOST_REQUIRE(error == ERR_NONE);
 
     step_ind = 0;
@@ -144,8 +144,8 @@ BOOST_FIXTURE_TEST_CASE(get_pollut_values, FixtureBeforeStep){
     swmm_end();
 }
 
-// Testing Node influent
-BOOST_FIXTURE_TEST_CASE(get_node_pollutant_values_cin, FixtureBeforeStep_Pollut){
+// Testing Node influent - storage assets
+BOOST_FIXTURE_TEST_CASE(get_node_pollutant_values_cin, FixtureBeforeStep_Pollut_Node){
     
     int error, step_ind;
     double* node_qual;
@@ -177,7 +177,7 @@ BOOST_FIXTURE_TEST_CASE(get_node_pollutant_values_cin, FixtureBeforeStep_Pollut)
 }
 
 // Testing Reactor Concentration
-BOOST_FIXTURE_TEST_CASE(get_node_reactor_pollutant, FixtureBeforeStep_Pollut){
+BOOST_FIXTURE_TEST_CASE(get_node_reactor_pollutant, FixtureBeforeStep_Pollut_Node){
     
     int error, step_ind;
     double* old_qual;
@@ -215,10 +215,10 @@ BOOST_FIXTURE_TEST_CASE(get_node_reactor_pollutant, FixtureBeforeStep_Pollut){
 }
 
 
-// Testing Pollutant Setter
-BOOST_FIXTURE_TEST_CASE(set_node_pollutant_values, FixtureBeforeStep_Pollut){
+// Testing Pollutant Setter - Node - Cumulative 
+BOOST_FIXTURE_TEST_CASE(set_node_pollutant_cumulative_values, FixtureBeforeStep_Pollut_Node){
     
-    int error, step_ind;
+    int error;
     double* node_qual;
     double elapsedTime = 0.0;
     double total_pollutant = 0.0;
@@ -226,11 +226,10 @@ BOOST_FIXTURE_TEST_CASE(set_node_pollutant_values, FixtureBeforeStep_Pollut){
     // Pollutant IDs
     int P1 = 0;
 
-    step_ind = 0;
     do
     {
 	// Set pollutant
-	error = swmm_setNodePollut(1, P1, 0.0);
+	error = swmm_setNodePollut(1, P1, 0);
 	BOOST_REQUIRE(error == ERR_NONE);
 	// Get pollutant
 	error = swmm_getNodePollut(1, SM_NODEQUAL, &node_qual);
@@ -239,7 +238,7 @@ BOOST_FIXTURE_TEST_CASE(set_node_pollutant_values, FixtureBeforeStep_Pollut){
 	total_pollutant = total_pollutant + node_qual[P1];
         // Route Model Forward
         error = swmm_step(&elapsedTime);
-        step_ind+=1;
+        
     }while (elapsedTime != 0 && !error);
     BOOST_REQUIRE(error == ERR_NONE);
 
@@ -248,5 +247,84 @@ BOOST_FIXTURE_TEST_CASE(set_node_pollutant_values, FixtureBeforeStep_Pollut){
     swmm_end();
 }
 
+// Testing Pollutant Setter - Node - Stepwise 
+BOOST_FIXTURE_TEST_CASE(set_node_pollutant_stepwise_values, FixtureBeforeStep_Pollut_Node){
+    
+    int error;
+    double* node_qual;
+    double elapsedTime = 0.0;
 
+    // Pollutant IDs
+    int P1 = 0;
+    do
+    {
+	// Set pollutant
+	error = swmm_setNodePollut(1, P1, 1.234);
+	BOOST_REQUIRE(error == ERR_NONE);
+
+	// Route Model Forward
+        error = swmm_step(&elapsedTime);
+
+	// Get pollutant
+	error = swmm_getNodePollut(1, SM_NODEQUAL, &node_qual);
+	BOOST_REQUIRE(error == ERR_NONE);
+
+	// Check
+    	BOOST_CHECK_SMALL(node_qual[P1] - 1.234, 0.00);
+
+    }while (elapsedTime != 0 && !error);
+    BOOST_REQUIRE(error == ERR_NONE);
+    swmm_end();
+}
+
+
+// Testing Pollutant Setter - Link - Stepwise - overwrite
+BOOST_FIXTURE_TEST_CASE(set_link_pollutant_stepwise_values_overwrite, FixtureBeforeStep_Pollut_Link){
+
+    int error, link_ind, node_ind;
+    int step;
+    double* link_qual;
+    double* node_qual;
+    double elapsedTime = 0.0;
+    double node_inflow;
+
+    char linkid[] = "Culvert";
+    char nodeid[] = "Outlet";
+
+
+    // Pollutant ID
+    int P1 = 0;
+
+    error = swmm_getObjectIndex(SM_LINK, linkid, &link_ind);
+    BOOST_REQUIRE(error == ERR_NONE);
+    error = swmm_getObjectIndex(SM_NODE, nodeid, &node_ind);
+    BOOST_REQUIRE(error == ERR_NONE);
+
+    do
+    {
+	    // Set pollutant in link and check the pollutant in the node
+	    error = swmm_setLinkPollut(link_ind, SM_LINKQUALSET, P1, 2.4563);
+	    BOOST_REQUIRE(error == ERR_NONE);
+
+	    // Route Model Forward
+            error = swmm_step(&elapsedTime);
+	    BOOST_REQUIRE(error == ERR_NONE);
+	   
+	    if (step > 2) // Wait for water to reach node
+            { 
+	    // Get infows concentration in node
+            error = swmm_getNodePollut(node_ind,  SM_NODEQUAL, &node_qual);
+	    BOOST_REQUIRE(error == ERR_NONE);
+
+	    error = swmm_getLinkPollut(link_ind, SM_LINKQUAL, &link_qual);
+	    
+	    // Check
+            BOOST_CHECK_SMALL(abs(node_qual[P1] - link_qual[P1]), 0.01);
+    	    }
+	    step += 1;
+
+    }while (elapsedTime != 0 && !error);
+    BOOST_REQUIRE(error == ERR_NONE);
+    swmm_end();
+}
 BOOST_AUTO_TEST_SUITE_END()

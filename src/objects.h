@@ -636,6 +636,7 @@ typedef struct
    char*         ID;              // link ID
    int           type;            // link type code
    int           subIndex;        // index of link's sub-category
+   int*          extPollutFlag;   // external pollutant flag
    char          rptFlag;         // reporting flag
    int           node1;           // start node index
    int           node2;           // end node index
@@ -666,6 +667,7 @@ typedef struct
    double*       oldQual;         // previous quality state
    double*       newQual;         // current quality state
    double*       totalLoad;       // total quality mass loading
+   double*       extQual;	  // external quality state 	
    int           flowClass;       // flow classification
    double        dqdh;            // change in flow w.r.t. head (ft2/sec)
    signed char   direction;       // flow direction flag

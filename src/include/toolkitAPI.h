@@ -148,13 +148,14 @@ typedef enum {
     SM_NODEDEPTH      = 5,  /**< Node Depth */
     SM_NODEHEAD       = 6,  /**< Node Head */
     SM_LATINFLOW      = 7,  /**< Lateral Inflow Rate */
+    SM_HRT	      = 8,  /**< Hydraulic Retention Time */
 } SM_NodeResult;
 
 /// Node pollutant result property codes
 typedef enum {
     SM_NODEQUAL       = 0,  /**< Current Node Quality */
     SM_NODECIN        = 1,  /**< Inflow Quality */
-    SM_NODEREACTORC   = 2,   /**< Node Reactor Quality */
+    SM_NODEREACTORC   = 2,  /**< Node Reactor Quality */
 } SM_NodePollut;
 
 /// Link result property codes
@@ -173,6 +174,7 @@ typedef enum {
 typedef enum {
     SM_LINKQUAL      = 0,  /**< Current Link Quality */
     SM_TOTALLOAD     = 1,  /**< Total Quality Mass Loading */
+    SM_LINKQUALSET   = 2,  /**< Overwrite Pollutant in Link, without loss and mixing */
 } SM_LinkPollut;
 
 /// Subcatchment result property codes
@@ -976,6 +978,17 @@ int DLLEXPORT swmm_getLinkResult(int index, int type, double *result);
  @return Error code
 */
 int DLLEXPORT swmm_getLinkPollut(int index, int type, double **PollutArray);
+
+/**
+ @brief Sets pollutant values for a specified link.
+ @param index The index of a link
+ @param type The property type code (see @ref SM_LinkPollut)
+ @param pollutant_index Index of pollutant to set
+ @param pollutant_value Vale of pollutant 
+ @param[out] PollutArray result array
+ @return Error code
+*/
+int DLLEXPORT swmm_setLinkPollut(int index, int type, int pollutant_index, double pollutant_value);
 
 /**
  @brief Get a result value for specified subcatchment.

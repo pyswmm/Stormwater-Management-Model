@@ -1051,7 +1051,9 @@ void createObjects()
     {
         Link[j].oldQual = (double *) calloc(Nobjects[POLLUT], sizeof(double));
         Link[j].newQual = (double *) calloc(Nobjects[POLLUT], sizeof(double));
+	Link[j].extQual = (double *) calloc(Nobjects[POLLUT], sizeof(double));
         Link[j].totalLoad = (double *) calloc(Nobjects[POLLUT], sizeof(double));
+	Link[j].extPollutFlag = (int *) calloc(Nobjects[POLLUT], sizeof(int));
     }
 
     // --- allocate memory for land use buildup/washoff functions
