@@ -540,7 +540,7 @@ double getReactedQual(int p, double c, double v1, double tStep)
     double c2, lossRate;
     double kDecay = Pollut[p].kDecay;
 
-    if ( kDecay == 0.0) return c;
+    if ( kDecay == 0.0 ) return c;
     c2 = c * (1.0 - kDecay * tStep);
     c2 = MAX(0.0, c2);
     lossRate = (c - c2) * v1 / tStep;
