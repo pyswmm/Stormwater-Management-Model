@@ -267,8 +267,6 @@ void  treatmnt_treat(int j, double q, double v, double tStep)
 	else if( Node[j].extPollutFlag[p] == 1)
 	{
 	    cOut = Node[j].extQual[p];
-	    // --- reset the flag to default to swmm treatment
-	    Node[j].extPollutFlag[p] = 0;
 	}
 
         // --- concentration-type equations get applied to nodal concentration
@@ -282,8 +280,13 @@ void  treatmnt_treat(int j, double q, double v, double tStep)
 
  	// --- mass lost must account for any initial mass in storage 
         massLost = (Cin[p]*q*tStep + Node[j].oldQual[p]*Node[j].oldVolume - 
-                   cOut*(q*tStep + Node[j].oldVolume)) / tStep; 
-        massLost = MAX(0.0, massLost); 
+                   cOut*(q*tStep + Node[j].oldVolume)) / tStep;
+
+	// --- mass can be gained in external treatment
+	if (Node[j].extPollutFlag[p] != 1) massLost = MAX(0.0, massLost);
+
+	// --- reset the flag to default to swmm treatment
+	if (Node[j].extPollutFlag[p] == 1) Node[j].extPollutFlag[p] = 0;
 
         // --- add mass loss to mass balance totals and revise nodal concentration
         massbal_addReactedMass(p, massLost);

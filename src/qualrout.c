@@ -287,7 +287,8 @@ void findLinkQual(int i, double tStep)
            vEvap,            // volume lost to evaporation (ft3)
            vLosses,          // evap. + seepage volume loss (ft3)
            fEvap,            // evaporation concentration factor
-           barrels;          // number of barrels in conduit
+           barrels,          // number of barrels in conduit
+    	   lossExtQual;      // loss value for external quality 
 
     // --- identify index of upstream node
     j = Link[i].node1;
@@ -341,23 +342,9 @@ void findLinkQual(int i, double tStep)
     for (p = 0; p < Nobjects[POLLUT]; p++)
     {
         // --- start with concen. at start of time step
-	if (Link[i].extPollutFlag[p] == 0)
-	{
-            c1 = Link[i].oldQual[p];
-	}
-	// --- external pollutant, accounting for seepage and evaporation loss
-	else if( Link[i].extPollutFlag[p] == 1)
-	{
-	    c1 = Link[i].extQual[p];
-	}
-	// --- external pollutant overwrite - complete overwrite 
-	else if( Link[i].extPollutFlag[p] == 2)
-	{
-	    Link[i].newQual[p] = Link[i].extQual[p];
-	    break;
-	}
+        c1 = Link[i].oldQual[p];
 
-        // --- update mass balance accounting for seepage loss
+	// --- update mass balance accounting for seepage loss
         massbal_addSeepageLoss(p, qSeep*c1);
 
         // --- increase concen. by evaporation factor
@@ -376,8 +363,23 @@ void findLinkQual(int i, double tStep)
             massbal_addToFinalStorage(p, c2 * v2);
             c2 = 0.0;
         }
-        // --- assign new concen. to link
-        Link[i].newQual[p] = c2;	
+
+	if (Link[i].extPollutFlag[p] == 0)
+	{
+            // --- assign new concen. to link
+            Link[i].newQual[p] = c2;
+	}
+	// --- update mass balance and set external pollutant
+	else if( Link[i].extPollutFlag[p] == 1)
+	{
+	    // --- mass balance update
+            lossExtQual = c2 - Link[i].extQual[p];
+            lossExtQual = lossExtQual * v1/ tStep;
+            massbal_addReactedMass(p, lossExtQual);
+
+            Link[i].newQual[p] = Link[i].extQual[p];
+            Link[i].extPollutFlag[p] = 0;
+	}
     }
 }
 
@@ -538,7 +540,7 @@ double getReactedQual(int p, double c, double v1, double tStep)
     double c2, lossRate;
     double kDecay = Pollut[p].kDecay;
 
-    if ( kDecay == 0.0 ) return c;
+    if ( kDecay == 0.0) return c;
     c2 = c * (1.0 - kDecay * tStep);
     c2 = MAX(0.0, c2);
     lossRate = (c - c2) * v1 / tStep;

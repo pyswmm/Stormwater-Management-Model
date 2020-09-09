@@ -174,7 +174,6 @@ typedef enum {
 typedef enum {
     SM_LINKQUAL      = 0,  /**< Current Link Quality */
     SM_TOTALLOAD     = 1,  /**< Total Quality Mass Loading */
-    SM_LINKQUALSET   = 2,  /**< Overwrite Pollutant in Link, without loss and mixing */
 } SM_LinkPollut;
 
 /// Subcatchment result property codes

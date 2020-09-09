@@ -1986,8 +1986,7 @@ int DLLEXPORT swmm_getLinkPollut(int index, int type, double **PollutArray)
 int DLLEXPORT swmm_setLinkPollut(int index, int type, int pollutant_index, double pollutant_value)
 ///
 ///  Input: index = Index of the desired Link ID
-/// 	   type = SM_LINKQUALSET - Sets link's qual bypassing reactor and loss calculations
-///		  SM_LINKQUAL - Sets link's qual and allows accounting for loss and mixing calculation
+/// 	    type = SM_LINKQUAL - Sets link's qual and allows accounting for loss and mixing calculation
 ///         pollutant_index = index of pollutant to set
 ///         pollutant_value = concentration to set
 ///  Output: API error
@@ -2015,11 +2014,6 @@ int DLLEXPORT swmm_setLinkPollut(int index, int type, int pollutant_index, doubl
 					{
 						Link[index].extQual[pollutant_index] = pollutant_value;
 						Link[index].extPollutFlag[pollutant_index] = 1;
-					} break;
-				case SM_LINKQUALSET:
-					{
-						Link[index].extQual[pollutant_index] = pollutant_value;
-						Link[index].extPollutFlag[pollutant_index] = 2;
 					} break;
 				default: error_code_index = ERR_API_OUTBOUNDS; break;
 			}

@@ -247,11 +247,12 @@ BOOST_FIXTURE_TEST_CASE(set_node_pollutant_cumulative_values, FixtureBeforeStep_
     swmm_end();
 }
 
-// Testing Pollutant Setter - Node - Stepwise 
+// Testing Pollutant Setter - Node - Stepwise and Mass balance less than inflow concentration of 10 
 BOOST_FIXTURE_TEST_CASE(set_node_pollutant_stepwise_values, FixtureBeforeStep_Pollut_Node){
     
     int error;
     double* node_qual;
+    float runoff_error, flow_error, qual_error;
     double elapsedTime = 0.0;
 
     // Pollutant IDs
@@ -275,61 +276,52 @@ BOOST_FIXTURE_TEST_CASE(set_node_pollutant_stepwise_values, FixtureBeforeStep_Po
     }while (elapsedTime != 0 && !error);
     BOOST_REQUIRE(error == ERR_NONE);
     swmm_end();
+
+    // check mass balance error less than 1%
+    swmm_getMassBalErr(&runoff_error, &flow_error, &qual_error);
+    BOOST_TEST(abs(qual_error) <= 1);
 }
 
 
-// Testing Pollutant Setter - Link - Stepwise - overwrite
-BOOST_FIXTURE_TEST_CASE(set_link_pollutant_stepwise_values_overwrite, FixtureBeforeStep_Pollut_Link){
-
-    int error, link_ind, node_ind;
-    int step;
-    double* link_qual;
+// Testing Pollutant Setter - Node - Stepwise and Mass balance greater than inflow concentration of 10 
+BOOST_FIXTURE_TEST_CASE(set_node_pollutant_stepwise_values_2, FixtureBeforeStep_Pollut_Node){
+    
+    int error;
     double* node_qual;
+    float runoff_error, flow_error, qual_error;
     double elapsedTime = 0.0;
-    double node_inflow;
 
-    char linkid[] = "Culvert";
-    char nodeid[] = "Outlet";
-
-
-    // Pollutant ID
+    // Pollutant IDs
     int P1 = 0;
-
-    error = swmm_getObjectIndex(SM_LINK, linkid, &link_ind);
-    BOOST_REQUIRE(error == ERR_NONE);
-    error = swmm_getObjectIndex(SM_NODE, nodeid, &node_ind);
-    BOOST_REQUIRE(error == ERR_NONE);
-
     do
     {
-	    // Set pollutant in link and check the pollutant in the node
-	    error = swmm_setLinkPollut(link_ind, SM_LINKQUALSET, P1, 2.4563);
-	    BOOST_REQUIRE(error == ERR_NONE);
+	// Set pollutant
+	error = swmm_setNodePollut(1, P1, 50.0);
+	BOOST_REQUIRE(error == ERR_NONE);
 
-	    // Route Model Forward
-            error = swmm_step(&elapsedTime);
-	    BOOST_REQUIRE(error == ERR_NONE);
-	   
-	    if (step > 2) // Wait for water to reach node
-            { 
-	    // Get infows concentration in node
-            error = swmm_getNodePollut(node_ind,  SM_NODEQUAL, &node_qual);
-	    BOOST_REQUIRE(error == ERR_NONE);
+	// Route Model Forward
+        error = swmm_step(&elapsedTime);
 
-	    error = swmm_getLinkPollut(link_ind, SM_LINKQUAL, &link_qual);
-	    
-	    // Check
-            BOOST_CHECK_SMALL(abs(node_qual[P1] - link_qual[P1]), 0.01);
-    	    }
-	    step += 1;
+	// Get pollutant
+	error = swmm_getNodePollut(1, SM_NODEQUAL, &node_qual);
+	BOOST_REQUIRE(error == ERR_NONE);
+
+	// Check
+    	BOOST_CHECK_SMALL(node_qual[P1] - 50.0, 0.00);
 
     }while (elapsedTime != 0 && !error);
     BOOST_REQUIRE(error == ERR_NONE);
     swmm_end();
+
+    // check mass balance error less than 1%
+    swmm_getMassBalErr(&runoff_error, &flow_error, &qual_error);
+    BOOST_TEST(abs(qual_error) <= 1);
 }
 
-// Testing Pollutant Setter - Link - Stepwise - reactor
-BOOST_FIXTURE_TEST_CASE(set_link_pollutant_stepwise_values_reactor, FixtureBeforeStep_Pollut_Link){
+
+
+// Testing Pollutant Setter - Link - Stepwise - mass balance concentation less than 10
+BOOST_FIXTURE_TEST_CASE(set_link_pollutant_stepwise_values, FixtureBeforeStep_Pollut_Link){
 
     int error, link_ind, node_ind;
     int step;
@@ -337,7 +329,7 @@ BOOST_FIXTURE_TEST_CASE(set_link_pollutant_stepwise_values_reactor, FixtureBefor
     double* node_qual;
     double elapsedTime = 0.0;
     double node_inflow;
-
+    float runoff_error, flow_error, qual_error;
     char linkid[] = "Culvert";
     char nodeid[] = "Outlet";
 
@@ -376,6 +368,66 @@ BOOST_FIXTURE_TEST_CASE(set_link_pollutant_stepwise_values_reactor, FixtureBefor
     }while (elapsedTime != 0 && !error);
     BOOST_REQUIRE(error == ERR_NONE);
     swmm_end();
+
+    // check mass balance error less than 5%
+    swmm_getMassBalErr(&runoff_error, &flow_error, &qual_error);
+    BOOST_TEST(abs(qual_error) <= 5);
+}
+
+
+// Testing Pollutant Setter - Link - Stepwise - mass balance concentation less than 10
+BOOST_FIXTURE_TEST_CASE(set_link_pollutant_stepwise_values_2, FixtureBeforeStep_Pollut_Link){
+
+    int error, link_ind, node_ind;
+    int step;
+    double* link_qual;
+    double* node_qual;
+    double elapsedTime = 0.0;
+    double node_inflow;
+    float runoff_error, flow_error, qual_error;
+    char linkid[] = "Culvert";
+    char nodeid[] = "Outlet";
+
+
+    // Pollutant ID
+    int P1 = 0;
+
+    error = swmm_getObjectIndex(SM_LINK, linkid, &link_ind);
+    BOOST_REQUIRE(error == ERR_NONE);
+    error = swmm_getObjectIndex(SM_NODE, nodeid, &node_ind);
+    BOOST_REQUIRE(error == ERR_NONE);
+
+    do
+    {
+	    // Set pollutant in link and check the pollutant in the node
+	    error = swmm_setLinkPollut(link_ind, SM_LINKQUAL, P1, 24.0);
+	    BOOST_REQUIRE(error == ERR_NONE);
+
+	    // Route Model Forward
+            error = swmm_step(&elapsedTime);
+	    BOOST_REQUIRE(error == ERR_NONE);
+	   
+	    if (step > 2) // Wait for water to reach node
+            { 
+	    // Get infows concentration in node
+            error = swmm_getNodePollut(node_ind,  SM_NODEQUAL, &node_qual);
+	    BOOST_REQUIRE(error == ERR_NONE);
+
+	    error = swmm_getLinkPollut(link_ind, SM_LINKQUAL, &link_qual);
+	    
+	    // Check
+            BOOST_CHECK_SMALL(abs(node_qual[P1] - link_qual[P1]), 0.01);
+    	    }
+	    step += 1;
+
+    }while (elapsedTime != 0 && !error);
+    BOOST_REQUIRE(error == ERR_NONE);
+    swmm_end();
+
+    // check mass balance error less than 5%
+    swmm_getMassBalErr(&runoff_error, &flow_error, &qual_error);
+    BOOST_TEST(abs(qual_error) <= 5);
+    printf("%f", qual_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
