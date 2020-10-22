@@ -22,4 +22,6 @@ target_link_libraries(test_output
 
 set_target_properties(test_output
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    BUILD_RPATH_USE_ORIGIN TRUE
+    BUILD_RPATH "$ORIGIN/"
 )
