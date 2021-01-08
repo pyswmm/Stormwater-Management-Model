@@ -1,0 +1,16 @@
+
+
+
+#ifndef VERSION_H
+#define VERSION_H
+
+
+#define VERSION       "@swmm-solver_VERSION@"
+#define VERSION_MAJOR @swmm-solver_VERSION_MAJOR@
+#define VERSION_MINOR @swmm-solver_VERSION_MINOR@
+#define VERSION_PATCH @swmm-solver_VERSION_PATCH@
+
+#define VERSION_LEGACY() (10000*VERSION_MAJOR + 1000*VERSION_MINOR + VERSION_PATCH)
+
+
+#endif //VERSION_H

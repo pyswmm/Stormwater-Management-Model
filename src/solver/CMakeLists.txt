@@ -11,6 +11,8 @@
 
 find_package(OpenMP REQUIRED)
 
+# generate version.h
+configure_file(version.h.in version.h)
 
 # configure file groups
 set(SWMM_PUBLIC_HEADERS
@@ -76,6 +78,7 @@ target_include_directories(swmm5
         $<INSTALL_INTERFACE:${INCLUDE_DIST}>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/..
+        ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 install(TARGETS swmm5 EXPORT swmm5Targets

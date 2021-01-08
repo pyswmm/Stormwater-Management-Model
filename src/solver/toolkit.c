@@ -56,9 +56,9 @@ int DLLEXPORT swmm_getVersionInfo(char** major, char** minor, char** patch)
 //
 //  NOTE: Each New Release should be updated in consts.h
 {
-    cstr_duplicate(major, SEMVERSION_MAJOR);
-    cstr_duplicate(minor, SEMVERSION_MINOR);
-    cstr_duplicate(patch, SEMVERSION_PATCH);
+    cstr_duplicate(major, VERSION_MAJOR);
+    cstr_duplicate(minor, VERSION_MINOR);
+    cstr_duplicate(patch, VERSION_PATCH);
     return 0;
 }
 

@@ -22,6 +22,7 @@ project(swmm-solver
     LANGUAGES C CXX
     )
 
+
 # Append local dir to module search path
 # list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
