@@ -237,7 +237,7 @@ void report_writeLogo()
 //  Purpose: writes report header lines to report file.
 //
 {
-    fprintf(Frpt.file, "%s", FMT08);
+    fprintf(Frpt.file, "%s", FMT08, VERSION);
     fprintf(Frpt.file, "%s", FMT09);
     fprintf(Frpt.file, "%s", FMT10);
     time(&SysTime);                    // Save starting wall clock time
