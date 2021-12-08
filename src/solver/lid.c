@@ -998,6 +998,7 @@ void validateLidProc(int j)
         if ( LidProcs[j].soil.porosity      <= 0.0 
         ||   LidProcs[j].soil.fieldCap      >= LidProcs[j].soil.porosity
         ||   LidProcs[j].soil.wiltPoint     >= LidProcs[j].soil.fieldCap
+        ||   LidProcs[j].soil.suction       <  0.0
         ||   LidProcs[j].soil.kSat          <= 0.0
         ||   LidProcs[j].soil.kSlope        <  0.0 )
         {
