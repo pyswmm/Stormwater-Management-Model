@@ -1324,7 +1324,7 @@ void  lid_setOldGroupState(int j)
 
 //=============================================================================
 
-int isLidPervious(int k)
+inline int isLidPervious(int k)
 //
 //  Purpose: determines if a LID process allows infiltration or not.
 //  Input:   k = LID process index 
@@ -1368,20 +1368,19 @@ double getSurfaceDepth(int j)
 
 //=============================================================================
 
-double lid_getPervArea(int j)
+inline double lid_getPervArea(int j)
 //
 //  Purpose: retrieves amount of pervious LID area in a subcatchment.
 //  Input:   j = subcatchment index
 //  Output:  returns amount of pervious LID area (ft2)
 //
 {
-    if ( LidGroups[j] ) return LidGroups[j]->pervArea;
-    else return 0.0;
+    return LidGroups[j] ? LidGroups[j]->pervArea : 0.0;
 }
 
 //=============================================================================
 
-double   lid_getFlowToPerv(int j)
+inline double lid_getFlowToPerv(int j)
 //
 //  Purpose: retrieves flow returned from LID treatment to pervious area of
 //           a subcatchment.
@@ -1389,8 +1388,7 @@ double   lid_getFlowToPerv(int j)
 //  Output:  returns flow returned to pervious area (cfs)
 //
 {
-    if ( LidGroups[j] != NULL ) return LidGroups[j]->flowToPerv;
-    return 0.0;
+    return LidGroups[j] != NULL ? LidGroups[j]->flowToPerv : 0.0;
 }
 
 //=============================================================================
@@ -2103,32 +2101,28 @@ TLidUnit* lid_getLidUnit(int index, int lidIndex, int* errcode)
     return lidUnit;
 }
 
-TLidProc* lid_getLidProc(int index)
+inline TLidProc* lid_getLidProc(int index)
 //
 // Input:   index = Index of desired lid control
 // Output:  ptr = TLidProc ptr 
 // Return:  TLidProc ptr 
 // Purpose: Gets lid process (TLidProc) ptr
 {
-    TLidProc* ptr;
-    ptr = &LidProcs[index];
-    return ptr;
+    return &LidProcs[index];
 }
 
 
-TLidGroup lid_getLidGroup(int index)
+inline TLidGroup lid_getLidGroup(int index)
 //
 // Input:   index = index of desired subcatchment 
 // Output:  result = result data desired 
 // Return:  TLidGroup ptr
 // Purpose: Gets lid group (TLidGroup) ptr
 {
-    TLidGroup ptr;
-    ptr = LidGroups[index];
-    return ptr;
+    return LidGroups[index];
 }
 
-void lid_validateLidProc(int index)
+inline void lid_validateLidProc(int index)
 //
 //  Purpose: hook to lid internal function to validate LID process parameters.
 //  Input:   index = Index of desired subcatchment 
@@ -2138,7 +2132,7 @@ void lid_validateLidProc(int index)
 }
 
 
-void lid_validateLidGroup(int index)
+inline void lid_validateLidGroup(int index)
 //
 //  Purpose: hook to lid internal function to validate LID process parameters.
 //  Input:   index = Index of desired subcatchment 
