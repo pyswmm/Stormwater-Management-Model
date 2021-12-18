@@ -523,8 +523,10 @@ void roofFluxRates(double x[], double f[])
       SurfaceOutflow = getSurfaceOutflowRate(surfaceDepth);
     else getSurfaceOverflowRate(&surfaceDepth);
     StorageDrain = MIN(theLidProc->drain.coeff/UCF(RAINFALL), SurfaceOutflow);
+    // SurfaceOutflow here includes StorageDrain, update f[SURF] before
+    // updating SurfaceOutflow to reduce unnecessary calculation.
+    f[SURF] = (SurfaceInflow - SurfaceEvap - SurfaceOutflow);
     SurfaceOutflow -= StorageDrain;
-    f[SURF] = (SurfaceInflow - SurfaceEvap - StorageDrain - SurfaceOutflow);
 }
 
 //=============================================================================
