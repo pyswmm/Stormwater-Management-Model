@@ -328,13 +328,13 @@ double lidproc_getOutflow(TLidUnit* lidUnit, TLidProc* lidProc, double inflow,
     {
         xMax[PAVE] = theLidProc->pavement.thickness;
     }
-    if ( theLidProc->storage.thickness > 0.0 )
-    {
-        xMax[STOR] = theLidProc->storage.thickness;
-    }
     if ( theLidProc->lidType == GREEN_ROOF )
     {
         xMax[STOR] = theLidProc->drainMat.thickness;
+    }
+    else if ( theLidProc->storage.thickness > 0.0 )
+    {
+        xMax[STOR] = theLidProc->storage.thickness;
     }
 
     //... determine which flux rate function to use
