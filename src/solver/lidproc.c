@@ -1120,8 +1120,7 @@ void swaleFluxRates(double x[], double f[])
     double xDepth;           // depth above depression storage (ft)
 
     //... retrieve state variable from work vector
-    depth = x[SURF];
-    depth = MIN(depth, theLidProc->surface.thickness);
+    depth = MIN(x[SURF], theLidProc->surface.thickness);
 
     //... depression storage depth
     dStore = 0.0;
@@ -1129,8 +1128,7 @@ void swaleFluxRates(double x[], double f[])
     //... get swale's bottom width
     //    (0.5 ft minimum to avoid numerical problems)
     slope = theLidProc->surface.sideSlope;
-    topWidth = theLidUnit->fullWidth;
-    topWidth = MAX(topWidth, 0.5);
+    topWidth = MAX(theLidUnit->fullWidth, 0.5);
     botWidth = topWidth - 2.0 * slope * theLidProc->surface.thickness;
     if ( botWidth < 0.5 )
     {
@@ -1155,8 +1153,7 @@ void swaleFluxRates(double x[], double f[])
     surfInflow = SurfaceInflow * lidArea;
 
     //... ET rate in cfs
-    SurfaceEvap = EvapRate * surfArea;
-    SurfaceEvap = MIN(SurfaceEvap, volume/Tstep);
+    SurfaceEvap = MIN(EvapRate * surfArea, volume/Tstep);
 
     //... infiltration rate to native soil in cfs
     StorageExfil = SurfaceInfil * surfArea;
@@ -1318,8 +1315,7 @@ double getPavementPermRate()
         }
 
         // ... find permeabiity reduction factor
-        permReduction = theLidUnit->volTreated / clogFactor;
-        permReduction = MIN(permReduction, 1.0);
+        permReduction = MIN(theLidUnit->volTreated / clogFactor, 1.0);
     }
 
     // ... return the effective pavement permeability
@@ -1366,8 +1362,7 @@ double getStorageExfilRate()
     clogFactor = theLidProc->storage.clogFactor;
     if ( clogFactor > 0.0 )
     {
-        clogFactor = theLidUnit->waterBalance.inflow / clogFactor;
-        clogFactor = MIN(clogFactor, 1.0);
+        clogFactor = MIN(theLidUnit->waterBalance.inflow / clogFactor, 1.0);
     }
 
     //... infiltration rate = storage Ksat reduced by any clogging
@@ -1474,17 +1469,16 @@ double getDrainMatOutflow(double depth)
 //  Output:  returns flow in drainage mat (ft/s)
 //
 {
-    //... default is to pass all inflow
-    double result = SoilPerc;
-
     //... otherwise use Manning eqn. if its parameters were supplied
     if ( theLidProc->drainMat.alpha > 0.0 )
     {
-        result = theLidProc->drainMat.alpha * pow(depth, 5.0/3.0) *
-                 theLidUnit->fullWidth / theLidUnit->area *
-                 theLidProc->drainMat.voidFrac;
+        return theLidProc->drainMat.alpha * pow(depth, 5.0/3.0) *
+               theLidUnit->fullWidth / theLidUnit->area *
+               theLidProc->drainMat.voidFrac;
     }
-    return result;
+
+    //... default is to pass all inflow
+    return SoilPerc;
 }
 
 //=============================================================================
