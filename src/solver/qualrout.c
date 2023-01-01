@@ -2,26 +2,30 @@
 //   qualrout.c
 //
 //   Project:  EPA SWMM5
-//   Version:  5.1
-//   Date:     03/20/14   (Build 5.1.001)
-//             04/02/15   (Build 5.1.008)
-//             04/30/15   (Build 5.1.009)
-//             08/05/15   (Build 5.1.010)
+//   Version:  5.2
+//   Date:     08/01/22   (Build 5.2.1)
 //   Author:   L. Rossman
 //
 //   Water quality routing functions.
 //
+//   Update History
+//   ==============
 //   Build 5.1.008:
 //   - Pollutant mass lost to seepage flow added to mass balance totals.
 //   - Pollutant concen. increased when evaporation occurs.
-//
 //   Build 5.1.009:
 //   - Criterion for dry link/storage node changed to avoid concen. blowup.
-//
 //   Build 5.1.010:
 //   - Entire module re-written to be more compact and easier to follow.
 //   - Neglible depth limit replaced with a negligible volume limit.
-//
+//   Build 5.1.015:
+//   - Fixed mass balance issue for empty storage nodes that flood.
+//   Build 5.2.0:
+//   - Support added for flow capture by inlet structures.
+//   - Definition of a dry node/link modified.
+//   Build 5.2.1:
+//   - Dry non-storage nodes now have quality determined by inflow.
+//   - Wet non-storage nodes with no inflow now have no change in quality.
 //-----------------------------------------------------------------------------
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -34,6 +38,7 @@
 //  Constants
 //-----------------------------------------------------------------------------
 static const double ZeroVolume = 0.0353147; // 1 liter in ft3
+static const double ZeroDepth  = 0.003281;  // 1 mm in ft
 
 //-----------------------------------------------------------------------------
 //  External functions (declared in funcs.h)
@@ -67,7 +72,7 @@ void    qualrout_init()
 
     for (i = 0; i < Nobjects[NODE]; i++)
     {
-        isWet = ( Node[i].newDepth > FUDGE );
+        isWet = ( Node[i].newDepth > ZeroDepth );
         for (p = 0; p < Nobjects[POLLUT]; p++)
         {
             c = 0.0;
@@ -79,7 +84,7 @@ void    qualrout_init()
 
     for (i = 0; i < Nobjects[LINK]; i++)
     {
-        isWet = ( Link[i].newDepth > FUDGE );
+        isWet = ( Link[i].newDepth > ZeroDepth );
         for (p = 0; p < Nobjects[POLLUT]; p++)
         {
             c = 0.0;
@@ -103,18 +108,18 @@ void qualrout_execute(double tStep)
     int    i, j;
     int    p;
     double qIn, vAvg;
- 
+
     // --- find mass flow each link contributes to its downstream node
     for ( i = 0; i < Nobjects[LINK]; i++ ) findLinkMassFlow(i, tStep);
 
-    // --- find new water quality concentration at each node  
+    // --- find new water quality concentration at each node
     for (j = 0; j < Nobjects[NODE]; j++)
     {
-
         // --- get node inflow and average volume
-        qIn = Node[j].inflow;
+        Node[j].qualInflow = Node[j].inflow;
+        qIn = Node[j].qualInflow;
         vAvg = (Node[j].oldVolume + Node[j].newVolume) / 2.0;
-        
+
         // --- save inflow concentrations if treatment applied
         if ( Node[j].treatment || ExtPollutFlag == 1)
         {
@@ -122,8 +127,8 @@ void qualrout_execute(double tStep)
             treatmnt_setInflow(qIn, Node[j].newQual);
         }
 
-        // --- find new quality at the node 
-        if ( Node[j].type == STORAGE || Node[j].oldVolume > FUDGE )
+        // --- find new quality at the node
+        if ( Node[j].type == STORAGE || Node[j].oldVolume > ZeroVolume )
         {
             findStorageQual(j, tStep);
         }
@@ -197,7 +202,11 @@ void findLinkMassFlow(int i, double tStep)
     // --- identify index of downstream node
     j = Link[i].node2;
     if ( qLink < 0.0 ) j = Link[i].node1;
+
+    // --- flow rate into downstream node (adjusted for inlet capture)
     qLink = fabs(qLink);
+    if (RouteModel != DW)
+        qLink -= inlet_capturedFlow(i);
 
     // --- examine each pollutant
     for (p = 0; p < Nobjects[POLLUT]; p++)
@@ -209,6 +218,7 @@ void findLinkMassFlow(int i, double tStep)
         // --- update total load transported by link
         Link[i].totalLoad[p] += w * tStep;
     }
+    Node[j].qualInflow += qLink;
 }
 
 //=============================================================================
@@ -224,7 +234,7 @@ void findNodeQual(int j)
     double qNode;
 
     // --- if there is flow into node then concen. = mass inflow/node flow
-    qNode = Node[j].inflow;
+    qNode = Node[j].qualInflow;
     if ( qNode > ZERO )
     {
         for (p = 0; p < Nobjects[POLLUT]; p++)
@@ -233,8 +243,14 @@ void findNodeQual(int j)
         }
     }
 
-    // --- otherwise concen. is 0
-    else for (p = 0; p < Nobjects[POLLUT]; p++) Node[j].newQual[p] = 0.0;
+    // --- otherwise concen. remains the same
+    else for (p = 0; p < Nobjects[POLLUT]; p++)
+    {
+        if (Node[j].newDepth > ZeroDepth)
+            Node[j].newQual[p] = Node[j].oldQual[p];
+        else
+            Node[j].newQual[p] = 0.0;
+    }
 }
 
 //=============================================================================
@@ -261,7 +277,7 @@ void findLinkQual(int i, double tStep)
            vLosses,          // evap. + seepage volume loss (ft3)
            fEvap,            // evaporation concentration factor
            barrels,          // number of barrels in conduit
-    	   lossExtQual;      // loss value for external quality 
+    	   lossExtQual;      // loss value for external quality
 
     // --- identify index of upstream node
     j = Link[i].node1;
@@ -291,7 +307,7 @@ void findLinkQual(int i, double tStep)
     vLosses = qSeep*tStep + vEvap;
 
     // --- compute factor by which concentrations are increased due to
-    //     evaporation loss 
+    //     evaporation loss
     fEvap = 1.0;
     if ( vEvap > 0.0 && v1 > ZeroVolume ) fEvap += vEvap / v1;
 
@@ -307,7 +323,7 @@ void findLinkQual(int i, double tStep)
     //     for a conduit)
     if ( RouteModel == DW )
     {
-        qIn = qIn + (v2 + vLosses - v1) / tStep; 
+        qIn = qIn + (v2 + vLosses - v1) / tStep;
         qIn = MAX(qIn, 0.0);
     }
 
@@ -331,12 +347,12 @@ void findLinkQual(int i, double tStep)
         c2 = getMixedQual(c2, v1, wIn, qIn, tStep);
 
         // --- set concen. to zero if remaining volume is negligible
-        if ( v2 < ZeroVolume )
+        if ( v2 < ZeroVolume || Link[i].newDepth <= ZeroDepth)
         {
             massbal_addToFinalStorage(p, c2 * v2);
             c2 = 0.0;
         }
-	
+
 	// --- set reactor qual for external pollutant handling
 	Link[i].reactorQual[p] = c2;
 
@@ -407,7 +423,7 @@ void  findStorageQual(int j, double tStep)
 //           tStep = routing time step (sec)
 //  Output:  none
 //  Purpose: finds new quality in a node with storage volume.
-//  
+//
 {
     int    p,                // pollutant index
            k;                // storage unit index
@@ -421,12 +437,12 @@ void  findStorageQual(int j, double tStep)
            fEvap = 1.0;      // evaporation concentration factor
 
     // --- get inflow rate & initial volume
-    qIn = Node[j].inflow;
+    qIn = Node[j].qualInflow;
     v1 = Node[j].oldVolume;
 
     // -- for storage nodes
     if ( Node[j].type == STORAGE )
-    {    
+    {
         // --- update hydraulic residence time
         //     (HRT can be used in treatment functions)
         updateHRT(j, Node[j].oldVolume, qIn, tStep);
@@ -445,7 +461,7 @@ void  findStorageQual(int j, double tStep)
     // --- for each pollutant
     for (p = 0; p < Nobjects[POLLUT]; p++)
     {
-        // --- start with concen. at start of time step 
+        // --- start with concen. at start of time step
         c1 = Node[j].oldQual[p];
 
         // --- update mass balance accounting for exfiltration loss
@@ -466,8 +482,9 @@ void  findStorageQual(int j, double tStep)
         wIn = Node[j].newQual[p];
         c2 = getMixedQual(c1, v1, wIn, qIn, tStep);
 
-        // --- set concen. to zero if remaining volume is negligible
-        if ( Node[j].newVolume <= ZeroVolume )
+        // --- set concen. to zero if remaining volume & inflow is negligible
+        if ((Node[j].newVolume <= ZeroVolume ||
+             Node[j].newDepth <= ZeroDepth) && qIn <= ZERO)
         {
             massbal_addToFinalStorage(p, c2 * Node[j].newVolume);
             c2 = 0.0;
@@ -488,7 +505,7 @@ void updateHRT(int j, double v, double q, double tStep)
 //           q = inflow rate (cfs)
 //           tStep = time step (sec)
 //  Output:  none
-//  Purpose: updates hydraulic residence time (i.e., water age) at a 
+//  Purpose: updates hydraulic residence time (i.e., water age) at a
 //           storage node.
 //
 {
@@ -522,4 +539,3 @@ double getReactedQual(int p, double c, double v1, double tStep)
     massbal_addReactedMass(p, lossRate);
     return c2;
 }
- 

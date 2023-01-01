@@ -2,28 +2,23 @@
 //   lid.h
 //
 //   Project: EPA SWMM5
-//   Version: 5.1
-//   Date:    03/20/14   (Build 5.1.001)
-//            03/19/15   (Build 5.1.008)
-//            08/01/16   (Build 5.1.011)
-//            03/14/17   (Build 5.1.012)
-//            05/10/18   (Build 5.1.013)
-//   Author:  L. Rossman (US EPA)
+//   Version: 5.2
+//   Date:    11/01/21   (Build 5.2.0)
+//   Author:  L. Rossman
 //
 //   Public interface for LID functions.
 //
+//   Update History
+//   ==============
 //   Build 5.1.008:
 //   - Support added for Roof Disconnection LID.
 //   - Support added for separate routing of LID drain flows.
 //   - Detailed LID reporting modified.
-//
 //   Build 5.1.011:
 //   - Water depth replaces moisture content for LID's pavement layer. 
 //   - Arguments for lidproc_saveResults() modified.
-//
 //   Build 5.1.012:
 //   - Redefined meaning of wasDry in TLidRptFile structure.
-//
 //   Build 5.1.013:
 //   - New member fromPerv added to TLidUnit structure to allow LID
 //     units to also treat pervious area runoff.
@@ -35,7 +30,8 @@
 //     pollutant removal values.
 //   - New members added to TPavementLayer and TLidUnit to support
 //     unclogging permeable pavement at fixed intervals.
-//
+//   Build 5.2.0:
+//   - Covered property added to RAIN_BARREL parameters
 //-----------------------------------------------------------------------------
 
 #ifndef LID_H
@@ -88,8 +84,8 @@ typedef struct
     double   impervFrac;          // impervious area fraction
     double   kSat;                // permeability (ft/sec)
     double   clogFactor;          // clogging factor
-    double   regenDays;           // clogging regeneration interval (days)     //(5.1.013)
-    double   regenDegree;         // degree of clogging regeneration           //
+    double   regenDays;           // clogging regeneration interval (days)
+    double   regenDegree;         // degree of clogging regeneration 
 }  TPavementLayer;
 
 // LID Soil Layer
@@ -111,6 +107,7 @@ typedef struct
     double    voidFrac;           // void volume / total volume
     double    kSat;               // saturated hydraulic conductivity (ft/sec)
     double    clogFactor;         // clogging factor
+    int       covered;            // TRUE if rain barrel is covered
 }  TStorageLayer;
 
 // Underdrain System (part of Storage Layer)
@@ -120,9 +117,9 @@ typedef struct
     double    expon;              // underdrain head exponent (for in or mm)
     double    offset;             // offset height of underdrain (ft)
     double    delay;              // rain barrel drain delay time (sec)
-    double    hOpen;              // head when drain opens (ft)                //(5.1.013)
-    double    hClose;             // head when drain closes (ft)               //
-    int       qCurve;             // curve controlling flow rate (optional)    //
+    double    hOpen;              // head when drain opens (ft)
+    double    hClose;             // head when drain closes (ft)
+    int       qCurve;             // curve controlling flow rate (optional)
 }  TDrainLayer;
 
 // Drainage Mat Layer (for green roofs)
@@ -145,7 +142,7 @@ typedef struct
     TStorageLayer  storage;       // storage layer parameters
     TDrainLayer    drain;         // underdrain system parameters
     TDrainMatLayer drainMat;      // drainage mat layer
-    double*        drainRmvl;     // underdrain pollutant removals             //(5.1.013)
+    double*        drainRmvl;     // underdrain pollutant removals
 }  TLidProc;
 
 // Water Balance Statistics
@@ -197,7 +194,7 @@ typedef struct
     double   botWidth;       // bottom width of single unit (ft)
     double   initSat;        // initial saturation of soil & storage layers
     double   fromImperv;     // fraction of impervious area runoff treated
-    double   fromPerv;       // fraction of pervious area runoff treated       //(5.1.013)
+    double   fromPerv;       // fraction of pervious area runoff treated
     int      toPerv;         // 1 if outflow sent to pervious area; 0 if not
     int      drainSubcatch;  // subcatchment receiving drain flow
     int      drainNode;      // node receiving drain flow
@@ -215,8 +212,8 @@ typedef struct
     double   dryTime;        // time since last rainfall (sec)
     double   oldDrainFlow;   // previous drain flow (cfs)
     double   newDrainFlow;   // current drain flow (cfs)
-    double   volTreated;     // total volume treated (ft)                      //(5.1.013)
-    double   nextRegenDay;   // next day when unit regenerated                 //
+    double   volTreated;     // total volume treated (ft)
+    double   nextRegenDay;   // next day when unit regenerated
     TWaterBalance  waterBalance;     // water balance quantites
     TWaterRate     waterRate;       // water rate within lid layers
 }  TLidUnit;

@@ -2,9 +2,9 @@
 //   exfil.h
 //
 //   Project: EPA SWMM5
-//   Version: 5.1
-//   Date:    09/15/14   (Build 5.1.007)
-//   Author:  L. Rossman (US EPA)
+//   Version: 5.2
+//   Date:    11/01/21  (Build 5.2.0)
+//   Author:  L. Rossman
 //
 //   Public interface for exfiltration functions.
 //-----------------------------------------------------------------------------

@@ -2,10 +2,14 @@
 //   macros.h
 //
 //   Project: EPA SWMM5
-//   Version: 5.1
-//   Date:    03/20/07   (Build 5.1.001)
+//   Version: 5.2
+//   Date:    11/01/21  (Build 5.2.0)
 //   Author:  L. Rossman
 //-----------------------------------------------------------------------------
+
+#ifndef MACROS_H
+#define MACROS_H
+
 
 //--------------------------------------------------
 // Macro to test for successful allocation of memory
@@ -36,3 +40,6 @@
 // Macro to evaluate function x with error checking
 //-------------------------------------------------
 #define CALL(x) (ErrorCode = ((ErrorCode>0) ? (ErrorCode) : (x)))
+
+
+#endif //MACROS_H

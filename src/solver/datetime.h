@@ -2,9 +2,8 @@
 //   datetime.h
 //
 //   Project:  EPA SWMM5
-//   Version:  5.1
-//   Date:     03/20/14   (Build 5.1.001)
-//             08/01/16   (Build 5.1.011)
+//   Version:  5.2
+//   Date:     11/01/21  (Build 5.2.0)
 //   Author:   L. Rossman
 //
 //   The DateTime type is used to store date and time values. It is
@@ -14,9 +13,15 @@
 //   passed since 12/31/1899. The fractional part of a DateTime value is the
 //   fraction of a 24 hour day that has elapsed.
 //
-//   Build 5.1.011
+//   Update History
+//   ==============
+//   Build 5.1.011:
 //   - New getTimeStamp function added.
 //-----------------------------------------------------------------------------
+
+#ifndef DATETIME_H
+#define DATETIME_H
+
 
 typedef double DateTime;
 
@@ -26,6 +31,7 @@ typedef double DateTime;
 #define NO_DATE -693594 // 1/1/0001
 #define DATE_STR_SIZE 12
 #define TIME_STR_SIZE 9
+#define TIME_STAMP_SIZE 21
 
 // Functions for encoding a date or time value to a DateTime value
 DateTime datetime_encodeDate(int year, int month, int day);
@@ -61,3 +67,6 @@ void datetime_setDateFormat(int fmt);
 DateTime datetime_addSeconds(DateTime date1, double seconds);
 DateTime datetime_addDays(DateTime date1, DateTime date2);
 long     datetime_timeDiff(DateTime date1, DateTime date2);
+
+
+#endif //DATETIME_H

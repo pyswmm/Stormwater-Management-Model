@@ -1,12 +1,16 @@
 /******************************************************************************
 **  MODULE:        MATHEXPR.H
-**  PROJECT:       SWMM 5.1
+**  PROJECT:       SWMM5
 **  DESCRIPTION:   header file for the math expression parser in mathexpr.c.
 **  AUTHORS:       L. Rossman, US EPA - NRMRL
 **                 F. Shang, University of Cincinnati
 **  VERSION:       5.1.001
 **  LAST UPDATE:   03/20/14
 ******************************************************************************/
+
+#ifndef MATHEXPR_H
+#define MATHEXPR_H
+
 
 //  Node in a tokenized math expression list
 struct ExprNode
@@ -27,3 +31,6 @@ double mathexpr_eval(MathExpr* expr, double (*getVal) (int));
 
 //  Deletes a tokenized math expression
 void  mathexpr_delete(MathExpr* expr);
+
+
+#endif //MATHEXPR_H
