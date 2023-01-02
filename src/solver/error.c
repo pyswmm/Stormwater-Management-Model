@@ -42,23 +42,6 @@ char* error_getMsg(int errCode, char* msg)
     return (msg);
 };
 
-int error_getErrorIndex(int ErrorCode)
-{
-    int ErrorIndex = 0;
-    int i = 0;
-
-    while ( i < MAXERRMSG )
-    {
-        if ( ErrorCodes[i] == ErrorCode )
-        {
-            ErrorIndex = i;
-            break;
-        }
-        else i += 1;
-    }
-    return ErrorIndex;
-}
-
 int  error_setInpError(int errcode, char* s)
 {
     strcpy(ErrString, s);

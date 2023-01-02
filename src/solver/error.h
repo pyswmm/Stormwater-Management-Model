@@ -194,8 +194,8 @@ enum  ErrorType {
 };
 
 char* error_getMsg(int i, char* msg);
-int   error_getCode(int i);
-int   error_getErrorIndex(int ErrorCode);
+//int   error_getCode(int i);
+//int   error_getErrorIndex(int ErrorCode);
 int   error_setInpError(int errcode, char* s);
 
 #endif //ERROR_H

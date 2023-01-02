@@ -197,8 +197,8 @@ static double getSavedNodeValue(int index, int property, int period);
 static double getSavedLinkValue(int index, int property, int period);
 static double getSystemValue(int property);
 static double getMaxRouteStep();
-static void   setNodeLatFlow(int index, double value);
-static void   setOutfallStage(int index, double value);
+// static void   setNodeLatFlow(int index, double value);
+// static void   setOutfallStage(int index, double value);
 static void   setLinkSetting(int index, double value);
 static void   setRoutingStep(double value);
 static void   getAbsolutePath(const char* fname, char* absPath, size_t size);
@@ -865,10 +865,10 @@ void  DLLEXPORT swmm_setValue(int property, int index, double value)
             Subcatch[index].rptFlag = (value > 0.0);
         return;
     case swmm_NODE_LATFLOW:
-        setNodeLatFlow(index, value);
+        // setNodeLatFlow(index, value);
         return;
     case swmm_NODE_HEAD:
-        setOutfallStage(index, value);
+        // setOutfallStage(index, value);
         return;
     case swmm_NODE_RPTFLAG:
         if (!IsStartedFlag && index >= 0 && index < Nobjects[NODE])
@@ -1134,36 +1134,36 @@ double getSystemValue(int property)
 
 //=============================================================================
 
-void  setNodeLatFlow(int index, double value)
-//
-//  Input:   index = the index of a node
-//           value = the node's external inflow value
-//  Output:  none
-//  Purpose: sets the value of a node's external inflow.
-{
-    if (index < 0 || index >= Nobjects[NODE])
-        return;
-    Node[index].apiExtInflow = value / UCF(FLOW);
-}
+// void  setNodeLatFlow(int index, double value)
+// //
+// //  Input:   index = the index of a node
+// //           value = the node's external inflow value
+// //  Output:  none
+// //  Purpose: sets the value of a node's external inflow.
+// {
+//     if (index < 0 || index >= Nobjects[NODE])
+//         return;
+//     Node[index].apiExtInflow = value / UCF(FLOW);
+// }
 
 //=============================================================================
 
-void  setOutfallStage(int index, double value)
-//
-//  Input:   index = the index of an outfall node
-//           value = the outfall's fixed stage elevation
-//  Output:  none
-//  Purpose: sets the value of an outfall node's fixed stage.
-{
-    TNode* node;
-    if (index < 0 || index >= Nobjects[NODE])
-        return;
-    node = &Node[index];
-    if (node->type != OUTFALL)
-        return;
-    Outfall[node->subIndex].fixedStage = value / UCF(LENGTH);
-    Outfall[node->subIndex].type = FIXED_OUTFALL;
-}
+// void  setOutfallStage(int index, double value)
+// //
+// //  Input:   index = the index of an outfall node
+// //           value = the outfall's fixed stage elevation
+// //  Output:  none
+// //  Purpose: sets the value of an outfall node's fixed stage.
+// {
+//     TNode* node;
+//     if (index < 0 || index >= Nobjects[NODE])
+//         return;
+//     node = &Node[index];
+//     if (node->type != OUTFALL)
+//         return;
+//     Outfall[node->subIndex].fixedStage = value / UCF(LENGTH);
+//     Outfall[node->subIndex].type = FIXED_OUTFALL;
+// }
 
 //=============================================================================
 

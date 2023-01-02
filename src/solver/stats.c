@@ -879,7 +879,8 @@ int stats_getNodeStat(int index, TNodeStats **nodeStats)
 
     // Convert units
     // Current Average Depth
-    (*nodeStats)->avgDepth *= (UCF(LENGTH) / (double)StepCount);
+    (*nodeStats)->avgDepth *=
+        (UCF(LENGTH) / (double)TimeStepStats.timeStepCount);
     // Current Maximum Depth
     (*nodeStats)->maxDepth *= UCF(LENGTH);
     // Current Maximum Lateral Inflow
@@ -921,7 +922,8 @@ int stats_getStorageStat(int index, TStorageStats **storageStats)
     // Initial Volume
     (*storageStats)->initVol *= UCF(VOLUME);
     // Current Average Volume
-    (*storageStats)->avgVol *= (UCF(VOLUME) / (double)StepCount);
+    (*storageStats)->avgVol *=
+        (UCF(VOLUME) / (double)TimeStepStats.timeStepCount);
     // Current Maximum Volume
     (*storageStats)->maxVol *= UCF(VOLUME);
     // Current Maximum Flow

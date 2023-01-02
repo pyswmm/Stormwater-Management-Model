@@ -70,6 +70,7 @@ typedef struct
    double        maxInflow;
    double        maxOverflow;
    double        maxPondedVol;
+   int           nonConvergedCount;
    DateTime      maxInflowDate;
    DateTime      maxOverflowDate;
 }  SM_NodeStats;
@@ -172,6 +173,7 @@ typedef struct
    DateTime      maxFlowDate;
    double        maxVeloc;
    double        maxDepth;
+   double        maxStreetFilled;
    double        timeNormalFlow;
    double        timeInletControl;
    double        timeSurcharged;
@@ -179,7 +181,7 @@ typedef struct
    double        timeFullDnstream;
    double        timeFullFlow;
    double        timeCapacityLimited;
-   double        timeInFlowClass[7];
+   double        timeInFlowClass[9];
    double        timeCourantCritical;
    long          flowTurns;
    int           flowTurnSign;
