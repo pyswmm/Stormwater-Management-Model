@@ -479,8 +479,9 @@ void writeNodeFlooding()
                 FlowUnitWords[FlowUnits], VolUnitsWords[UnitSystem]);
             if ( RouteModel == DW )      fprintf(Frpt.file, "    %6s",
                                          PondingUnitsWords[UnitSystem]);
-            else if ( UnitSystem == US ) fprintf(Frpt.file, "  1000 ft\xB3");
-            else                         fprintf(Frpt.file, "   1000 m\xB3");
+            // OWA EDIT - write unicode super script 3 (\xC2\xB3) instead of extended ascii (\xB3)
+            else if ( UnitSystem == US ) fprintf(Frpt.file, "  1000 ft\xC2\xB3");
+            else                         fprintf(Frpt.file, "   1000 m\xC2\xB3");
             fprintf(Frpt.file,
 "\n  --------------------------------------------------------------------------");
             n = 1;
@@ -524,14 +525,15 @@ void writeStorageVolumes()
         WRITE("**********************");
         WRITE("");
 
+// OWA EDIT - write unicode super script 3 (\xC2\xB3) instead of extended ascii (\xB3)
         fprintf(Frpt.file,
 "\n  ------------------------------------------------------------------------------------------------"
 "\n                         Average    Avg   Evap  Exfil     Maximum    Max    Time of Max    Maximum"
 "\n                          Volume   Pcnt   Pcnt   Pcnt      Volume   Pcnt     Occurrence    Outflow");
         if ( UnitSystem == US ) fprintf(Frpt.file,
-"\n  Storage Unit          1000 ft\xB3   Full   Loss   Loss    1000 ft\xB3   Full    days hr:min        ");
+"\n  Storage Unit          1000 ft\xC2\xB3   Full   Loss   Loss    1000 ft\xC2\xB3   Full    days hr:min        ");
         else fprintf(Frpt.file,
-"\n  Storage Unit           1000 m\xB3   Full   Loss   Loss     1000 m\xB3   Full    days hr:min        ");
+"\n  Storage Unit           1000 m\xC2\xB3   Full   Loss   Loss     1000 m\xC2\xB3   Full    days hr:min        ");
         fprintf(Frpt.file, "%3s", FlowUnitWords[FlowUnits]);
         fprintf(Frpt.file,
 "\n  ------------------------------------------------------------------------------------------------");
