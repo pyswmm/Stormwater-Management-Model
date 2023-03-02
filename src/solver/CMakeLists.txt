@@ -46,7 +46,6 @@ if(BUILD_DEF)
 else()
     # Performs standard library build
     add_library(swmm5
-        SHARED
             ${SWMM_SOURCES}
             $<TARGET_OBJECTS:shared_objs>
     )
@@ -56,11 +55,11 @@ endif()
 # Sets MSVC compiler flags
 target_compile_options(swmm5
     PUBLIC
-        $<$<C_COMPILER_ID:MSVC>:
-            $<$<CONFIG:Release>:/GL>
-            $<$<CONFIG:Release>:/fp:fast>
-            $<$<CONFIG:Release>:/Zi>
-        >
+        "$<$<C_COMPILER_ID:MSVC>:"
+            "$<$<CONFIG:Release>:/GL>"
+            "$<$<CONFIG:Release>:/fp:fast>"
+            "$<$<CONFIG:Release>:/Zi>"
+        ">"
         $<$<C_COMPILER_ID:AppleClang>:
             $<$<STREQUAL:"${CMAKE_GENERATOR}","Ninja">:-O3>
         >
@@ -76,7 +75,7 @@ target_link_options(swmm5
 target_link_libraries(swmm5
     PUBLIC
         $<$<NOT:$<BOOL:$<C_COMPILER_ID:MSVC>>>:m>
-        $<$<BOOL:OpenMP_C_FOUND>:OpenMP::OpenMP_C>
+        $<$<BOOL:${OpenMP_C_FOUND}>:OpenMP::OpenMP_C>
         $<$<BOOL:${OpenMP_AVAILABLE}>:omp>
 )
 
