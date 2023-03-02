@@ -141,8 +141,8 @@ EXPORT_TOOLKIT int swmm_getAPIError(int errorCode, char **errorMsg)
 /// Return:  API Error
 /// Purpose: Get an error message
 {   
-    char* msg = "\0";;
-    msg = error_getMsg(errorCode,msg);
+    char msg[MAXMSG+1];
+    error_getMsg(errorCode,msg);
     cstr_duplicate(errorMsg, msg);
     
     return 0;
