@@ -2,39 +2,37 @@
 //   flowrout.c
 //
 //   Project:  EPA SWMM5
-//   Version:  5.1
-//   Date:     03/19/14  (Build 5.1.001)
-//             09/15/14  (Build 5.1.007)
-//             03/19/15  (Build 5.1.008)
-//             03/14/17  (Build 5.1.012)
-//             03/01/20  (Build 5.1.014)
-//   Author:   L. Rossman (EPA)
+//   Version:  5.2
+//   Date:     05/02/22  (Build 5.2.1)
+//   Author:   L. Rossman
 //             M. Tryby (EPA)
 //
 //   Flow routing functions.
 //
-//
+//   Update History
+//   ==============
 //   Build 5.1.007:
-//   - updateStorageState() modified in response to node outflow being 
+//   - updateStorageState() modified in response to node outflow being
 //     initialized with current evap & seepage losses in routing_execute().
-//
 //   Build 5.1.008:
 //   - Determination of node crown elevations moved to dynwave.c.
 //   - Support added for new way of recording conduit's fullness state.
-//
 //   Build 5.1.012:
 //   - Overflow computed in updateStorageState() must be non-negative.
 //   - Terminal storage nodes now updated corectly.
-//
 //   Build 5.1.014:
 //   - Arguments to function link_getLossRate changed.
-//
+//   Build 5.2.0:
+//   - Correction made to updating state of terminal storage nodes.
+//   Build 5.2.1:
+//   - For storage routing, after convergence the reported depth is now
+//     based on the last volume found rather than the next trial depth.
 //-----------------------------------------------------------------------------
 #define _CRT_SECURE_NO_DEPRECATE
 
-#include "headers.h"
 #include <stdlib.h>
 #include <math.h>
+#include "headers.h"
 
 //-----------------------------------------------------------------------------
 //  Constants
@@ -58,7 +56,7 @@ static void   initLinkDepths(void);
 static void   initNodeDepths(void);
 static void   initNodes(void);
 static void   initLinks(int routingModel);
-static void   validateTreeLayout(void);      
+static void   validateTreeLayout(void);
 static void   validateGeneralLayout(void);
 static void   updateStorageState(int i, int j, int links[], double dt);
 static double getStorageOutflow(int node, int j, int links[], double dt);
@@ -79,7 +77,7 @@ void flowrout_init(int routingModel)
 //  Purpose: initializes flow routing system.
 //
 {
-    // --- initialize for dynamic wave routing 
+    // --- initialize for dynamic wave routing
     if ( routingModel == DW )
     {
         // --- check for valid conveyance network layout
@@ -135,7 +133,7 @@ double flowrout_getRoutingStep(int routingModel, double fixedStep)
 
 int flowrout_execute(int links[], int routingModel, double tStep)
 //
-//  Input:   links = array of link indexes in topo-sorted order
+//  Input:   links = array of link indexes in topo-sorted order (per routing model)
 //           routingModel = type of routing method used
 //           tStep = routing time step (sec)
 //  Output:  returns number of computational steps taken
@@ -179,10 +177,11 @@ int flowrout_execute(int links[], int routingModel, double tStep)
         // --- retrieve inflow at upstream end of link
         qin  = getLinkInflow(j, tStep);
 
-        // route flow through link
+        // --- route flow through link
         if ( routingModel == SF )
             steps += steadyflow_execute(j, &qin, &qout, tStep);
-        else steps += kinwave_execute(j, &qin, &qout, tStep);
+        else
+            steps += kinwave_execute(j, &qin, &qout, tStep);
         Link[j].newFlow = qout;
 
         // adjust outflow at upstream node and inflow at downstream node
@@ -242,7 +241,7 @@ void validateTreeLayout()
         }
     }
 
-    // ---  check links 
+    // ---  check links
     for (j=0; j<Nobjects[LINK]; j++)
     {
         switch ( Link[j].type )
@@ -292,7 +291,7 @@ void validateGeneralLayout()
         Node[i].inflow += 1.0;
 
         // --- if link is dummy link or ideal pump then it must
-        //     be the only link exiting the upstream node 
+        //     be the only link exiting the upstream node
         if ( (Link[j].type == CONDUIT && Link[j].xsect.type == DUMMY) ||
              (Link[j].type == PUMP &&
               Pump[Link[j].subIndex].type == IDEAL_PUMP) )
@@ -344,7 +343,7 @@ void initNodeDepths(void)
     int   n;                           // node index
     double y;                          // node water depth (ft)
 
-    // --- use Node[].inflow as a temporary accumulator for depth in 
+    // --- use Node[].inflow as a temporary accumulator for depth in
     //     connecting links and Node[].outflow as a temporary counter
     //     for the number of connecting links
     for (i = 0; i < Nobjects[NODE]; i++)
@@ -384,7 +383,7 @@ void initNodeDepths(void)
 }
 
 //=============================================================================
-         
+
 void initLinkDepths()
 //
 //  Input:   none
@@ -553,8 +552,8 @@ void updateStorageState(int i, int j, int links[], double dt)
     // --- compute terms of flow balance eqn.
     //       v2 = v1 + (inflow - outflow)*dt
     //     that do not depend on storage depth at end of time step
-    vFixed = Node[i].oldVolume + 
-             0.5 * (Node[i].oldNetInflow + Node[i].inflow - 
+    vFixed = Node[i].oldVolume +
+             0.5 * (Node[i].oldNetInflow + Node[i].inflow -
                     Node[i].outflow) * dt;
     d1 = Node[i].newDepth;
 
@@ -580,7 +579,7 @@ void updateStorageState(int i, int j, int links[], double dt)
                 v2 = Node[i].fullVolume;
         }
 
-        // --- update node's volume & depth 
+        // --- update node's volume & depth
         Node[i].newVolume = v2;
         d2 = node_getDepth(i, v2);
         Node[i].newDepth = d2;
@@ -591,7 +590,6 @@ void updateStorageState(int i, int j, int links[], double dt)
         if ( fabs(d2 - d1) <= STOPTOL ) stopped = TRUE;
 
         // --- update old depth with new value and continue to iterate
-        Node[i].newDepth = d2;
         d1 = d2;
         iter++;
     }
@@ -621,7 +619,7 @@ double getStorageOutflow(int i, int j, int links[], double dt)
         if ( Link[m].node1 != i ) break;
         outflow += getLinkInflow(m, dt);
     }
-    return outflow;        
+    return outflow;
 }
 
 //=============================================================================
@@ -635,21 +633,20 @@ void setNewNodeState(int j, double dt)
 //           for Steady Flow or Kinematic Wave flow routing.
 //
 {
-    int   canPond;                     // TRUE if ponding can occur at node  
+    int   canPond;                     // TRUE if ponding can occur at node
     double newNetInflow;               // inflow - outflow at node (cfs)
 
     // --- update terminal storage nodes
     if ( Node[j].type == STORAGE )
     {
-    if ( Node[j].updated == FALSE )
-        updateStorageState(j, Nobjects[LINK], NULL, dt);
-        return; 
+        if ( Node[j].updated == FALSE )
+            updateStorageState(j, Nobjects[LINK], NULL, dt);
+        return;
     }
 
-    // --- update stored volume using mid-point integration
+    // --- update stored volume
     newNetInflow = Node[j].inflow - Node[j].outflow - Node[j].losses;
-    Node[j].newVolume = Node[j].oldVolume +
-                        0.5 * (Node[j].oldNetInflow + newNetInflow) * dt;
+    Node[j].newVolume = Node[j].oldVolume + newNetInflow * dt;
     if ( Node[j].newVolume < FUDGE ) Node[j].newVolume = 0.0;
 
     // --- determine any overflow lost from system
@@ -706,7 +703,7 @@ void setNewLinkState(int j)
              Conduit[k].fullState = ALL_FULL;
         }
         else
-        {    
+        {
             Conduit[k].capacityLimited = FALSE;
             Conduit[k].fullState = 0;
         }
@@ -727,7 +724,7 @@ void updateNodeDepth(int i, double y)
     if ( Node[i].type == STORAGE ) return;
 
     // --- if non-outfall node is flooded, then use full depth
-    if ( Node[i].type != OUTFALL &&
+    if ( Node[i].type != OUTFALL && Node[i].degree > 0 &&
          Node[i].overflow > 0.0 ) y = Node[i].fullDepth;
 
     // --- if current new depth below y
@@ -767,12 +764,12 @@ int steadyflow_execute(int j, double* qin, double* qout, double tStep)
         k = Link[j].subIndex;
         q = (*qin) / Conduit[k].barrels;
         if ( Link[j].xsect.type == DUMMY ) Conduit[k].a1 = 0.0;
-        else 
+        else
         {
             // --- adjust flow for evap and infil losses
-            q -= link_getLossRate(j, q);                                       //(5.1.014)
-         
-            // --- flow can't exceed full flow 
+            q -= link_getLossRate(j, q);
+
+            // --- flow can't exceed full flow
             if ( q > Link[j].qFull )
             {
                 q = Link[j].qFull;
@@ -780,7 +777,7 @@ int steadyflow_execute(int j, double* qin, double* qout, double tStep)
                 (*qin) = q * Conduit[k].barrels;
             }
 
-            // --- infer flow area from flow rate 
+            // --- infer flow area from flow rate
             else
             {
                 s = q / Conduit[k].beta;
@@ -788,10 +785,10 @@ int steadyflow_execute(int j, double* qin, double* qout, double tStep)
             }
         }
         Conduit[k].a2 = Conduit[k].a1;
-        
+
         Conduit[k].q1Old = Conduit[k].q1;
         Conduit[k].q2Old = Conduit[k].q2;
-        
+
         Conduit[k].q1 = q;
         Conduit[k].q2 = q;
         (*qout) = q * Conduit[k].barrels;
