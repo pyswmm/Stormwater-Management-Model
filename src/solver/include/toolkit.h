@@ -25,6 +25,7 @@
 #include "../enums.h"
 #include "../datetime.h"
 #include "../lid.h"
+#include "../inlet.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -311,6 +312,24 @@ EXPORT_TOOLKIT int swmm_getLinkParam(int index, SM_LinkProperty param, double *v
  @return Error code
 */
 EXPORT_TOOLKIT int swmm_setLinkParam(int index, SM_LinkProperty param, double value);
+
+/**
+ @brief Get a property value for the inlets of a specified link.
+ @param index The index of a link
+ @param Param The property type code (See @ref SM_InletProperty)
+ @param[out] value The value of the inlet's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getInletParam(int index, SM_InletProperty param, double *value);
+
+/**
+ @brief Set a property value for the inlets of a specified link.
+ @param index The index of a link
+ @param Param The property type code (See @ref SM_InletProperty)
+ @param value The new value of the inlet's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setInletParam(int index, SM_InletProperty param, double value);
 
 /**
  @brief Get a property value for specified subcatchment.

@@ -275,5 +275,10 @@ typedef enum {
     SM_STORAGEDRAIN = 29, /**< Underdrain flow rate layer */
 } SM_LidResult;
 
+typedef enum {
+    SM_INLETCLOGFACTOR = 0, 
+    SM_INLETFLOWLIMIT  = 1
+} SM_InletProperty;
+
 
 #endif /* TOOLKIT_ENUMS_H_ */
