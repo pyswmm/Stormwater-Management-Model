@@ -2,23 +2,18 @@
 //   hotstart.c
 //
 //   Project:  EPA SWMM5
-//   Version:  5.1
-//   Date:     03/20/14  (Build 5.1.001)
-//             03/28/14  (Build 5.1.002)
-//             04/23/14  (Build 5.1.005)
-//             03/19/15  (Build 5.1.008)
-//             08/01/16  (Build 5.1.011)
-//             04/01/20  (Build 5.1.015)
-//   Author:   L. Rossman (EPA)
+//   Version:  5.2
+//   Date:     11/01/21 (Build 5.2.0)
+//   Author:   L. Rossman
 //
 //   Hot Start file functions.
-
+//
 //   A SWMM hot start file contains the state of a SWMM project after
 //   a simulation has been run, allowing it to be used to initialize
 //   a subsequent simulation that picks up where the previous run ended.
 //
-//   An abridged version of the hot start file (version 2) is available 
-//   that contains only variables that appear in the binary output file 
+//   An abridged version of the hot start file (version 2) is available
+//   that contains only variables that appear in the binary output file
 //   (groundwater upper moisture and water table elevation, node depth,
 //   lateral inflow, and quality, and link flow, depth, setting and quality).
 //
@@ -29,15 +24,15 @@
 //   insure that these components are of the same sub-type and maintain
 //   the same order as when the hot start file was created.
 //
+//   Update History
+//   ==============
 //   Build 5.1.008:
 //   - Storage node hydraulic residence time (HRT) was added to the file.
 //   - Link control settings are now applied when reading a hot start file.
 //   - Runoff read from file assigned to newRunoff property instead of oldRunoff.
 //   - Array indexing bug when reading snowpack state from file fixed.
-//
 //   Build 5.1.011:
-//   - Link control setting bug when reading a hot start file fixed.    
-//
+//   - Link control setting bug when reading a hot start file fixed.
 //   Build 5.1.015:
 //   - Support added for multiple infiltration methods within a project.
 //-----------------------------------------------------------------------------
@@ -63,8 +58,8 @@ static int fileVersion;
 //-----------------------------------------------------------------------------
 // Function declarations
 //-----------------------------------------------------------------------------
-static int  openHotstartFile1(void); 
-static int  openHotstartFile2(void);       
+static int  openHotstartFile1(void);
+static int  openHotstartFile2(void);
 static void readRunoff(void);
 static void saveRunoff(void);
 static void readRouting(void);
@@ -148,7 +143,7 @@ int openHotstartFile1()
     nLandUses = -1;
     flowUnits = -1;
     if ( fileVersion >= 2 )
-    {    
+    {
         fread(&nSubcatch, sizeof(int), 1, Fhotstart1.file);
     }
     else nSubcatch = Nobjects[SUBCATCH];
@@ -161,7 +156,7 @@ int openHotstartFile1()
     fread(&nLinks, sizeof(int), 1, Fhotstart1.file);
     fread(&nPollut, sizeof(int), 1, Fhotstart1.file);
     fread(&flowUnits, sizeof(int), 1, Fhotstart1.file);
-    if ( nSubcatch != Nobjects[SUBCATCH] 
+    if ( nSubcatch != Nobjects[SUBCATCH]
     ||   nLandUses != Nobjects[LANDUSE]
     ||   nNodes    != Nobjects[NODE]
     ||   nLinks    != Nobjects[LINK]
@@ -271,7 +266,7 @@ void  saveRouting()
 
 void readRouting()
 //
-//  Input:   none 
+//  Input:   none
 //  Output:  none
 //  Purpose: reads initial state of all nodes, links and groundwater objects
 //           from hotstart file.
@@ -342,7 +337,7 @@ void readRouting()
         if ( !readFloat(&x, f) ) return;
         Link[i].setting = x;
 
-        // --- set link's target setting to saved setting 
+        // --- set link's target setting to saved setting
         Link[i].targetSetting = x;
         link_setTargetSetting(i);
         link_setSetting(i, 0.0);
@@ -365,12 +360,9 @@ void  saveRunoff(void)
 //  Purpose: saves current state of all subcatchments to hotstart file.
 //
 {
-    int   i, j, k, sizeX;
-    double* x;
+    int   i, j, k;
+    double x[6];
     FILE*  f = Fhotstart2.file;
-
-    sizeX = MAX(6, Nobjects[POLLUT]+1);
-    x = (double *) calloc(sizeX, sizeof(double));
 
     for (i = 0; i < Nobjects[SUBCATCH]; i++)
     {
@@ -380,8 +372,8 @@ void  saveRunoff(void)
         fwrite(x, sizeof(double), 4, f);
 
         // Infiltration state (max. of 6 elements)
-        for (j=0; j<sizeX; j++) x[j] = 0.0;
-        infil_getState(i, x);                                                  //(5.1.015)
+        for (j=0; j<6; j++) x[j] = 0.0;
+        infil_getState(i, x);
         fwrite(x, sizeof(double), 6, f);
 
         // Groundwater state (4 elements)
@@ -405,25 +397,32 @@ void  saveRunoff(void)
         if ( Nobjects[POLLUT] > 0 )
         {
             // Runoff quality
-            for (j=0; j<Nobjects[POLLUT]; j++) x[j] = Subcatch[i].newQual[j];
-            fwrite(x, sizeof(double), Nobjects[POLLUT], f);
+            for (j=0; j<Nobjects[POLLUT]; j++)
+            {
+                x[0] = Subcatch[i].newQual[j];
+                fwrite(x, sizeof(double), 1, f);
+            }
 
             // Ponded quality
-            for (j=0; j<Nobjects[POLLUT]; j++) x[j] = Subcatch[i].pondedQual[j];
-            fwrite(x, sizeof(double), Nobjects[POLLUT], f);
-            
+            for (j=0; j<Nobjects[POLLUT]; j++)
+            {
+                x[0] = Subcatch[i].pondedQual[j];
+                fwrite(x, sizeof(double), 1, f);
+            }
+
             // Buildup and when streets were last swept
             for (k=0; k<Nobjects[LANDUSE]; k++)
             {
                 for (j=0; j<Nobjects[POLLUT]; j++)
-                    x[j] = Subcatch[i].landFactor[k].buildup[j];
-                fwrite(x, sizeof(double), Nobjects[POLLUT], f);
+                {
+                    x[0] = Subcatch[i].landFactor[k].buildup[j];
+                    fwrite(x, sizeof(double), Nobjects[POLLUT], f);
+                }
                 x[0] = Subcatch[i].landFactor[k].lastSwept;
                 fwrite(x, sizeof(double), 1, f);
             }
         }
     }
-    free(x);
 }
 
 //=============================================================================
@@ -450,7 +449,7 @@ void  readRunoff()
 
         // Infiltration state (max. of 6 elements)
         for (j=0; j<6; j++) if ( !readDouble(&x[j], f) ) return;
-        infil_setState(i, x);                                                  //(5.1.015)
+        infil_setState(i, x);
 
         // Groundwater state (4 elements)
         if ( Subcatch[i].groundwater != NULL )
@@ -462,7 +461,7 @@ void  readRunoff()
         // Snowpack state (5 elements for each of 3 snow surfaces)
         if ( Subcatch[i].snowpack != NULL )
         {
-            for (j=0; j<3; j++) 
+            for (j=0; j<3; j++)
             {
                 for (k=0; k<5; k++) if ( !readDouble(&x[k], f) ) return;
                 snow_setState(i, j, x);
@@ -470,7 +469,7 @@ void  readRunoff()
         }
 
         // Water quality
-        if ( Nobjects[POLLUT] > 0 ) 
+        if ( Nobjects[POLLUT] > 0 )
         {
             // Runoff quality
             for (j=0; j<Nobjects[POLLUT]; j++)
@@ -479,7 +478,7 @@ void  readRunoff()
             // Ponded quality
             for (j=0; j<Nobjects[POLLUT]; j++)
                 if ( !readDouble(&Subcatch[i].pondedQual[j], f) ) return;
-            
+
             // Buildup and when streets were last swept
             for (k=0; k<Nobjects[LANDUSE]; k++)
             {
@@ -528,7 +527,7 @@ int  readDouble(double* x, FILE* f)
 {
     // --- read a value from the file
     if ( feof(f) )
-    {    
+    {
         *(x) = 0.0;
         report_writeErrorMsg(ERR_HOTSTART_FILE_READ, "");
         return FALSE;

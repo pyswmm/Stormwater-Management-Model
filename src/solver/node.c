@@ -2,40 +2,41 @@
 //   node.c
 //
 //   Project:  EPA SWMM5
-//   Version:  5.1
-//   Date:     03/20/14   (Build 5.1.001)
-//             09/15/14   (Build 5.1.007)
-//             04/02/15   (Build 5.1.008)
-//             08/05/15   (Build 5.1.010)
-//             05/10/18   (Build 5.1.013)
-//             03/01/20   (Build 5.1.014)
-//             04/14/20   (Build 5.1.015)
+//   Version:  5.2
+//   Date:     10/29/22   (Build 5.2.2)
 //   Author:   L. Rossman
 //
 //   Conveyance system node functions.
 //
+//   Update History
+//   ==============
 //   Build 5.1.007:
 //   - Ponded area property for storage nodes deprecated.
 //   - Support for Green-Ampt seepage from bottom and sides of storage node added.
 //   - Storage node evap. & seepage losses now computed at start of each routing
 //     time step.
-//
 //   Build 5.1.008:
-//   - Support added for sending outfall discharge to a subctchment.
-//
+//   - Support added for sending outfall discharge to a subcatchment.
 //   Build 5.1.010:
 //   - Storage losses now based on node's new volume instead of old volume.
-//
 //   Build 5.1.013:
 //   - A surcharge depth can now be applied to storage nodes.
-//   - A negative inflow is now assigned to an Outfall node with backflow. 
-//
+//   - A negative inflow is now assigned to an Outfall node with backflow.
 //   Build 5.1.014:
 //   - Fixed bug in storage_losses() that affected storage exfiltration.
-//
 //   Build 5.1.015:
 //   - Fatal error issued if a storage node's area curve produces a negative
 //     volume when extrapolated to the node's full depth.
+//   Build 5.2.0:
+//   - Support added Streets and Inlets.
+//   - Support added for analytical storage shapes.
+//   Build 5.2.1:
+//   - Warning no longer issued when node full depth is increased to match
+//     crown of highest connecting link.
+//   - a2 term for paraboloid shaped storage units was corrected
+//   Build 5.2.2:
+//   - Warning restored for node full depth being increased to crown of highest
+//     connecting link.
 //-----------------------------------------------------------------------------
 #define _CRT_SECURE_NO_DEPRECATE
 
@@ -45,7 +46,7 @@
 #include "headers.h"
 #include "findroot.h"
 
-//-----------------------------------------------------------------------------                  
+//-----------------------------------------------------------------------------
 //  Local Declarations
 //-----------------------------------------------------------------------------
 typedef struct
@@ -58,11 +59,11 @@ typedef struct
 //  External functions (declared in funcs.h)
 //-----------------------------------------------------------------------------
 //  node_readParams        (called from readNode in input.c)
-//  node_validate          (called from project_validate) 
+//  node_validate          (called from project_validate)
 //  node_initState         (called from project_init)
 //  node_setOldHydState    (called from routing_execute)
 //  node_setOldQualState   (called from routing_execute)
-//  node_initInflow        (called from routing_execute)
+//  node_initFlows         (called from routing_execute)
 //  node_setOutletDepth    (called from routing_execute)
 //  node_getLosses         (called from routing_execute)
 //  node_getSystemOutflow  (called from removeOutflows in routing.c)
@@ -142,6 +143,7 @@ void  node_setParams(int j, int type, int k, double x[])
     Node[j].surDepth   = 0.0;
     Node[j].pondedArea = 0.0;
     Node[j].degree     = 0;
+    Node[j].inlet      = NO_INLET;
     switch (type)
     {
       case JUNCTION:
@@ -153,7 +155,7 @@ void  node_setParams(int j, int type, int k, double x[])
 
       case OUTFALL:
         Outfall[k].type        = (int)x[1];
-        Outfall[k].outfallStage= x[2] / UCF(LENGTH);
+        Outfall[k].fixedStage  = x[2] / UCF(LENGTH);
         Outfall[k].tideCurve   = (int)x[3];
         Outfall[k].stageSeries = (int)x[4];
         Outfall[k].hasFlapGate = (char)x[5];
@@ -169,15 +171,13 @@ void  node_setParams(int j, int type, int k, double x[])
       case STORAGE:
         Node[j].fullDepth  = x[1] / UCF(LENGTH);
         Node[j].initDepth  = x[2] / UCF(LENGTH);
-        Storage[k].aCoeff  = x[3];
-        Storage[k].aExpon  = x[4];
-        Storage[k].aConst  = x[5];
-        Storage[k].aCurve  = (int)x[6];
-
-        // Surcharge depth replaces ponded area                                //(5.1.013)
-        Node[j].surDepth   = x[7] / UCF(LENGTH);                               //
-        
-        Storage[k].fEvap   = x[8];
+        Storage[k].shape   = (int)x[3];
+        Storage[k].a1      = x[4];
+        Storage[k].a2      = x[5];
+        Storage[k].a0      = x[6];
+        Storage[k].aCurve  = (int)x[7];
+        Node[j].surDepth   = x[8] / UCF(LENGTH);
+        Storage[k].fEvap   = x[9];
         break;
 
       case DIVIDER:
@@ -216,10 +216,10 @@ void  node_validate(int j)
     if ( Node[j].initDepth > Node[j].fullDepth + Node[j].surDepth )
         report_writeErrorMsg(ERR_NODE_DEPTH, Node[j].ID);
 
-    // --- check for negative volume for storage node at full depth            //(5.1.015)
-    if (Node[j].type == STORAGE)                                               //
-        if (node_getVolume(j, Node[j].fullDepth) < 0.0)                        //
-            report_writeErrorMsg(ERR_STORAGE_VOLUME, Node[j].ID);              //
+    // --- check for negative volume for storage node at full depth
+    if (Node[j].type == STORAGE)
+        if (node_getVolume(j, Node[j].fullDepth) < 0.0)
+            report_writeErrorMsg(ERR_STORAGE_VOLUME, Node[j].ID);
 
     if ( Node[j].type == DIVIDER ) divider_validate(j);
 
@@ -262,6 +262,7 @@ void node_initState(int j)
     // --- initialize any inflow
     Node[j].oldLatFlow = 0.0;
     Node[j].newLatFlow = 0.0;
+    Node[j].apiExtInflow = 0.0;
     Node[j].losses = 0.0;
 
     // --- initialize storage nodes
@@ -298,6 +299,8 @@ void node_setOldHydState(int j)
 {
     Node[j].oldDepth    = Node[j].newDepth;
     Node[j].oldVolume   = Node[j].newVolume;
+    Node[j].oldFlowInflow = Node[j].inflow;
+    Node[j].oldNetInflow = Node[j].inflow - Node[j].outflow;
 }
 
 //=============================================================================
@@ -319,17 +322,15 @@ void node_setOldQualState(int j)
 
 //=============================================================================
 
-void node_initInflow(int j, double tStep)
+void node_initFlows(int j, double tStep)
 //
 //  Input:   j = node index
 //           tStep = time step (sec)
 //  Output:  none
-//  Purpose: initializes a node's inflow at start of next time step.
+//  Purpose: initializes a node's inflow/outflow/overflow at start of time step.
 //
 {
     // --- initialize inflow & outflow
-    Node[j].oldFlowInflow = Node[j].inflow;
-    Node[j].oldNetInflow  = Node[j].inflow - Node[j].outflow;
     Node[j].inflow = Node[j].newLatFlow;
     Node[j].outflow = Node[j].losses;
 
@@ -390,7 +391,7 @@ double  node_getSurfArea(int j, double d)
     switch (Node[j].type)
     {
       case STORAGE: return storage_getSurfArea(j, d);
-      default:      return 0.0;        
+      default:      return 0.0;
     }
 }
 
@@ -482,7 +483,7 @@ double node_getSystemOutflow(int j, int *isFlooded)
 
     // --- otherwise node is an interior node and any
     //     overflow is considered as system outflow and flooding
-    else 
+    else
     {
         if ( Node[j].newVolume <= Node[j].fullVolume)
             outflow = Node[j].overflow;
@@ -512,7 +513,7 @@ void node_getResults(int j, double f, float x[])
     x[NODE_HEAD] = x[NODE_DEPTH] + (float)z;
     z = (f1*Node[j].oldVolume + f*Node[j].newVolume) * UCF(VOLUME);
     x[NODE_VOLUME]  = (float)z;
-    z = (f1*Node[j].oldLatFlow + f*Node[j].newLatFlow) * UCF(FLOW); 
+    z = (f1*Node[j].oldLatFlow + f*Node[j].newLatFlow) * UCF(FLOW);
     x[NODE_LATFLOW] = (float)z;
     z = (f1*Node[j].oldFlowInflow + f*Node[j].inflow) * UCF(FLOW);
     x[NODE_INFLOW] = (float)z;
@@ -612,7 +613,7 @@ int junc_readParams(int j, int k, char* tok[], int ntoks)
 //  Purpose: reads a junction's properties from a tokenized line of input.
 //
 //  Format of input line is:
-//     nodeID  elev  maxDepth  initDepth  surDepth  aPond 
+//     nodeID  elev  maxDepth  initDepth  surDepth  aPond
 {
     int    i;
     double x[6];
@@ -646,7 +647,6 @@ int junc_readParams(int j, int k, char* tok[], int ntoks)
     return 0;
 }
 
-
 //=============================================================================
 //                   S T O R A G E   M E T H O D S
 //=============================================================================
@@ -661,12 +661,15 @@ int storage_readParams(int j, int k, char* tok[], int ntoks)
 //  Purpose: reads a storage unit's properties from a tokenized line of input.
 //
 //  Format of input line is:
-//     nodeID  elev  maxDepth  initDepth  FUNCTIONAL a1 a2 a0 surDepth fEvap (infil) //(5.1.013)
-//     nodeID  elev  maxDepth  initDepth  TABULAR    curveID  surDepth fEvap (infil) //
-//
+//     nodeID  elev  maxDepth  initDepth  curveType a1 a2 a0 surDepth fEvap (infil)
+//     nodeID  elev  maxDepth  initDepth  TABULAR   curveID  surDepth fEvap (infil)
+//             x[0]  x[1]      x[2]       x[3]       x[4..7]  x[8]     x[9]
 {
     int    i, m, n;
-    double x[9];
+    double x[10], y[3];
+    double A, B;             //base semi-axis length & width for conical shape
+    double L, W;             //base length & width for pyramidal shape
+    double Z;                //run over rise for conical & pyramidal sides
     char*  id;
 
     // --- get ID name
@@ -684,40 +687,106 @@ int storage_readParams(int j, int k, char* tok[], int ntoks)
     // --- get surf. area relation type
     m = findmatch(tok[4], RelationWords);
     if ( m < 0 ) return error_setInpError(ERR_KEYWORD, tok[4]);
-    x[3] = 0.0;                        // a1 
-    x[4] = 0.0;                        // a2
-    x[5] = 0.0;                        // a0
-    x[6] = -1.0;                       // curveID
-    x[7] = 0.0;                        // aPond
-    x[8] = 0.0;                        // fEvap
+    x[3] = m;
+    x[4] = 0.0;                        // a1
+    x[5] = 0.0;                        // a2
+    x[6] = 0.0;                        // a0
+    x[7] = -1.0;                       // curveID
+    x[8] = 0.0;                        // surDepth
+    x[9] = 0.0;                        // fEvap
+
+    // --- get surf. area curve name
+    if (m == TABULAR)
+    {
+        i = project_findObject(CURVE, tok[5]);
+        if (i < 0) return error_setInpError(ERR_NAME, tok[5]);
+        x[7] = i;
+        n = 6;
+    }
 
     // --- get surf. area function coeffs.
-    if ( m == FUNCTIONAL )
+    else
     {
+        if (ntoks < 8) return error_setInpError(ERR_ITEMS, "");
         for (i=5; i<=7; i++)
         {
-            if ( i < ntoks )
-            {
-                if ( ! getDouble(tok[i], &x[i-2]) )
-                    return error_setInpError(ERR_NUMBER, tok[i]);
-            }
+            if ( ! getDouble(tok[i], &y[i-5]) )
+                return error_setInpError(ERR_NUMBER, tok[i]);
         }
         n = 8;
     }
 
-    // --- get surf. area curve name
-    else
+    // --- check for valid data
+    switch (m)
     {
-        m = project_findObject(CURVE, tok[5]);
-        if ( m < 0 ) return error_setInpError(ERR_NAME, tok[5]);
-        x[6] = m;
-        n = 6;
+        case FUNCTIONAL:
+            // area at 0 depth can't be negative
+            if (y[2] < 0.0) return error_setInpError(ERR_NUMBER, tok[7]);
+            break;
+
+        case CYLINDRICAL:
+        case CONICAL:
+        case PARABOLOID:
+        case PYRAMIDAL:
+            // length or width can't be <= 0, slope can't be < 0
+            if (y[0] <= 0.0 ) return error_setInpError(ERR_NUMBER, tok[5]);
+            if (y[1] <= 0.0) return error_setInpError(ERR_NUMBER, tok[6]);
+            if (y[2] < 0.0) return error_setInpError(ERR_NUMBER, tok[7]);
+            break;
+    }
+    // --- height of paraboloid shape can't be 0
+    if (m == PARABOLOID && y[2] == 0.0)
+        return error_setInpError(ERR_NUMBER, tok[7]);
+
+    // --- convert supplied parameters to coeffs. in surface area equation
+    switch (m)
+    {
+        case FUNCTIONAL:
+            x[4] = y[0];
+            x[5] = y[1];
+            x[6] = y[2];
+            break;
+
+        case CYLINDRICAL:
+            A = y[0] / 2.;                  // base semi-axis length
+            B = y[1] / 2.;                  // base semi axis width
+            x[4] = 0.0;                     // a1 term
+            x[5] = 0.0;                     // a2 term
+            x[6] = PI * A * B;              // a0 term
+            break;
+
+        case CONICAL:
+            A = y[0] / 2.;                  // base semi-axis length
+            B = y[1] / 2.;                  // base semi axis width
+            Z = y[2];                       // side slope
+            x[4] = 2.0 * PI * B * Z;        // linear coeff.
+            x[5] = PI * B / A * Z * Z;      // quadratic coeff.
+            x[6] = PI * A * B;              // constant
+            break;
+
+        case PARABOLOID:
+            A = y[0] / 2.;                  // top semi-axis length
+            B = y[1] / 2.;                  // top semi-axis width
+            Z = y[2];                       // top height
+            x[4] = PI * A * B / Z;          // a1 term
+            x[5] = 0.0;                     // a2 term
+            x[6] = 0.0;                     // a0 term
+            break;
+
+        case PYRAMIDAL:
+            L = y[0];
+            W = y[1];
+            Z = y[2];
+            x[4] = 2.0 * (L + W) * Z;       // linear coeff.
+            x[5] = 4.0 * Z * Z;             // quadratic coeff.
+            x[6] = L * W;                   // constant
+            break;
     }
 
-    // --- ponded area replaced by surcharge depth                             //(5.1.013)
+    // --- get surcharge depth if present
     if ( ntoks > n)
     {
-        if ( ! getDouble(tok[n], &x[7]) )
+        if ( ! getDouble(tok[n], &x[8]) )
             return error_setInpError(ERR_NUMBER, tok[n]);
         n++;
     }
@@ -725,7 +794,7 @@ int storage_readParams(int j, int k, char* tok[], int ntoks)
     // --- get evaporation fraction if present
     if ( ntoks > n )
     {
-        if ( ! getDouble(tok[n], &x[8]) )
+        if ( ! getDouble(tok[n], &x[9]) )
             return error_setInpError(ERR_NUMBER, tok[n]);
         n++;
     }
@@ -751,8 +820,12 @@ double storage_getDepth(int j, double v)
 {
     int    k = Node[j].subIndex;
     int    i = Storage[k].aCurve;
+    int    shape = Storage[k].shape;
+    double a0 = Storage[k].a0;
+    double a1 = Storage[k].a1;
+    double a2 = Storage[k].a2;
     double d, e;
-	TStorageVol storageVol;
+    TStorageVol storageVol;
 
     // --- return max depth if a max. volume has been computed
     //     and volume is > max. volume
@@ -760,35 +833,72 @@ double storage_getDepth(int j, double v)
     &&   v >= Node[j].fullVolume ) return Node[j].fullDepth;
     if ( v == 0.0 ) return 0.0;
 
-    // --- use tabular area v. depth curve
-    if ( i >= 0 )
-        return table_getInverseArea(&Curve[i], v*UCF(VOLUME)) / UCF(LENGTH);
+    // --- convert volume to user's units
+    v *= UCF(VOLUME);
+    storageVol.k = k;
+    storageVol.v = v;
 
-    // --- use functional area v. depth relation
-    else
+    switch (shape)
     {
-        v *= UCF(VOLUME);
-        if ( Storage[k].aExpon == 0.0 )
+        case TABULAR:
+        i = Storage[k].aCurve;
+        if (i >= 0)
+            d = table_getStorageDepth(&Curve[i], v);
+        else d = 0.0;
+        break;
+
+        case CYLINDRICAL:
+        // area = a0; v = a0*d;
+        d = v / a0;
+        break;
+
+        case PARABOLOID:
+        // area = a1*d; v = (a1/2)*d^2
+        d = sqrt(2.0 * v / a1);
+        break;
+
+        case  FUNCTIONAL:
+        // area = a0 + a1; v = (a0 + a1) * d
+        if (a2 == 0.0)
         {
-            d = v / (Storage[k].aConst + Storage[k].aCoeff);
+            d = v / (a0 + a1);
         }
-        else if ( Storage[k].aConst == 0.0 )
+        // area = a1*d^a2; v = a1/(a2+1)*d^(a2+1)
+        else if (a0 == 0.0)
         {
-            e = 1.0 / (Storage[k].aExpon + 1.0);
-            d = pow(v / (Storage[k].aCoeff * e), e);
+            e = 1.0 / (a2 + 1.0);
+            d = pow(v / (a1 * e), e);
+        }
+        // area = a0 + a1*d; v = a0*d + (a1/2)*d^2
+        else if (a2 == 1.0 && a1 > 0.0)
+        {
+            d = (sqrt(a0*a0 + 2.*a1*v) - a0) / a1;
         }
         else
+        // area = a0 + a1*d^a2
         {
-            storageVol.k = k;
-            storageVol.v = v;
-            d = v / (Storage[k].aConst + Storage[k].aCoeff);
+            d = v / (a0 + a1);
             findroot_Newton(0.0, Node[j].fullDepth*UCF(LENGTH), &d,
-                            0.001, storage_getVolDiff, &storageVol);            
+                0.001, storage_getVolDiff, &storageVol);
         }
-        d /= UCF(LENGTH);
-        if ( d > Node[j].fullDepth ) d = Node[j].fullDepth;
-        return d;
+        break;
+
+        case CONICAL:
+        case PYRAMIDAL:
+        // area = a0 + a1*d + a2*d^2; v = a0*d + (a1/2)*d^2 + (a2/3)*d^3
+        d = v / a0;
+        findroot_Newton(0.0, Node[j].fullDepth*UCF(LENGTH), &d,
+            0.001, storage_getVolDiff, &storageVol);
+        break;
+
+        default:
+        d = 0.0;
     }
+
+    d /= UCF(LENGTH);
+    if ( d > Node[j].fullDepth )
+        d = Node[j].fullDepth;
+    return d;
 }
 
 //=============================================================================
@@ -796,28 +906,23 @@ double storage_getDepth(int j, double v)
 void  storage_getVolDiff(double y, double* f, double* df, void* p)
 //
 //  Input:   y = depth of water (ft)
+//           p = pointer to a TStorageVol object
 //  Output:  f = volume of water (ft3)
-//           df = dVolume/dDepth (ft2)
-//  Purpose: computes volume and its derivative with respect to depth
-//           at storage node Kstar using the node's area versus depth function.
+//           df = dVolume/dDepth ( = surface area)(ft2)
+//  Purpose: computes volume difference and its derivative at a storage node
+//           using the node's area versus depth function.
 //
 {
     int    k;
-    double e, v;
     TStorageVol* storageVol;
 
-    // ... cast void pointer p to a TStorageVol object
+    // --- cast void pointer p to a TStorageVol object
     storageVol = (TStorageVol *)p;
     k = storageVol->k;
 
-    // ... find storage volume at depth y
-    e = Storage[k].aExpon + 1.0;
-    v = Storage[k].aConst * y + Storage[k].aCoeff / e * pow(y, e);
-
-    // ... compute difference between this volume and target volume
-    //     as well as its derivative w.r.t. y
-    *f = v - storageVol->v;
-    *df = Storage[k].aConst + Storage[k].aCoeff * pow(y, e-1.0);
+    // --- compute volume & surface area at depth y
+    *f = storage_getVolume(k, y) - storageVol->v;
+    *df = storage_getSurfArea(k, y);
 }
 
 //=============================================================================
@@ -831,27 +936,41 @@ double storage_getVolume(int j, double d)
 //
 {
     int    k = Node[j].subIndex;
-    int    i = Storage[k].aCurve;
-    double v;
+    int    i;
+    double n, v;
 
     // --- return full volume if depth >= max. depth
     if ( d == 0.0 ) return 0.0;
     if ( d >= Node[j].fullDepth
     &&   Node[j].fullVolume > 0.0 ) return Node[j].fullVolume;
 
-    // --- use table integration if area v. depth table exists
-    if ( i >= 0 )
-      return table_getArea(&Curve[i], d*UCF(LENGTH)) / UCF(VOLUME);
-
-    // --- otherwise use functional area v. depth relation
-    else
+    switch (Storage[k].shape)
     {
-        d *= UCF(LENGTH);
-        v = Storage[k].aConst * d;
-        v += Storage[k].aCoeff / (Storage[k].aExpon+1.0) *
-             pow(d, Storage[k].aExpon+1.0);
-        return v / UCF(VOLUME);
+        // --- for tabular shape function, use end area method
+        case TABULAR:
+            i = Storage[k].aCurve;
+            if (i >= 0)
+                return table_getStorageVolume(&Curve[i], d*UCF(LENGTH)) /
+                    UCF(VOLUME);
+            else return 0.0;
 
+        // --- for FUNCTIONAL relation, integrate a0 + a1*d^a2
+        case FUNCTIONAL:
+            d *= UCF(LENGTH);
+            n = Storage[k].a2 + 1.0;
+            v = (Storage[k].a0 * d) + Storage[k].a1 / n * pow(d, n);
+            return v / UCF(VOLUME);
+
+        // --- for other shapes evaluate cubic eqn. a0*d + (a1/2)*d^2 + (a2/3)*d^3
+        case CYLINDRICAL:
+        case CONICAL:
+        case PARABOLOID:
+        case PYRAMIDAL:
+            d *= UCF(LENGTH);
+            v = d * (Storage[k].a0 + d * (Storage[k].a1 / 2.0 + d * Storage[k].a2 / 3.0));
+            return v / UCF(VOLUME);
+
+        default: return 0.0;
     }
 }
 
@@ -865,18 +984,35 @@ double storage_getSurfArea(int j, double d)
 //  Purpose: computes a storage node's surface area from its water depth.
 //
 {
-    double area;
+    double area = 0.0;
     int k = Node[j].subIndex;
-    int i = Storage[k].aCurve;
-    if ( i >= 0 )
-        area = table_lookupEx(&Curve[i], d*UCF(LENGTH));
-    else
+    int i;
+
+    switch (Storage[k].shape)
     {
-        if ( Storage[k].aCoeff <= 0.0 ) area = Storage[k].aConst;
-        else if ( Storage[k].aExpon == 0.0 )
-            area = Storage[k].aConst + Storage[k].aCoeff;
-        else area = Storage[k].aConst + Storage[k].aCoeff *
-                    pow(d*UCF(LENGTH), Storage[k].aExpon);
+        // --- for tabular shape function, use table look-up
+        case TABULAR:
+            i = Storage[k].aCurve;
+            if (i >= 0)
+                area = table_lookupEx(&Curve[i], d*UCF(LENGTH));
+            break;
+
+        // --- for FUNCTIONAL relation, evaluate a0 + a1*d^a2
+        case FUNCTIONAL:
+            area = Storage[k].a0 + Storage[k].a1 *
+                pow(d*UCF(LENGTH), Storage[k].a2);
+            break;
+
+        // --- for other shapes, evaluate quadratic a0 + a1*d + a2*d^2
+        case CYLINDRICAL:
+        case CONICAL:
+        case PARABOLOID:
+        case PYRAMIDAL:
+            d *= UCF(LENGTH);
+            area = Storage[k].a0 + d * (Storage[k].a1 + d * Storage[k].a2);
+            break;
+
+        default: return 0.0;
     }
     return area / UCF(LENGTH) / UCF(LENGTH);
 }
@@ -937,9 +1073,9 @@ double storage_getLosses(int j, double tStep)
         exfil = Storage[k].exfil;
 
         // --- if either of these apply
-        if ( evapRate > 0.0 || exfil != NULL) 
+        if ( evapRate > 0.0 || exfil != NULL)
         {
-            // --- obtain storage depth & surface area 
+            // --- obtain storage depth & surface area
             depth = Node[j].newDepth;
             area = storage_getSurfArea(j, depth);
 
@@ -959,7 +1095,7 @@ double storage_getLosses(int j, double tStep)
             {
                 lossRatio = Node[j].newVolume / totalLoss;
                 evapRate *= lossRatio;
-                exfilRate *= lossRatio; 
+                exfilRate *= lossRatio;
             }
         }
 
@@ -989,7 +1125,7 @@ int divider_readParams(int j, int k, char* tok[], int ntoks)
 //    nodeID  elev  divLink  CUTOFF  qCutoff (optional params)
 //    nodeID  elev  divLink  WEIR    qMin  dhMax  cWeir (optional params)
 //  where optional params are:
-//    maxDepth  initDepth  surDepth  aPond    
+//    maxDepth  initDepth  surDepth  aPond
 //
 {
     int    i, m, m1, m2, n;
@@ -1017,7 +1153,7 @@ int divider_readParams(int j, int k, char* tok[], int ntoks)
         if ( m1 < 0 ) return error_setInpError(ERR_NAME, tok[2]);
         x[1] = m1;
     }
-    
+
     // --- get divider type
 	n = 4;
     m1 = findmatch(tok[3], DividerTypeWords);
@@ -1068,7 +1204,7 @@ int divider_readParams(int j, int k, char* tok[], int ntoks)
         }
         m++;
     }
- 
+
     // --- add parameters to data base
     Node[j].ID = id;
     node_setParams(j, DIVIDER, k, x);
@@ -1160,7 +1296,7 @@ double divider_getOutflow(int j, int k)
 
             // --- if weir surcharged, use orifice eqn.
             if ( f > 1.0 ) qOut = Divider[i].qMax * sqrt(f);
-            
+
             // --- otherwise use weir eqn.
             else qOut = Divider[i].cWeir *
                         pow(f*Divider[i].dhMax, 1.5) / UCF(FLOW);
@@ -1180,7 +1316,7 @@ double divider_getOutflow(int j, int k)
     // --- make sure outflow doesn't exceed inflow
     if ( qOut > qIn ) qOut = qIn;
 
-    // --- if link k not the diversion link, then re-define qOut as 
+    // --- if link k not the diversion link, then re-define qOut as
     //     the undiverted flow
     if ( k != Divider[i].link )
     {
@@ -1219,7 +1355,7 @@ int outfall_readParams(int j, int k, char* tok[], int ntoks)
     id = project_findID(NODE, tok[0]);                      // node ID
     if ( id == NULL )
         return error_setInpError(ERR_NAME, tok[0]);
-    if ( ! getDouble(tok[1], &x[0]) )                       // invert elev. 
+    if ( ! getDouble(tok[1], &x[0]) )                       // invert elev.
         return error_setInpError(ERR_NUMBER, tok[1]);
     i = findmatch(tok[2], OutfallTypeWords);               // outfall type
     if ( i < 0 ) return error_setInpError(ERR_KEYWORD, tok[2]);
@@ -1228,26 +1364,26 @@ int outfall_readParams(int j, int k, char* tok[], int ntoks)
     x[3] = -1.;                                            // tidal curve
     x[4] = -1.;                                            // tide series
     x[5] = 0.;                                             // flap gate
-    x[6] = -1.;                                            // route to subcatch//(5.1.008)
+    x[6] = -1.;                                            // route to subcatch
 
     n = 4;
-    if ( i >= STAGED_OUTFALL )
+    if ( i >= FIXED_OUTFALL )
     {
         if ( ntoks < 4 ) return error_setInpError(ERR_ITEMS, "");
         n = 5;
         switch ( i )
         {
-        case STAGED_OUTFALL:                                // fixed stage
+        case FIXED_OUTFALL:                                // fixed stage
           if ( ! getDouble(tok[3], &x[2]) )
               return error_setInpError(ERR_NUMBER, tok[3]);
           break;
         case TIDAL_OUTFALL:                                // tidal curve
-          m = project_findObject(CURVE, tok[3]);              
+          m = project_findObject(CURVE, tok[3]);
           if ( m < 0 ) return error_setInpError(ERR_NAME, tok[3]);
           x[3] = m;
           break;
         case TIMESERIES_OUTFALL:                           // stage time series
-          m = project_findObject(TSERIES, tok[3]);            
+          m = project_findObject(TSERIES, tok[3]);
           if ( m < 0 ) return error_setInpError(ERR_NAME, tok[3]);
           x[4] = m;
           Tseries[m].refersTo = TIMESERIES_OUTFALL;
@@ -1303,8 +1439,8 @@ void outfall_setOutletDepth(int j, double yNorm, double yCrit, double z)
         else Node[j].newDepth = yNorm;
         return;
 
-      case STAGED_OUTFALL:
-        stage = Outfall[i].outfallStage;
+      case FIXED_OUTFALL:
+        stage = Outfall[i].fixedStage;
         break;
 
       case TIDAL_OUTFALL:
@@ -1325,7 +1461,7 @@ void outfall_setOutletDepth(int j, double yNorm, double yCrit, double z)
     }
 
     // --- now determine depth at node given outfall stage elev.
- 
+
     // --- let critical flow depth be min. of critical & normal depth
     yCrit = MIN(yCrit, yNorm);
 
@@ -1350,7 +1486,7 @@ void outfall_setOutletDepth(int j, double yNorm, double yCrit, double z)
     }
 
     // --- and for case where there is no conduit offset and outfall stage
-    //     lies below critical depth, then node depth = critical depth 
+    //     lies below critical depth, then node depth = critical depth
     else yNew = yCrit;
     Node[j].newDepth = yNew;
 }

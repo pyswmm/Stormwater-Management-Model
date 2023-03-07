@@ -2,7 +2,7 @@
 # CMakeLists.txt - CMake configuration file for swmm-solver/extern
 #
 # Created: March 16, 2020
-# Updated: May 21, 2020
+# Updated: Oct 19, 2022
 #
 # Author: Michael E. Tryby
 #         US EPA - ORD/CESER
