@@ -1966,8 +1966,8 @@ EXPORT_TOOLKIT int swmm_getNodeResult(int index, SM_NodeResult type, double *res
                             + Node[index].invertElev) * UCF(LENGTH); break;
             case SM_LATINFLOW:
                 *result = Node[index].newLatFlow * UCF(FLOW); break;
-	        case SM_HRT:
-		        *result = Storage[Node[index].subIndex].hrt; break;
+            case SM_HRT:
+                *result = Storage[Node[index].subIndex].hrt; break;
             default: error_code = ERR_TKAPI_OUTBOUNDS; break;
         }
     }
@@ -2046,39 +2046,39 @@ EXPORT_TOOLKIT int swmm_setNodePollut(int index, SM_NodePollut type, int polluta
 /// Return:  API Error
 /// Purpose: Set pollutant concentration in nodes at the current time step
 {
-	int error_code = 0;
+    int error_code = 0;
 
-	// Check if Open
-	if(swmm_IsOpenFlag() == FALSE)
-	{
-	    error_code = ERR_TKAPI_INPUTNOTOPEN;
-	}
-	// Check if object index is within bounds
-	else if (index < 0 || index >= Nobjects[NODE])
-	{
-	    error_code = ERR_TKAPI_OBJECT_INDEX;
-	}
-	else
-	{
-		if (ExtPollutFlag == 0)
-		{
-			ExtPollutFlag = 1;
-		}
-		if (pollutant_index <= Nobjects[POLLUT])
-		{
+    // Check if Open
+    if(swmm_IsOpenFlag() == FALSE)
+    {
+        error_code = ERR_TKAPI_INPUTNOTOPEN;
+    }
+    // Check if object index is within bounds
+    else if (index < 0 || index >= Nobjects[NODE])
+    {
+        error_code = ERR_TKAPI_OBJECT_INDEX;
+    }
+    else
+    {
+        if (ExtPollutFlag == 0)
+        {
+            ExtPollutFlag = 1;
+        }
+        if (pollutant_index <= Nobjects[POLLUT])
+        {
             switch(type)
             {
                 case SM_NODEQUAL:
                 {
                     Node[index].extQual[pollutant_index] = pollutant_value;
-	    		    Node[index].extPollutFlag[pollutant_index] = 1;
+                    Node[index].extPollutFlag[pollutant_index] = 1;
                 } break;
                 default: error_code = ERR_TKAPI_OUTBOUNDS; break;
             }
-			
-		}
-	}
-	return error_code;
+            
+        }
+    }
+    return error_code;
 }
 
 
@@ -2200,44 +2200,44 @@ EXPORT_TOOLKIT int swmm_getLinkPollut(int index, SM_LinkPollut type, double **po
 EXPORT_TOOLKIT int swmm_setLinkPollut(int index, SM_LinkPollut type, int pollutant_index, double pollutant_value)
 ///
 ///  Input: index = Index of the desired Link ID
-/// 	    type = SM_LINKQUAL - Sets link's qual and allows accounting for loss and mixing calculation
+///         type = SM_LINKQUAL - Sets link's qual and allows accounting for loss and mixing calculation
 ///         pollutant_index = index of pollutant to set
 ///         pollutant_value = concentration to set
 ///  Return: API error
 ///  Purponse: Set pollutant concentration in links 
 {
-	int error_code = 0;
+    int error_code = 0;
     
-	// Check if Open
-	if(swmm_IsOpenFlag() == FALSE)
-	{
-	    error_code = ERR_TKAPI_INPUTNOTOPEN;
-	}
-	// Check if object index is within bounds
-	else if (index < 0 || index >= Nobjects[LINK])
-	{
-	    error_code = ERR_TKAPI_OBJECT_INDEX;
-	}
-	else
-	{
-		if (ExtPollutFlag == 0)
-		{
-			ExtPollutFlag = 1;
-		}
-		if (pollutant_index <= Nobjects[POLLUT])
-		{
-			switch(type)
-			{
-				case SM_LINKQUAL:
-					{
-						Link[index].extQual[pollutant_index] = pollutant_value;
-						Link[index].extPollutFlag[pollutant_index] = 1;
-					} break;
-				default: error_code = ERR_TKAPI_OUTBOUNDS; break;
-			}
-		}
-	}
-	return error_code;
+    // Check if Open
+    if(swmm_IsOpenFlag() == FALSE)
+    {
+        error_code = ERR_TKAPI_INPUTNOTOPEN;
+    }
+    // Check if object index is within bounds
+    else if (index < 0 || index >= Nobjects[LINK])
+    {
+        error_code = ERR_TKAPI_OBJECT_INDEX;
+    }
+    else
+    {
+        if (ExtPollutFlag == 0)
+        {
+            ExtPollutFlag = 1;
+        }
+        if (pollutant_index <= Nobjects[POLLUT])
+        {
+            switch(type)
+            {
+                case SM_LINKQUAL:
+                    {
+                        Link[index].extQual[pollutant_index] = pollutant_value;
+                        Link[index].extPollutFlag[pollutant_index] = 1;
+                    } break;
+                default: error_code = ERR_TKAPI_OUTBOUNDS; break;
+            }
+        }
+    }
+    return error_code;
 }
 
 EXPORT_TOOLKIT int swmm_getSubcatchResult(int index, SM_SubcResult type, double* result)
@@ -2448,7 +2448,7 @@ EXPORT_TOOLKIT int swmm_getNodeTotalInflow(int index, double* value)
     if (swmm_IsOpenFlag() == FALSE)
         error_code = ERR_TKAPI_INPUTNOTOPEN;
 
-	// Check if Simulation is Running
+    // Check if Simulation is Running
     else if (swmm_IsStartedFlag() == FALSE)
         error_code = ERR_TKAPI_SIM_NRUNNING;
 
@@ -2529,17 +2529,17 @@ EXPORT_TOOLKIT int swmm_getLinkStats(int index, SM_LinkStats *linkStats)
 {
     int error_code = 0;
 
-	// Check if Open
-	if (swmm_IsOpenFlag() == FALSE)
-		error_code = ERR_TKAPI_INPUTNOTOPEN;
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+        error_code = ERR_TKAPI_INPUTNOTOPEN;
 
-	// Check if Simulation is Running
-	else if (swmm_IsStartedFlag() == FALSE)
-		error_code = ERR_TKAPI_SIM_NRUNNING;
+    // Check if Simulation is Running
+    else if (swmm_IsStartedFlag() == FALSE)
+        error_code = ERR_TKAPI_SIM_NRUNNING;
 
-	// Check if object index is within bounds
-	else if (index < 0 || index >= Nobjects[LINK])
-		error_code = ERR_TKAPI_OBJECT_INDEX;
+    // Check if object index is within bounds
+    else if (index < 0 || index >= Nobjects[LINK])
+        error_code = ERR_TKAPI_OBJECT_INDEX;
 
     else if (linkStats == NULL)
         error_code = ERR_TKAPI_MEMORY;
@@ -2559,23 +2559,23 @@ EXPORT_TOOLKIT int swmm_getPumpStats(int index, SM_PumpStats *pumpStats)
 {
     int error_code = 0;
 
-	// Check if Open
-	if (swmm_IsOpenFlag() == FALSE)
-		error_code = ERR_TKAPI_INPUTNOTOPEN;
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+        error_code = ERR_TKAPI_INPUTNOTOPEN;
 
-	// Check if Simulation is Running
-	else if (swmm_IsStartedFlag() == FALSE)
-		error_code = ERR_TKAPI_SIM_NRUNNING;
+    // Check if Simulation is Running
+    else if (swmm_IsStartedFlag() == FALSE)
+        error_code = ERR_TKAPI_SIM_NRUNNING;
 
-	// Check if object index is within bounds
-	else if (index < 0 || index >= Nobjects[LINK])
-		error_code = ERR_TKAPI_OBJECT_INDEX;
+    // Check if object index is within bounds
+    else if (index < 0 || index >= Nobjects[LINK])
+        error_code = ERR_TKAPI_OBJECT_INDEX;
 
-	// Check if pump
-	else if (Link[index].type != PUMP)
-		error_code = ERR_TKAPI_WRONG_TYPE;
+    // Check if pump
+    else if (Link[index].type != PUMP)
+        error_code = ERR_TKAPI_WRONG_TYPE;
 
-	else if (pumpStats == NULL)
+    else if (pumpStats == NULL)
         error_code = ERR_TKAPI_MEMORY;
 
     else
@@ -2623,13 +2623,13 @@ EXPORT_TOOLKIT int swmm_getSystemRoutingTotals(SM_RoutingTotals *routingTotals)
 {
     int error_code = 0;
 
-	// Check if Open
-	if (swmm_IsOpenFlag() == FALSE)
-		error_code = ERR_TKAPI_INPUTNOTOPEN;
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+        error_code = ERR_TKAPI_INPUTNOTOPEN;
 
-	// Check if Simulation is Running
-	else if (swmm_IsStartedFlag() == FALSE)
-		error_code = ERR_TKAPI_SIM_NRUNNING;
+    // Check if Simulation is Running
+    else if (swmm_IsStartedFlag() == FALSE)
+        error_code = ERR_TKAPI_SIM_NRUNNING;
 
     else if (routingTotals == NULL)
         error_code = ERR_TKAPI_MEMORY;
@@ -2648,15 +2648,15 @@ EXPORT_TOOLKIT int swmm_getSystemRunoffTotals(SM_RunoffTotals *runoffTotals)
 {
     int error_code = 0;
 
-	// Check if Open
-	if (swmm_IsOpenFlag() == FALSE)
-		error_code = ERR_TKAPI_INPUTNOTOPEN;
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+        error_code = ERR_TKAPI_INPUTNOTOPEN;
 
-	// Check if Simulation is Running
-	else if (swmm_IsStartedFlag() == FALSE)
-		error_code = ERR_TKAPI_SIM_NRUNNING;
+    // Check if Simulation is Running
+    else if (swmm_IsStartedFlag() == FALSE)
+        error_code = ERR_TKAPI_SIM_NRUNNING;
 
-	else if (runoffTotals == NULL)
+    else if (runoffTotals == NULL)
         error_code = ERR_TKAPI_MEMORY;
     
     else
