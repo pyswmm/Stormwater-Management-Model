@@ -673,8 +673,8 @@ EXPORT_TOOLKIT int swmm_setNodeParam(int index, SM_NodeProperty param, double va
     {
         error_code = ERR_TKAPI_INPUTNOTOPEN;
     }
-     // Check if Simulation is Running
-    else if(swmm_IsStartedFlag() == TRUE)
+    // Check if Simulation is Running (except if "overriding" initial Depth)
+    else if(swmm_IsStartedFlag() == TRUE && param != SM_INITDEPTH)
     {
         error_code = ERR_TKAPI_SIM_NRUNNING;
     }

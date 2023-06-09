@@ -120,7 +120,9 @@ BOOST_FIXTURE_TEST_CASE(sim_started_check, FixtureBeforeStep) {
     //Node
     error = swmm_setNodeParam(0, SM_INVERTEL, 1);
     BOOST_CHECK_EQUAL(error, ERR_TKAPI_SIM_NRUNNING);
-
+    //Added an exception
+    error = swmm_setNodeParam(0, SM_INITDEPTH, 1);
+    BOOST_CHECK_EQUAL(error, ERR_NONE);
 
     //Link
     error = swmm_setLinkParam(0, SM_OFFSET1, 1);
