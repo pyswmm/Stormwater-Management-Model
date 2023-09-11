@@ -34,7 +34,7 @@ jobs:
       - name: Build for reg test
         run: >
           chmod +x ./.github/docker_tools/run_regression_tests.sh &&
-          docker exec cross /bin/bash -c "/swmm/.github/docker_tools/run_reg_test.sh"
+          docker exec cross /bin/bash -c "/swmm/.github/docker_tools/run_regression_tests.sh"
 
       - name: Upload artifacts
         if: ${{ always() }}
