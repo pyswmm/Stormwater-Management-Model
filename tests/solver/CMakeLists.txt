@@ -20,7 +20,6 @@ add_executable(test_lid
 )
 
 target_link_libraries(test_lid
-    ${Boost_LIBRARIES}
     swmm5
 )
 
@@ -52,7 +51,6 @@ target_compile_features(test_solver
 )
 
 target_link_libraries(test_solver
-    ${Boost_LIBRARIES}
     swmm5
 )
 

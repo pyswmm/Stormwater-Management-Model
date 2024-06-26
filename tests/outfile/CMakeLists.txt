@@ -16,8 +16,7 @@ target_include_directories(test_output
 )
 
 target_link_libraries(test_output
-    ${Boost_LIBRARIES}
-    swmm-output
+     swmm-output
 )
 
 set_target_properties(test_output
