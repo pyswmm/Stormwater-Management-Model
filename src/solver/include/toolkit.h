@@ -1,0 +1,750 @@
+/*
+ *  toolkit.h - OWA SWMM Toolkit API
+ *
+ *  Created on: Aug 30, 2016
+ *  Updated on:
+ *
+ *  Author:      See CONTRIBUTORS
+ * 
+ *  Note: 
+ *     Originally developed by Bryant McDonnell 
+ */
+
+#ifndef TOOLKIT_H
+#define TOOLKIT_H
+
+
+
+#define _CRT_SECURE_NO_DEPRECATE
+
+#include "toolkit_enums.h"
+#include "toolkit_structs.h"
+#include "toolkit_export.h"
+
+#include "../consts.h"
+#include "../enums.h"
+#include "../datetime.h"
+#include "../lid.h"
+#include "../inlet.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/**
+ @brief Get full semantic version number
+ @param[out] Pointer to version number string
+ @returns error code
+*/
+EXPORT_TOOLKIT const char *swmm_getSemVersion();
+
+/**
+ @brief Get Build Id
+ @param[out] Pointer to build id string
+ @returns error code
+*/
+EXPORT_TOOLKIT const char *swmm_getBuildId();
+
+
+/**
+ @brief Opens SWMM input file, reads in network data, runs, and closes
+ @param f1 pointer to name of input file (must exist)
+ @param f2 pointer to name of report file (to be created)
+ @param f3 pointer to name of binary output file (to be created)
+ @param pointer to callback function (for printing progress)
+ @return error code
+*/
+EXPORT_TOOLKIT int swmm_run_cb(const char *f1, const char *f2, const char *f3,
+    void (*callback) (double *));
+
+/**
+ @brief Get the text of an error code.
+ @param errcode The error code
+ @param[out] errorMsg The error string represented by the code
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getAPIError(int errorCode, char **errorMsg);
+
+/**
+ @brief Finds the index of an object given its ID.
+ @param type An object type (see @ref SM_ObjectType)
+ @param id The object ID
+ @param[out] index The objects index
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_project_findObject(SM_ObjectType type, char *id, int *index);
+
+/**
+@brief Gets Simulation Unit
+@param type Option code (see @ref SM_Units)
+@param[out] value Option value
+@return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSimulationUnit(SM_Units type, int *value);
+
+/**
+ @brief Gets Simulation Analysis Setting
+ @param type Option code (see @ref SM_SimOption)
+ @param[out] value Option value
+ @return Error code
+ */
+EXPORT_TOOLKIT int swmm_getSimulationAnalysisSetting(SM_SimOption type, int *value);
+
+/**
+ @brief Gets Simulation Analysis Setting
+ @param type Option code (see @ref SM_SimSetting)
+ @param[out] value Option value
+ @return Error code
+ */
+EXPORT_TOOLKIT int swmm_getSimulationParam(SM_SimSetting type, double *value);
+
+/**
+ @brief Set Simulation Analysis Setting
+ @param type Option code (see @ref SM_SimSetting)
+ @param value Option value
+ @return Error code
+ */
+EXPORT_TOOLKIT int  swmm_setSimulationParam(SM_SimSetting type, double value);
+
+/**
+ @brief Use/override a hotstart file before the simulation starts.
+ @param type The property type code (see @ref SM_HotStart)
+ @param hsfile The file name of the hot start file that the user would like to use.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_hotstart(SM_HotStart type, const char *hsfile);
+
+/**
+ @brief Gets Object Count
+ @param type Option code (see @ref SM_ObjectType)
+ @param[out] count Option value
+ @return Error code
+ */
+EXPORT_TOOLKIT int swmm_countObjects(SM_ObjectType type, int *count);
+
+/**
+ @brief Gets Object ID
+ @param type Option code (see @ref SM_ObjectType)
+ @param index of the Object
+ @param[out] id The string ID of object.
+ @return Error code
+ */
+EXPORT_TOOLKIT int swmm_getObjectId(SM_ObjectType type, int index, char **id);
+
+/**
+ @brief Gets Object Index
+ @param type Option code (see @ref SM_ObjectType)
+ @param[in] id of the Object
+ @param[out] index of the Object
+ @return errcode Error Code
+ */
+EXPORT_TOOLKIT int swmm_getObjectIndex(SM_ObjectType type, char *id, int *index);
+
+/**
+ @brief Get the type of node with specified index.
+ @param index The index of a node
+ @param[out] Ntype The type code for the node (@ref SM_NodeType).
+ id must be pre-allocated by the caller.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getNodeType(int index, SM_NodeType *Ntype);
+
+/**
+ @brief Get the type of link with specified index.
+ @param index The index of a link
+ @param[out] Ltype The type code for the link (@ref SM_LinkType).
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLinkType(int index, SM_LinkType *Ltype);
+
+/**
+ @brief Get the link Connection Node Indeces. If the conduit has a
+ negative slope, the dynamic wave solver will automatically
+ reverse the nodes. To check the direction, call @ref swmm_getLinkDirection().
+ @param index The index of a link
+ @param[out] Node1 The upstream node index.
+ @param[out] Node2 The downstream node index.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLinkConnections(int index, int *node1, int *node2);
+
+/**
+ @brief Get the link flow direction (see @ref swmm_getLinkType() for notes.
+ @param index The index of a link
+ @param[out] value The link flow direction.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLinkDirection(int index, signed char *value);
+
+/**
+ @brief Get the Subcatchment connection. Subcatchments can load to a
+ node, another subcatchment, or itself.
+ @param index The index of a Subcatchment
+ @param[out] type The type of object loading (See @ref SM_ObjectType)
+ @param[out] out_index The object index
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSubcatchOutConnection(int index, SM_ObjectType *type, int *out_index);
+
+/**
+ @brief Get the number of lid units on a subcatchment.
+ @param index The index of a subcatchment
+ @param[out] value The number of lid units on a subcatchment
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLidUCount(int index, int *value);
+
+/**
+ @brief Get a property value for a specified lid unit on a specified subcatchment
+ @param index The index of a subcatchment
+ @param lidIndex The index of specified lid unit
+ @param Param The property type code (See @ref SM_LidUProperty)
+ @param[out] value The value of the lid unit's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLidUParam(int index, int lidIndex, SM_LidUProperty param, double *value);
+
+/**
+ @brief Set a property value for a specified lid unit on a specified subcatchment
+ @param index The index of a subcatchment
+ @param lidIndex The index of specified lid unit
+ @param Param The property type code (See @ref SM_LidUProperty)
+ @param value The new value of the lid unit's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setLidUParam(int index, int lidIndex, SM_LidUProperty param, double value);
+
+/**
+ @brief Get the lid option for a specified lid unit on a specified subcatchment
+ @param index The index of a subcatchment
+ @param lidIndex The index of specified lid unit
+ @param Param The lid option type code (See @ref SM_LidUOptions)
+ @param[out] value The value of the option for the lid unit
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLidUOption(int index, int lidIndex, SM_LidUOptions param, int *value);
+
+/**
+ @brief Set the lid option for a specified lid unit on a specified subcatchment
+ @param index The index of a subcatchment
+ @param lidIndex The index of specified lid unit
+ @param Param The lid option type code (See @ref SM_LidUOptions)
+ @param value The new value of the option for the lid unit
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setLidUOption(int index, int lidIndex, SM_LidUOptions param, int value);
+
+/**
+ @brief Get the lid control surface immediate overflow condition
+ @param lidControlIndex The index of specified lid control
+ @param[out] condition The value of surface immediate overflow condition
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLidCOverflow(int lidControlIndex, int *condition);
+
+/**
+ @brief Get a property value for specified lid control
+ @param lidControlIndex The index of specified lid control
+ @param layerIndex The index of specified lid layer (See @ref SM_LidLayer)
+ @param Param The property type code (See @ref SM_LidLayerProperty)
+ @param[out] value The value of lid control's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLidCParam(int lidControlIndex, SM_LidLayer layerIndex, SM_LidLayerProperty param, double *value);
+
+/**
+ @brief Set a property value for specified lid control
+ @param lidControlIndex The index of specified lid control
+ @param layerIndex The index of specified lid layer (See @ref SM_LidLayer)
+ @param Param The property type code (See @ref SM_LidLayerProperty)
+ @param value The new value for the lid control's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setLidCParam(int lidControlIndex, SM_LidLayer layerIndex, SM_LidLayerProperty param, double value);
+
+/**
+ @brief Get the lid unit water balance simulated value at current time
+ @param index The index of a subcatchment
+ @param lidIndex The index of specified lid unit
+ @param layerIndex The index of specified lid layer (See @ref SM_LidLayer)
+ @param Param The result type code (See @ref SM_LidResult)
+ @param[out] result The result for the specified lid unit
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLidUFluxRates(int index, int lidIndex, SM_LidLayer layerIndex, double *result);
+
+/**
+ @brief Get the lid group of a specified subcatchment result at current time
+ @param index The index of a subcatchment
+ @param type The result type code (See @ref SM_LidResult)
+ @param[out] result The result for the specified lid group
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLidGResult(int index, SM_LidResult type, double *result);
+
+/**
+ @brief Get the lid unit of a specified subcatchment result at current time
+ @param index The index of a subcatchment
+ @param lidIndex The index of specified lid unit
+ @param type The result type code (See @ref SM_LidResult)
+ @param[out] result The result for the specified lid unit
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLidUResult(int index, int lidIndex, SM_LidResult type, double *result);
+
+/**
+ @brief Get a property value for specified node.
+ @param index The index of a node
+ @param Param The property type code (See @ref SM_NodeProperty)
+ @param[out] value The value of the node's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getNodeParam(int index, SM_NodeProperty param, double *value);
+
+/**
+ @brief Set a property value for specified node.
+ @param index The index of a node
+ @param Param The property type code (See @ref SM_NodeProperty)
+ @param value The new value of the node's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setNodeParam(int index, SM_NodeProperty param, double value);
+
+/**
+ @brief Get a property value for specified link.
+ @param index The index of a link
+ @param Param The property type code (See @ref SM_LinkProperty)
+ @param[out] value The value of the link's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLinkParam(int index, SM_LinkProperty param, double *value);
+
+/**
+ @brief Set a property value for specified link.
+ @param index The index of a link
+ @param Param The property type code (See @ref SM_LinkProperty)
+ @param value The new value of the link's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setLinkParam(int index, SM_LinkProperty param, double value);
+
+/**
+ @brief Get a property value for the inlets of a specified link.
+ @param index The index of a link
+ @param Param The property type code (See @ref SM_InletProperty)
+ @param[out] value The value of the inlet's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getInletParam(int index, SM_InletProperty param, double *value);
+
+/**
+ @brief Set a property value for the inlets of a specified link.
+ @param index The index of a link
+ @param Param The property type code (See @ref SM_InletProperty)
+ @param value The new value of the inlet's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setInletParam(int index, SM_InletProperty param, double value);
+
+/**
+ @brief Get a property value for specified subcatchment.
+ @param index The index of a subcatchment
+ @param Param The property type code (See @ref SM_SubcProperty)
+ @param[out] value The value of the subcatchment's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSubcatchParam(int index, SM_SubcProperty param, double *value);
+
+/**
+ @brief Set a property value for specified subcatchment.
+ @param index The index of a subcatchment
+ @param Param The property type code (See @ref SM_SubcProperty)
+ @param value The new value of the subcatchment's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setSubcatchParam(int index, SM_SubcProperty param, double value);
+
+/**
+ @brief Get the current simulation datetime information.
+ @param type The property type code (See @ref SM_TimePropety)
+ @param[out] year The year
+ @param[out] month The month
+ @param[out] day The day
+ @param[out] hour The hour
+ @param[out] minute The minute
+ @param[out] second The seconds
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSimulationDateTime(SM_TimePropety type, int *year, int *month,
+                                         int *day, int *hour, int *minute,
+                                         int *second);
+
+/**
+ @brief Set simulation datetime information.
+ @param type The property type code (See @ref SM_TimePropety)
+ @param year The year
+ @param month The month
+ @param day The day
+ @param hour The hour
+ @param minute The minute
+ @param second The second
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setSimulationDateTime(SM_TimePropety type, int year, int month,
+                                         int day, int hour, int minute,
+                                         int second);
+
+/**
+ @brief Get the current simulation datetime information.
+ @param[out] year The year
+ @param[out] month The month
+ @param[out] day The day
+ @param[out] hour The hour
+ @param[out] minute The minute
+ @param[out] second The seconds
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getCurrentDateTime(int *year, int *month, int *day,
+                                      int *hour, int *minute, int *second);
+
+/**
+ @brief Get a result value for specified node.
+ @param index The index of a node
+ @param type The property type code (See @ref SM_NodeResult)
+ @param[out] result The result of the node's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getNodeResult(int index, SM_NodeResult type, double *result);
+
+/**
+ @brief Gets pollutant values for a specified node.
+ @param index The index of a node
+ @param type The property type code (see @ref SM_NodePollut)
+ @param[out] PollutArray result array
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getNodePollut(int index, SM_NodePollut type, double **pollutArray, int *length);
+
+/**
+ @brief Sets pollutant values for a specified node.
+ @param index The index of a node
+ @param pollutant_index Pollutant index to set
+ @param pollutant_value Pollutant value to set 
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setNodePollut(int index, SM_NodePollut type, int pollutant_index, double pollutant_value);
+
+/**
+ @brief Sets pollutant values for a specified node.
+ @param index The index of a node
+ @param type The property type code (See @ref SM_NodePollut)
+ @param pollutant_index Pollutant index to set
+ @param pollutant_value Pollutant value to set 
+ @return Error code
+*/
+
+EXPORT_TOOLKIT int swmm_setLinkPollut(int index, SM_LinkPollut type, int pollutant_index, double pollutant_value);
+
+/**
+ @brief Sets pollutant values for a specified link.
+ @param index The index of a link
+ @param type The property type code (See @ref SM_LinkPollut)
+ @param pollutant_index Pollutant index to set
+ @param pollutant_value Pollutant value to set 
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLinkResult(int index, SM_LinkResult type, double *result);
+
+/**
+ @brief Gets results for the inlets of a specified link.
+ @param index The index of a link with inlets
+ @param type The result type code (See @ref SM_InletResult)
+ @param result Pollutant index to set
+ @param[out] result The result of the inlet's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getInletResult(int index, SM_InletResult type, double *result);
+
+
+/**
+ @brief Gets pollutant values for a specified link.
+ @param index The index of a link
+ @param type The property type code (see @ref SM_LinkPollut)
+ @param[out] PollutArray result array
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLinkPollut(int index, SM_LinkPollut type, double **pollutArray, int *length);
+
+/**
+ @brief Get a result value for specified subcatchment.
+ @param index The index of a subcatchment
+ @param type The property type code (See @ref SM_SubcResult)
+ @param[out] result The result of the subcatchment's property
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSubcatchResult(int index, SM_SubcResult type, double *result);
+
+/**
+ @brief Gets pollutant values for a specified subcatchment.
+ @param index The index of a subcatchment
+ @param type The property type code (see @ref SM_SubcPollut)
+ @param[out] PollutArray result array
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSubcatchPollut(int index, SM_SubcPollut type, double **pollutArray, int *length);
+
+/**
+@brief Get precipitation rates for a gage.
+@param index The index of gage
+@param type The property type code (see @ref SM_GagePrecip)
+@param[out] GageArray precipitation rate
+@return Error code
+*/
+EXPORT_TOOLKIT int swmm_getGagePrecip(int index, SM_GagePrecip type, double *result);
+
+/**
+ @brief Get a node statistics.
+ @param index The index of a node
+ @param[out] nodeStats The Node Stats struct (see @ref SM_NodeStats).
+ pre-allocated by the caller.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getNodeStats(int index, SM_NodeStats *nodeStats);
+
+/**
+ @brief Get the cumulative inflow for a node.
+ @param index The index of a node
+ @param[out] value The total inflow.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getNodeTotalInflow(int index, double *value);
+
+/**
+ @brief Get a storage statistics.
+ @param index The index of a storage node
+ @param[out] storageStats The storage Stats struct (see @ref SM_StorageStats).
+ pre-allocated by the caller.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getStorageStats(int index, SM_StorageStats *storageStats);
+
+/**
+ @brief Get outfall statistics.
+ @param index The index of a outfall node
+ @param[out] outfallStats The outfall Stats struct (see @ref SM_OutfallStats).
+ pre-allocated by the caller. Caller is also responsible for freeing the
+ SM_OutfallStats structure using swmm_freeOutfallStats(). This frees any
+ pollutants array.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getOutfallStats(int index, SM_OutfallStats *outfallStats);
+
+// /**
+//  @brief Free outfall statistics structure.
+//  @param[out] outfallStats The outfall Stats struct. This frees any allocated
+//  pollutants array.
+//  @return Error code
+// */
+// void EXPORT_TOOLKIT_API swmm_freeOutfallStats(SM_OutfallStats *outfallStats);
+
+/**
+ @brief Get link statistics.
+ @param index The index of a link
+ @param[out] linkStats The link Stats struct (see @ref SM_LinkStats).
+ pre-allocated by the caller.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLinkStats(int index, SM_LinkStats *linkStats);
+
+/**
+ @brief Get pump statistics.
+ @param index The index of a pump
+ @param[out] pumpStats The link Stats struct (see @ref SM_PumpStats).
+ pre-allocated by the caller.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getPumpStats(int index, SM_PumpStats *pumpStats);
+
+/**
+ @brief Get subcatchment statistics.
+ @param index The index of a subcatchment
+ @param[out] subcatchStats The link Stats struct (see @ref SM_SubcatchStats).
+ pre-allocated by the caller. Caller is also responsible for freeing the
+ SM_SubcatchStats structure using swmm_freeSubcatchStats(). This frees any
+ pollutants array.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSubcatchStats(int index, SM_SubcatchStats *subcatchStats);
+
+/**
+ @brief Get system routing totals.
+ @param[out] routingTot The system Routing Stats struct (see @ref SM_RoutingTotals).
+ pre-allocated by the caller.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSystemRoutingTotals(SM_RoutingTotals *routingTotals);
+
+/**
+ @brief Get system runoff totals.
+ @param[out] runoffTot The system Runoff Stats struct (see @ref SM_RunoffTotals).
+ pre-allocated by the caller.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSystemRunoffTotals(SM_RunoffTotals *runoffTotals);
+
+/**
+ @brief Set a link setting (pump, orifice, or weir). Setting for an orifice
+ and a weir should be [0, 1]. A setting for a pump can range from [0, inf).
+ However, if a pump is set to 1, it will pump at its maximum curve setting.
+ @param index The link index.
+ @param setting The new setting for the link.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setLinkSetting(int index, double setting);
+
+/**
+ @brief Set an inflow rate to a node. The inflow rate is held constant
+ until the caller changes it.
+ @param index The node index.
+ @param flowrate The new node inflow rate.
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setNodeInflow(int index, double flowrate);
+
+/**
+ @brief Set outfall stage.
+ @param index The outfall node index.
+ @param stage The outfall node stage (head).
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_setOutfallStage(int index, double stage);
+
+/**
+@brief Set a total precipitation intensity to the gage.
+@param index The gage index.
+@param total_precip The new total precipitation intensity.
+@return Error code
+*/
+EXPORT_TOOLKIT int swmm_setGagePrecip(int index, double total_precip);
+
+/**
+ @brief Helper function to free memory array allocated in SWMM.
+ @param array The pointer to the array
+ @return Void.
+*/
+EXPORT_TOOLKIT void swmm_freeMemory(void *memory);
+
+//-------------------------------
+// Coupling API
+//-------------------------------
+
+/**
+ @brief Set an opening for specified node.
+ @param nodeID The index of a node
+ @param idx    The index of an opening
+ @param oType  The opening's type
+ @param A      The opening's area
+ @param l      The opening's length
+ @param Co     The opening's orifice coefficient
+ @param Cfw    The opening's free weir coefficient
+ @param Csw    The opening's submerged weir coefficient
+ @return Error code
+*/
+int DLLEXPORT swmm_setNodeOpening(int nodeID, int idx, int oType, double A,
+    double l, double Co, double Cfw, double Csw);
+
+/**
+@brief Open an opening that was previously closed.
+@param nodeID The index of a node
+@param idx    The index of an opening
+@return Error code
+*/
+int DLLEXPORT swmm_openOpening(int nodeID, int idx);
+
+/**
+@brief Close an opening.
+@param nodeID The index of a node
+@param idx    The index of an opening
+@return Error code
+*/
+int DLLEXPORT swmm_closeOpening(int nodeID, int idx);
+
+/**
+@brief Remove an opening from a node.
+@param nodeID The index of a node
+@param idx    The index of an opening
+@return Error code
+*/
+int DLLEXPORT swmm_deleteNodeOpening(int nodeID, int idx);
+
+/**
+@brief Get a node opening's parameter.
+@param nodeID The index of a node
+@param idx    The index of an opening
+@param Param  The opening's parameter to be retrieved (from enum @ref OpeningParams)
+@param[out] value The value of the opening's property
+@return Error code
+*/
+int DLLEXPORT swmm_getNodeOpeningParam(int nodeID, int idx, int Param, double *value);
+
+/**
+@brief Get a node opening's inflow rate.
+@param nodeID The index of a node
+@param idx    The index of an opening
+@param[out] inflow The inflow rate
+@return Error code
+*/
+int DLLEXPORT swmm_getNodeOpeningFlow(int nodeID, int idx, double *inflow);
+
+/**
+@brief Get a node opening's type.
+@param nodeID The index of a node
+@param idx    The index of an opening
+@param[out] type The opening type
+@return Error code
+*/
+int DLLEXPORT swmm_getNodeOpeningType(int nodeID, int idx, int *type);
+
+/**
+@brief Get a node opening's coupling type.
+@param nodeID The index of a node
+@param idx    The index of an opening
+@param[out] coupling The opening coupling type (from enum @ref OverlandCouplingType)
+@return Error code
+*/
+int DLLEXPORT swmm_getOpeningCouplingType(int nodeID, int idx, int *coupling);
+
+/**
+@brief Get the number of openings in a node.
+@param nodeID The index of a node
+@param[out] num The number of openings in the given node.
+@return Error code
+*/
+int DLLEXPORT swmm_getOpeningsNum(int nodeID, int *num);
+
+/**
+@brief Get the indices of all the openings in a node.
+@param nodeID The index of a node
+@param arr_size The size of the results array (from @ref swmm_getOpeningsNum)
+@param[out] arr An array of the openings indices
+@return Error code
+*/
+int DLLEXPORT swmm_getOpeningsIndices(int nodeID, int arr_size, int *arr);
+
+/**
+@brief Get the coupling status of a node.
+@param nodeID The index of a node
+@param[out] iscoupled The coupling status of the node.
+@return Error code
+*/
+int DLLEXPORT swmm_getNodeIsCoupled(int nodeID, int *iscoupled);
+
+
+#ifdef __cplusplus
+}    // matches the linkage specification from above */
+#endif
+
+
+
+#endif // TOOLKIT_H
