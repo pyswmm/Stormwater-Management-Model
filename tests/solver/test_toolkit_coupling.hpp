@@ -50,19 +50,6 @@
 */
 struct FixtureOpenClose{
     FixtureOpenClose() {
-        // Print current directory
-        char cwd[1024];
-        if (getcwd(cwd, sizeof(cwd)) != NULL) {
-            printf("Current working directory: %s\n", cwd);
-        }
-        // Check if file exists
-        FILE* f = fopen(DATA_PATH_INP, "r");
-        if (f) {
-            printf("Found input file: %s\n", DATA_PATH_INP);
-            fclose(f);
-        } else {
-            printf("Input file not found: %s (errno: %d)\n", DATA_PATH_INP, errno);
-        }
         swmm_open((char *)DATA_PATH_INP, (char *)DATA_PATH_RPT, (char *)DATA_PATH_OUT);
     }
     ~FixtureOpenClose() {

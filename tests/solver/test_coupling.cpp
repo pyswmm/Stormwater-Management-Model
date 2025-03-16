@@ -10,7 +10,7 @@
  */
 
 #define BOOST_TEST_MODULE "coupling"
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 // #include <boost/test/data/test_case.hpp>
 #include "test_toolkit_coupling.hpp"
 

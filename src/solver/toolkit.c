@@ -3344,7 +3344,6 @@ int EXPORT_TOOLKIT swmm_getNodeOpeningParam(int nodeID, int idx, int Param, doub
 // Purpose: Get Node opening parameters.
 {
     int error_code = 0;
-    TCoverOpening* opening;
 
     // Check if Open
     if(swmm_IsOpenFlag() == FALSE)
@@ -3359,8 +3358,8 @@ int EXPORT_TOOLKIT swmm_getNodeOpeningParam(int nodeID, int idx, int Param, doub
     else
     {
         // --- check if an opening with this index exists
+        TCoverOpening* opening;
         opening = Node[nodeID].coverOpening;
-        return opening->ID;
         while ( opening )
         {
             if ( opening->ID == idx ) break;
@@ -3371,21 +3370,23 @@ int EXPORT_TOOLKIT swmm_getNodeOpeningParam(int nodeID, int idx, int Param, doub
         {
             error_code = ERR_TKAPI_OBJECT_INDEX;
         }
-
-        switch(Param)
+        else
         {
-            // area
-            case OPENING_AREA: *value = opening->area * UCF(LENGTH) * UCF(LENGTH); break;
-            // length
-            case OPENING_LENGTH: *value = opening->length * UCF(LENGTH); break;
-            // coeffOrifice
-            case ORIFICE_COEFF: *value = opening->coeffOrifice; break;
-            // coeffFreeWeir
-            case FREE_WEIR_COEFF: *value = opening->coeffFreeWeir; break;
-            // coeffSubWeir
-            case SUBMERGED_WEIR_COEFF: *value = opening->coeffSubWeir; break;
-            // Type not available
-            default: error_code = ERR_TKAPI_OUTBOUNDS;
+            switch(Param)
+            {
+                // area
+                case OPENING_AREA: *value = opening->area * UCF(LENGTH) * UCF(LENGTH); break;
+                // length
+                case OPENING_LENGTH: *value = opening->length * UCF(LENGTH); break;
+                // coeffOrifice
+                case ORIFICE_COEFF: *value = opening->coeffOrifice; break;
+                // coeffFreeWeir
+                case FREE_WEIR_COEFF: *value = opening->coeffFreeWeir; break;
+                // coeffSubWeir
+                case SUBMERGED_WEIR_COEFF: *value = opening->coeffSubWeir; break;
+                // Type not available
+                default: error_code = ERR_TKAPI_OUTBOUNDS;
+            }
         }
     }
     return error_code;
@@ -3426,8 +3427,10 @@ int EXPORT_TOOLKIT swmm_getNodeOpeningFlow(int nodeID, int idx, double *inflow)
         {
             error_code = ERR_TKAPI_OBJECT_INDEX;
         }
-
-    *inflow = opening->newInflow * UCF(FLOW);
+        else
+        {
+            *inflow = opening->newInflow * UCF(FLOW);
+        }
     }
     return error_code;
 }
@@ -3467,7 +3470,10 @@ int EXPORT_TOOLKIT swmm_getNodeOpeningType(int nodeID, int idx, int *type)
         {
             error_code = ERR_TKAPI_OBJECT_INDEX;
         }
-    *type = opening->type;
+        else
+        {
+            *type = opening->type;
+        }
     }
     return error_code;
 }
@@ -3507,7 +3513,10 @@ int EXPORT_TOOLKIT swmm_getOpeningCouplingType(int nodeID, int idx, int *couplin
         {
             error_code = ERR_TKAPI_OBJECT_INDEX;
         }
-    *coupling = opening->couplingType;
+        else
+        {
+            *coupling = opening->couplingType;
+        }
     }
     return error_code;
 }
@@ -3604,7 +3613,7 @@ int EXPORT_TOOLKIT swmm_getNodeIsCoupled(int nodeID, int *iscoupled)
     }
     else
     {
-    *iscoupled = coupling_isNodeCoupled(nodeID);
+        *iscoupled = coupling_isNodeCoupled(nodeID);
     }
     return error_code;
 }
@@ -3629,8 +3638,7 @@ int EXPORT_TOOLKIT swmm_closeOpening(int nodeID, int idx)
     }
     else
     {
-    // Close the opening
-    error_code = coupling_closeOpening(nodeID, idx);
+        error_code = coupling_closeOpening(nodeID, idx);
     }
     return error_code;
 }
@@ -3654,11 +3662,36 @@ int EXPORT_TOOLKIT swmm_openOpening(int nodeID, int idx)
     }
     else
     {
-        // Open the opening
         error_code = coupling_openOpening(nodeID, idx);
     }
     return error_code;
 }
+
+int EXPORT_TOOLKIT swmm_deleteNodeOpenings(int nodeID)
+//
+// Input:   nodeID = Index of desired node
+// Return:  Error code
+// Purpose: Remove all openings from a node.
+{
+    int error_code = 0;
+    // Check if Open
+    if (swmm_IsOpenFlag() == FALSE)
+    {
+        error_code =  ERR_TKAPI_INPUTNOTOPEN;
+    }
+    // Check if object index is within bounds
+    else if (nodeID < 0 || nodeID >= Nobjects[NODE])
+    {
+        error_code =  ERR_TKAPI_OBJECT_INDEX;
+    }
+    else
+    {
+        coupling_deleteOpenings(nodeID);
+    }
+    return error_code;
+}
+
+// Not sure if those below should be exposed in the API
 
 int EXPORT_TOOLKIT swmm_couplingType(double crestElev, double nodeHead, double overlandHead, double overflowArea, 
                                 double weirWidth)
@@ -3721,30 +3754,6 @@ int EXPORT_TOOLKIT swmm_coupling_findNodeInflow(int nodeID, double tStep, double
     {
         *coupling_NodeInflow = coupling_findNodeInflow(nodeID, tStep, Node_invertElev, Node_fullDepth, Node_newDepth, Node_overlandDepth, 
 							   Node_couplingArea);
-    }
-    return error_code;
-}
-
-int EXPORT_TOOLKIT swmm_deleteNodeOpenings(int nodeID)
-//
-// Input:   nodeID = Index of desired node
-// Return:  Error code
-// Purpose: Remove all openings from a node.
-{
-    int error_code = 0;
-    // Check if Open
-    if (swmm_IsOpenFlag() == FALSE)
-    {
-        error_code =  ERR_TKAPI_INPUTNOTOPEN;
-    }
-    // Check if object index is within bounds
-    else if (nodeID < 0 || nodeID >= Nobjects[NODE])
-    {
-        error_code =  ERR_TKAPI_OBJECT_INDEX;
-    }
-    else
-    {
-        coupling_deleteOpenings(nodeID);
     }
     return error_code;
 }

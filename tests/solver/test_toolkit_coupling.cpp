@@ -1,36 +1,15 @@
 /*
- *   test_toolkitAPI_coupling.cpp
- *
- *   Created: 11/06/2020
- *   Author: Velitchko G. Tzatchkov
- *           Laurent Courty
- *           IMTA, Mexico
- *
- *   Unit testing for SWMM-ToolkitAPI with coupling functions using Boost Test.
- *   
- *   Based on:
- *   "test_toolkitAPI.cpp
- *   Created: 03/10/2018
- *   Author: Bryant E. McDonnell
- *           EmNet LLC
- *   Unit testing for SWMM-ToolkitAPI using Boost Test."
-
-
-* TABLE OF CONTENTS AND STRUCTURE
-
-  ->  Numerical Diff Functions
-  ->  Non-Fixuture Unit Tests
-  ->  Unit tests using the fixtures
-      - Error Test Checks
-      - Parameter Get / Set Tests
-         1. Subcatchments
-         2. Nodes
-         3. Links
-      - Result Get Tests
+ ******************************************************************************
+ Project:      OWA SWMM
+ Version:      5.2.4
+ Module:       test_toolkit_coupling.cpp
+ Description:  tests for SWMM toolkit coupling API functions
+ Authors:      see AUTHORS
+ Copyright:    see AUTHORS
+ License:      see LICENSE
+ Last Updated: 2025-03-15
+ ******************************************************************************
  */
-
-// NOTE: Travis installs libboost test version 1.5.4
-//#define BOOST_TEST_DYN_LINK
 
 // #define BOOST_TEST_MODULE "toolkit_coupling"
 #include "test_toolkit_coupling.hpp"
