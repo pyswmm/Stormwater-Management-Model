@@ -3360,6 +3360,7 @@ int EXPORT_TOOLKIT swmm_getNodeOpeningParam(int nodeID, int idx, int Param, doub
     {
         // --- check if an opening with this index exists
         opening = Node[nodeID].coverOpening;
+        return opening->ID;
         while ( opening )
         {
             if ( opening->ID == idx ) break;
@@ -3695,16 +3696,15 @@ double EXPORT_TOOLKIT swmm_findCouplingInflow(int couplingType, double crestElev
                                           subWeirCoeff, overflowArea, weirWidth);
 }
 
-int EXPORT_TOOLKIT swmm_coupling_findNodeInflow(int j, double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
+int EXPORT_TOOLKIT swmm_coupling_findNodeInflow(int nodeID, double tStep, double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
 							   double Node_couplingArea, double* coupling_NodeInflow)
 //
-//  Input:   j = node ID index
+//  Input:   nodeID = node ID index
 //           tStep = time step of the drainage model (s)
 //           Node_invertElev = invert elevation (ft)
 //           Node_fullDepth = dist. from invert to surface (ft)
 //           Node_newDepth = current water depth (ft)
 //           Node_overlandDepth = water depth in the overland model (ft)
-//           opening = pointer to node opening's data
 //           Node_couplingArea = coupling area in the overland model (ft2)
 //  Output:  node coupling inflow
 //  Purpose: compute the sum of opening coupling inflows at a node
@@ -3719,7 +3719,7 @@ int EXPORT_TOOLKIT swmm_coupling_findNodeInflow(int j, double tStep, double Node
     }
     else
     {
-        *coupling_NodeInflow = coupling_findNodeInflow(j, tStep, Node_invertElev, Node_fullDepth, Node_newDepth, Node_overlandDepth, 
+        *coupling_NodeInflow = coupling_findNodeInflow(nodeID, tStep, Node_invertElev, Node_fullDepth, Node_newDepth, Node_overlandDepth, 
 							   Node_couplingArea);
     }
     return error_code;

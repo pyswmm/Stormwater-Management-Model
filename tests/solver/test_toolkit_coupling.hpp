@@ -15,23 +15,31 @@
 
   ->  Defining the different testing fixtures
  */
- 
-#include <boost/test/included/unit_test.hpp>
- 
+ // test_toolkit_coupling.hpp
+#ifndef TEST_TOOLKIT_COUPLING_HPP
+#define TEST_TOOLKIT_COUPLING_HPP
+
+// Include standard libraries
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <string>
 #include <math.h>
 
+// Include SWMM libraries
 #include "swmm5.h"
 #include "toolkit.h"
 
-// NOTE: Test Input File
+// Include Boost test, but NOT the included version with main
+#include <boost/test/unit_test.hpp>
+#include <boost/test/data/test_case.hpp>
+
+// Test input file definitions
 #define DATA_PATH_INP "test8b_drainage_ponding.inp"
 #define DATA_PATH_RPT "test8b_drainage_ponding.rpt"
 #define DATA_PATH_OUT "test8b_drainage_ponding.out"
 
-using namespace std;
+// using namespace std;
 
 // Defining Fixtures
 
@@ -42,6 +50,19 @@ using namespace std;
 */
 struct FixtureOpenClose{
     FixtureOpenClose() {
+        // Print current directory
+        char cwd[1024];
+        if (getcwd(cwd, sizeof(cwd)) != NULL) {
+            printf("Current working directory: %s\n", cwd);
+        }
+        // Check if file exists
+        FILE* f = fopen(DATA_PATH_INP, "r");
+        if (f) {
+            printf("Found input file: %s\n", DATA_PATH_INP);
+            fclose(f);
+        } else {
+            printf("Input file not found: %s (errno: %d)\n", DATA_PATH_INP, errno);
+        }
         swmm_open((char *)DATA_PATH_INP, (char *)DATA_PATH_RPT, (char *)DATA_PATH_OUT);
     }
     ~FixtureOpenClose() {
@@ -164,3 +185,4 @@ struct FixtureBeforeClose{
     }
 };
 
+#endif // TEST_TOOLKIT_COUPLING_HPP

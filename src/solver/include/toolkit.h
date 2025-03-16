@@ -22,7 +22,7 @@
 #include "toolkit_export.h"
 
 #include "../consts.h"
-#include "../enums.h"
+#include "../objects.h"
 #include "../datetime.h"
 #include "../lid.h"
 #include "../inlet.h"
@@ -740,6 +740,58 @@ int DLLEXPORT swmm_getOpeningsIndices(int nodeID, int arr_size, int *arr);
 */
 int DLLEXPORT swmm_getNodeIsCoupled(int nodeID, int *iscoupled);
 
+/**
+@brief Determine the coupling type of an opening according the the relative water elevations in the node and the surface
+@param crestElev Crest elevation of the node (ft)
+@param nodeHead Water elevation in the node (ft)
+@param overlandHead Water elevation in the overland model (ft)
+@param overflowArea node surface area (ft2)
+@param weirWidth weir width (ft)
+@return Error code
+*/
+int EXPORT_TOOLKIT swmm_couplingType(double crestElev, double nodeHead,
+    double overlandHead, double overflowArea, double weirWidth);
+
+/**
+@brief Computes the coupling flow of the opening.
+@param couplingType 
+@param crestElev 
+@param nodeHead
+@param overlandHead
+@param orificeCoeff
+@param freeWeirCoeff
+@param subWeirCoeff
+@param overflowArea
+@param weirWidth
+@return The flow entering through the opening (ft3/s)
+*/
+double EXPORT_TOOLKIT swmm_findCouplingInflow(int couplingType, double crestElev,
+    double nodeHead, double overlandHead, double orificeCoeff, 
+    double freeWeirCoeff, double subWeirCoeff, double overflowArea, 
+    double weirWidth);
+
+/**
+@brief Compute the sum of opening coupling inflows at a node.
+@param nodeID The index of a node
+@param tStep time step of the drainage model (s)
+@param Node_invertElev invert elevation (ft)
+@param Node_fullDepth dist. from invert to surface (ft)
+@param Node_newDepth current water depth (ft)
+@param Node_overlandDepth water depth in the overland model (ft)
+@param Node_couplingArea coupling area in the overland model (ft2)
+@param[out] coupling_NodeInflow node coupling inflow
+@return Error code
+*/
+int EXPORT_TOOLKIT swmm_coupling_findNodeInflow(int nodeID, double tStep,
+    double Node_invertElev, double Node_fullDepth, double Node_newDepth, double Node_overlandDepth, 
+	double Node_couplingArea, double* coupling_NodeInflow);
+
+/**
+@brief Remove all openings from a node.
+@param nodeID The index of a node
+@return Error code
+*/
+int EXPORT_TOOLKIT swmm_deleteNodeOpenings(int nodeID);
 
 #ifdef __cplusplus
 }    // matches the linkage specification from above */

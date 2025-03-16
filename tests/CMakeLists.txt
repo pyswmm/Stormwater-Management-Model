@@ -36,3 +36,11 @@ add_test(NAME test_solver
     COMMAND "${TEST_BIN_DIRECTORY}/test_solver"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/solver/data
 )
+
+add_test(NAME test_coupling
+    COMMAND "${TEST_BIN_DIRECTORY}/test_coupling"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/solver/data
+)
+
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "WORKING_DIRECTORY: ${WORKING_DIRECTORY}")

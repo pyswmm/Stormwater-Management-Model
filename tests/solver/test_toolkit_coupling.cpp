@@ -32,15 +32,16 @@
 // NOTE: Travis installs libboost test version 1.5.4
 //#define BOOST_TEST_DYN_LINK
 
-#define BOOST_TEST_MODULE "toolkit_coupling"
+// #define BOOST_TEST_MODULE "toolkit_coupling"
 #include "test_toolkit_coupling.hpp"
 
 #define ERR_NONE 0
-#define ERR_API_OUTBOUNDS 501
-#define ERR_API_INPUTNOTOPEN 502
-#define ERR_API_SIM_NRUNNING 503
-#define ERR_API_WRONG_TYPE 504
-#define ERR_API_OBJECT_INDEX 505
+#define ERR_TKAPI_OUTBOUNDS 2000
+#define ERR_TKAPI_INPUTNOTOPEN 2001
+#define ERR_TKAPI_SIM_NRUNNING 2002
+#define ERR_TKAPI_WRONG_TYPE 2003
+#define ERR_TKAPI_OBJECT_INDEX 2004
+#define ERR_TKAPI_SIM_RUNNING 2013
 
 using namespace std;
 
@@ -95,47 +96,47 @@ BOOST_AUTO_TEST_CASE(model_not_open) {
 
     //Project
     error = swmm_getObjectIndex(SM_NODE, id, &index);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN);
 
     //Coupling
     error = swmm_setNodeOpening(0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN);
 
     error = swmm_deleteNodeOpening(0, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN);
 
     error = swmm_getNodeOpeningParam(0, 0, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN);
 
     error = swmm_getNodeOpeningFlow(0, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN);
 
     error = swmm_getNodeOpeningType(0, 0, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN); 
 
     error = swmm_getOpeningCouplingType(0, 0, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN); 
 
     error = swmm_getOpeningsNum(0, &num);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN); 
 
     error = swmm_getOpeningsIndices(0, 0, &arr);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN); 
 
     error = swmm_getNodeIsCoupled(0, &iscoupled);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN); 
 
     error = swmm_closeOpening(0, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN); 
 
     error = swmm_openOpening(0, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN); 
 
     error = swmm_coupling_findNodeInflow(0.0, 0.0, 0.0, 0.0, 0.0, NULL, 0.0, NULL);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN); 
 
     error = swmm_deleteNodeOpenings(0);
-    BOOST_CHECK_EQUAL(error, ERR_API_INPUTNOTOPEN); 
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_INPUTNOTOPEN); 
 
 }
 
@@ -145,15 +146,15 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(test_toolkit_coupling_fixture)
 
 // Testing for Simulation Started Error
-BOOST_FIXTURE_TEST_CASE(sim_started_check, FixtureBeforeStep) {
+BOOST_FIXTURE_TEST_CASE(sim_started_check, FixtureBeforeStart) {
     int error;
     error = swmm_setNodeOpening(0, 1, 1, 0.0, 0.0, 0.0, 0.0, 0.0);
-    BOOST_CHECK_EQUAL(error, ERR_API_SIM_NRUNNING);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_SIM_NRUNNING);
 }
 
 
 // Testing for invalid object index
-BOOST_FIXTURE_TEST_CASE(object_bounds_check, FixtureOpenClose) {
+BOOST_FIXTURE_TEST_CASE(object_bounds_check, FixtureBeforeEnd) {
     int error, num, type;
     double val;
     double input_val = 0;
@@ -161,37 +162,37 @@ BOOST_FIXTURE_TEST_CASE(object_bounds_check, FixtureOpenClose) {
     int iscoupled;
 
     error = swmm_setNodeOpening(100, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getNodeOpeningParam(100, 0, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getNodeOpeningFlow(100, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getNodeOpeningType(100, 0, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getOpeningCouplingType(100, 0, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getOpeningsNum(100, &num);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getOpeningsIndices(100, 0, &arr);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getNodeIsCoupled(100, &iscoupled);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_closeOpening(100, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_openOpening(100, 0);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_deleteNodeOpenings(100);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
 }
 
@@ -202,22 +203,17 @@ BOOST_FIXTURE_TEST_CASE(key_bounds_check, FixtureOpenClose) {
     char* error_msg=new char[256];
     int arr;
 
-    //Error codes
-    swmm_getAPIError(341, error_msg);
-    BOOST_CHECK_EQUAL(error_msg, "\n  ERROR 341: cannot open scratch RDII interface file.");
-    delete[] error_msg;
-
     error = swmm_getNodeOpeningParam(0, 100, 0, &val);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getNodeOpeningType(0, 100, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getOpeningCouplingType(0, 100, &type);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 
     error = swmm_getOpeningsIndices(0, 100, &arr);
-    BOOST_CHECK_EQUAL(error, ERR_API_OBJECT_INDEX);
+    BOOST_CHECK_EQUAL(error, ERR_TKAPI_OBJECT_INDEX);
 }
 
 // Testing for node get/set

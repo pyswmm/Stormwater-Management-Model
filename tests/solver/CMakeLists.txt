@@ -39,8 +39,6 @@ set(solver_test_srcs
     test_stats.cpp
     test_inlets_and_drains.cpp
     test_toolkit_hotstart.cpp
-    test_toolkit_coupling.cpp
-    test_coupling.cpp
     # ADD NEW TEST SUITES TO EXISTING TOOLKIT TEST MODULE
 )
 
@@ -61,3 +59,25 @@ target_link_libraries(test_solver
 set_target_properties(test_solver
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
+
+# Coupling Test Module
+set(coupling_test_srcs
+    test_toolkit_coupling.cpp
+    test_coupling.cpp
+)
+
+add_executable(test_coupling
+    ${coupling_test_srcs}
+)
+
+target_link_libraries(test_coupling
+    ${Boost_LIBRARIES}
+    swmm5
+)
+
+set_target_properties(test_coupling
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "WORKING_DIRECTORY: ${WORKING_DIRECTORY}")
