@@ -78,6 +78,3 @@ target_link_libraries(test_coupling
 set_target_properties(test_coupling
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-
-message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
-message(STATUS "WORKING_DIRECTORY: ${WORKING_DIRECTORY}")

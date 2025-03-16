@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_SUITE(test_coupling)
 
     }
 
-    BOOST_FIXTURE_TEST_CASE(NodeOpeningTests, FixtureOpenClose) 
+    BOOST_FIXTURE_TEST_CASE(NodeOpeningTests, FixtureBeforeStep)
     {
         int error, node_ind, no_of_deleted_openings;
         int no_of_openings;
