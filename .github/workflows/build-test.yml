@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-20.04, macos-12]
+        os: [windows-2022, ubuntu-22.04, macos-12]
         requirements: [requirements-swmm.txt]
         include:
           - os: windows-2022
