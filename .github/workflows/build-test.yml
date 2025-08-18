@@ -40,9 +40,9 @@ jobs:
                 shell: cmd
                 working-directory: ./ci-tools/windows
 
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             sys_pkgs: sudo apt install libboost-dev libboost-all-dev
-            boost_platform_version: 20.04
+            boost_platform_version: 22.04
             boost_toolsit: gcc
             # Statically link libraries with -s switch to address GitHub Ubuntu 20.04 symbol errors (issue #340)
             build_unit_test: make.sh -s -t -g "Unix Makefiles"
