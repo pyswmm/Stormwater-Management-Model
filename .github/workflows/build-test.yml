@@ -16,6 +16,7 @@ name: Build and Test
 on: 
   workflow_dispatch:
   push:
+    dev-build
   pull_request:
 
 jobs:
