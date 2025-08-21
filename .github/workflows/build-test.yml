@@ -14,11 +14,12 @@
 name: Build and Test
 
 on: 
-  workflow_dispatch:
+  workflow_dispatch
   push:
     dev-build
   pull_request:
-  merge_group:
+    dev-build
+  merge_group
 
 jobs:
   build:
