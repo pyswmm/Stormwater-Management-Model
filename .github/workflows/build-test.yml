@@ -13,13 +13,15 @@
 
 name: Build and Test
 
-on: 
-  workflow_dispatch
+on:
+  workflow_dispatch:
   push:
-    dev-build
+    branches:
+      - dev-build
   pull_request:
-    dev-build
-  merge_group
+    branches:
+      - dev-build
+  merge_group:
 
 jobs:
   build:
@@ -139,12 +141,12 @@ jobs:
 
       - name: Build and unit test
         env:
-            BOOST_ROOT_1_81_0: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+          BOOST_ROOT_1_81_0: ${{ steps.install-boost.outputs.BOOST_ROOT }}
         run: ./${{ matrix.build_unit_test }}
 
       - name: Build for reg test
         env:
-            BOOST_ROOT_1_81_0: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+          BOOST_ROOT_1_81_0: ${{ steps.install-boost.outputs.BOOST_ROOT }}
         run: ./${{ matrix.build_reg_test }}
 
       - name: Before reg test
