@@ -114,22 +114,22 @@ jobs:
         if: ${{ runner.os == 'macOS' }}
 
       # boost takes a while to install on windows, so try to cache
-      - name: Install boost
-        # if: ${{runner.os == 'Windows'}}
-        uses: MarkusJx/install-boost@v2.4.4
-        id: install-boost
-        with:
-            # REQUIRED: Specify the required boost version
-            # A list of supported versions can be found here:
-            # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
-            boost_version: 1.81.0
-            link: shared
-            # OPTIONAL: Specify a custon install location
-            # boost_install_dir: C:\some_directory
-            # OPTIONAL: Specify a platform version
-            platform_version: ${{ matrix.boost_platform_version }}
-            # OPTIONAL: Specify a toolset
-            toolset: ${{ matrix.boost_toolset }}
+      # - name: Install boost
+      #   # if: ${{runner.os == 'Windows'}}
+      #   uses: MarkusJx/install-boost@v2.4.4
+      #   id: install-boost
+      #   with:
+      #       # REQUIRED: Specify the required boost version
+      #       # A list of supported versions can be found here:
+      #       # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+      #       boost_version: 1.81.0
+      #       link: shared
+      #       # OPTIONAL: Specify a custon install location
+      #       # boost_install_dir: C:\some_directory
+      #       # OPTIONAL: Specify a platform version
+      #       platform_version: ${{ matrix.boost_platform_version }}
+      #       # OPTIONAL: Specify a toolset
+      #       toolset: ${{ matrix.boost_toolset }}
 
       - name: Build and unit test
         env:
