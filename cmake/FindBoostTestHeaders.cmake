@@ -32,6 +32,9 @@ if(TARGET boost_test_headers)
     return()  # Already created
 endif()
 
+message(STATUS "Fetching BoostTestHeaders")
+
+
 cmake_policy(PUSH)
 if(POLICY CMP0169)
     cmake_policy(SET CMP0169 OLD)  # flip to NEW once you migrate off the old behavior
@@ -51,8 +54,6 @@ set(
     move mp11 mpl numeric_conversion preprocessor range smart_ptr static_assert
     test throw_exception type_traits utility
 )
-
-message(STATUS "Fetching BoostTestHeaders")
 
 foreach(lib IN LISTS BOOST_TEST_DEPS)
     message(VERBOSE "  - Processing boost::${lib}")
@@ -86,6 +87,6 @@ set(
      BoostTestHeaders_FOUND TRUE
 )
 
-message(STATUS "BoostTestHeaders found")
+message(STATUS "Found BoostTestHeaders")
 
 cmake_policy(POP)
