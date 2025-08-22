@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-12]
+        os: [windows-latest, ubuntu-latest, macos-latest]
         requirements: [requirements-swmm.txt]
         include:
           - os: windows-latest
