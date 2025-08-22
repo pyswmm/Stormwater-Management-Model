@@ -52,7 +52,11 @@ set(
     test throw_exception type_traits utility
 )
 
+message(STATUS "Fetching BoostTestHeaders")
+
 foreach(lib IN LISTS BOOST_TEST_DEPS)
+    message(VERBOSE "  - Processing boost::${lib}")
+
     FetchContent_Declare(
       Boost${lib}
         URL https://github.com/boostorg/${lib}/archive/refs/tags/boost-${BOOST_VERSION}.tar.gz
