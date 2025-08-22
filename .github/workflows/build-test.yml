@@ -28,13 +28,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-20.04, macos-12]
+        os: [windows-latest, ubuntu-20.04, macos-12]
         requirements: [requirements-swmm.txt]
         include:
-          - os: windows-2022
-            sys_pkgs: choco install boost-msvc-14.3
-            boost_platform_version: 2022
-            boost_toolsit: mvc
+          - os: windows-latest
+            # sys_pkgs: choco install boost-msvc-14.3
+            # boost_platform_version: 2022
+            # boost_toolsit: mvc
             build_unit_test: make.cmd /g "Visual Studio 17 2022" /A "x64" /t
             build_reg_test: make.cmd /g "Visual Studio 17 2022" /A "x64"
             before_reg_test: before-nrtest.cmd
@@ -49,9 +49,9 @@ jobs:
                 working-directory: ./ci-tools/windows
 
           - os: ubuntu-20.04
-            sys_pkgs: sudo apt install libboost-dev libboost-all-dev
-            boost_platform_version: 20.04
-            boost_toolsit: gcc
+            # sys_pkgs: sudo apt install libboost-dev libboost-all-dev
+            # boost_platform_version: 20.04
+            # boost_toolsit: gcc
             # Statically link libraries with -s switch to address GitHub Ubuntu 20.04 symbol errors (issue #340)
             build_unit_test: make.sh -s -t -g "Unix Makefiles"
             build_reg_test: make.sh -s -g "Unix Makefiles"
@@ -67,9 +67,9 @@ jobs:
                 working-directory: ./ci-tools/linux
 
           - os: macos-12
-            sys_pkgs: brew install libomp #boost
-            boost_platform_version: 12
-            boost_toolsit: clang
+            # sys_pkgs: brew install libomp #boost
+            # boost_platform_version: 12
+            # boost_toolsit: clang
             build_unit_test: make.zsh -t -g "Xcode"
             build_reg_test: make.zsh -g "Xcode"
             before_reg_test: before-nrtest.zsh
@@ -117,9 +117,9 @@ jobs:
           python -m pip install -r requirements-swmm.txt
 
       # install boost on mac and linux
-      - name: Install required system packages on mac and linux
-        run: ${{ matrix.sys_pkgs }}
-        if: ${{ runner.os == 'macOS' }}
+      # - name: Install required system packages on mac and linux
+      #   run: ${{ matrix.sys_pkgs }}
+      #   if: ${{ runner.os == 'macOS' }}
 
       # boost takes a while to install on windows, so try to cache
       # - name: Install boost
