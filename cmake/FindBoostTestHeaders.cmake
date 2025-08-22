@@ -19,6 +19,15 @@
 #  License: MIT
 #
 
+set(
+    CMAKE_SUPPRESS_DEVELOPER_WARNINGS
+        ON CACHE BOOL "Suppress developer warnings"
+)
+set(
+    FETCHCONTENT_UPDATES_DISCONNECTED
+        ON CACHE BOOL "Disable FetchContent updates during normal builds"
+)
+
 if(TARGET boost_test_headers)
     return()  # Already created
 endif()
