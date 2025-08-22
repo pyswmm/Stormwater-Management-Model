@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-20.04, macos-12]
+        os: [windows-latest, ubuntu-latest, macos-12]
         requirements: [requirements-swmm.txt]
         include:
           - os: windows-latest
@@ -48,7 +48,7 @@ jobs:
                 shell: cmd
                 working-directory: ./ci-tools/windows
 
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             # sys_pkgs: sudo apt install libboost-dev libboost-all-dev
             # boost_platform_version: 20.04
             # boost_toolsit: gcc
