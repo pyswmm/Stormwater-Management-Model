@@ -66,7 +66,7 @@ jobs:
                 shell: bash
                 working-directory: ./ci-tools/linux
 
-          - os: macos-12
+          - os: macos-latest
             # sys_pkgs: brew install libomp #boost
             # boost_platform_version: 12
             # boost_toolsit: clang
