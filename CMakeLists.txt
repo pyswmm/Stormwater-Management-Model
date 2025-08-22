@@ -2,7 +2,7 @@
 # CMakeLists.txt - CMake configuration file for swmm-solver
 #
 # Created: July 11, 2019
-# Modified: Aug 16, 2022
+# Updated: Aug 21, 2025
 #
 # Authors: Michael E. Tryby
 #          US EPA ORD/CESER
@@ -13,15 +13,27 @@
 ################################################################################
 
 
-cmake_minimum_required (VERSION 3.13)
+cmake_minimum_required (VERSION 3.23)
 
 # Disable in-source builds (they are messy)
 if("${CMAKE_BINARY_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     message(FATAL_ERROR "In-source builds are disabled.")
 endif()
 
+list(
+    APPEND
+        CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"
+)
 
-project(swmm-solver
+set(
+    FETCHCONTENT_UPDATES_DISCONNECTED
+        ON CACHE BOOL
+        "Disable FetchContent updates during normal builds"
+)
+
+
+project(
+  swmm-solver
     VERSION 5.2.4
     LANGUAGES C CXX
 )
@@ -55,7 +67,7 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 # Add project subdirectories
 if(BUILD_DOCS)
-  add_subdirectory(docs)
+    add_subdirectory(docs)
 endif()
 
 add_subdirectory(src/outfile)

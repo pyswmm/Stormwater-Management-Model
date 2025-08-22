@@ -33,7 +33,7 @@ BOOST_FIXTURE_TEST_CASE(getset_inlet_params, FixtureBeforeStep_Inlets){
     error = swmm_getInletParam(link_ind, SM_INLETNUMINLETS, &value);
     BOOST_REQUIRE(error == ERR_NONE);
     BOOST_CHECK_SMALL(value - 1.0, 0.0001);
-    
+
     // test clogging factor getter
     error = swmm_getInletParam(link_ind, SM_INLETCLOGFACTOR, &value);
     BOOST_REQUIRE(error == ERR_NONE);
@@ -62,7 +62,7 @@ BOOST_FIXTURE_TEST_CASE(getset_inlet_params, FixtureBeforeStep_Inlets){
     error = swmm_getInletParam(link_ind, SM_INLETLOCALDEPRESS, &value);
     BOOST_REQUIRE(error == ERR_NONE);
     BOOST_CHECK_SMALL(value - 0.5, 0.0001);
-    
+
     // test local depression width getter
     error = swmm_getInletParam(link_ind, SM_INLETLOCALWIDTH, &value);
     BOOST_REQUIRE(error == ERR_NONE);
@@ -80,7 +80,7 @@ BOOST_FIXTURE_TEST_CASE(get_result_during_sim, FixtureBeforeStep_Inlets){
 
     error = swmm_getObjectIndex(SM_LINK, lnkid, &lnk_ind);
     BOOST_REQUIRE(error == ERR_NONE);
-     
+
     step_ind = 0;
 
     do
@@ -109,7 +109,7 @@ BOOST_FIXTURE_TEST_CASE(get_result_during_sim, FixtureBeforeStep_Inlets){
             BOOST_REQUIRE(error == ERR_NONE);
             BOOST_CHECK_SMALL(val - 1.0, 0.0001);
         }
-        
+
         step_ind+=1;
     }while (elapsedTime != 0 && !error);
     // BOOST_REQUIRE(error == 1);

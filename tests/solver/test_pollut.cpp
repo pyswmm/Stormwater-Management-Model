@@ -166,7 +166,7 @@ BOOST_FIXTURE_TEST_CASE(get_node_pollutant_values_cin, FixtureBeforeStep_Pollut_
     step_ind = 0;
     do
     {
-       
+
     // Get inflow concentration
 	error = swmm_getNodePollut(1, SM_NODECIN, &node_qual, &length);
     // Check length is set correctly
@@ -403,7 +403,7 @@ BOOST_FIXTURE_TEST_CASE(set_link_pollutant_stepwise_values, FixtureBeforeStep_Po
     error = swmm_getObjectIndex(SM_NODE, nodeid, &node_ind);
     BOOST_REQUIRE(error == ERR_NONE);
 
-    do{	    
+    do{
 	    if (step > 1000 && step < 2000){
 	    	// Set pollutant in link and check the pollutant in the node
 	    	error = swmm_setLinkPollut(link_ind, SM_LINKQUAL, P1, 1.0);
@@ -456,7 +456,7 @@ BOOST_FIXTURE_TEST_CASE(set_link_pollutant_stepwise_values_2, FixtureBeforeStep_
     error = swmm_getObjectIndex(SM_NODE, nodeid, &node_ind);
     BOOST_REQUIRE(error == ERR_NONE);
 
-    do{	    
+    do{
 	    if (step > 1000 & step < 2000){
 	    	// Set pollutant in link and check the pollutant in the node
 	    	error = swmm_setLinkPollut(link_ind, SM_LINKQUAL, P1, 20.0);

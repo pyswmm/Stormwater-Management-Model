@@ -8,7 +8,8 @@
  *   Unit testing mechanics for the hotstart API using Boost Test.
  */
 
-#include <boost/test/unit_test.hpp>
+ #include <boost/test/unit_test.hpp>
+
 #include "test_solver.hpp"
 #include <fstream>
 #include <iterator>
