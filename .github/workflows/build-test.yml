@@ -127,5 +127,5 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: build-test-artifacts
+          name: build-test-artifacts-${{ matrix.os }}
           path: upload/*.*
