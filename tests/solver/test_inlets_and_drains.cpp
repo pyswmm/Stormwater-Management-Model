@@ -11,9 +11,9 @@
  ******************************************************************************
 */
 
- #include <boost/test/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
- #include "test_solver.hpp"
+#include "test_solver.hpp"
 
 
 #define ERR_NONE 0
