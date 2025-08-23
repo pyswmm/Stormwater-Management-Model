@@ -12,11 +12,9 @@
 */
 
 #define BOOST_TEST_MODULE solver
-
+#include <boost/test/included/unit_test.hpp>
 
 #include <math.h>
-
-#include <boost/test/included/unit_test.hpp>
 
 #include "test_solver.hpp"
 

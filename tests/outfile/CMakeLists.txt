@@ -7,18 +7,25 @@
 #         US EPA ORD/CESER
 #
 
-add_executable(test_output
+add_executable(
+  test_output
     test_output.cpp
 )
 
-target_include_directories(test_output
-    PUBLIC ../../outfile/include
+target_include_directories(
+  test_output
+    PUBLIC ../../src/outfile/include
 )
 
-target_link_libraries(test_output
-     swmm-output
+target_link_libraries(
+  test_output
+     PUBLIC
+         swmm-output
+     PRIVATE
+         boost_test_headers
 )
 
-set_target_properties(test_output
+set_target_properties(
+  test_output
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )

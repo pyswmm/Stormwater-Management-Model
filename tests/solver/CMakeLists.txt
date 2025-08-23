@@ -19,17 +19,23 @@ add_executable(test_lid
     ${lid_test_srcs}
 )
 
-target_link_libraries(test_lid
-    swmm5
+target_link_libraries(
+  test_lid
+    PUBLIC
+        swmm5
+    PRIVATE
+        boost_test_headers
 )
 
-set_target_properties(test_lid
+set_target_properties(
+  test_lid
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
 
 # Toolkit Test Module
-set(solver_test_srcs
+set(
+  solver_test_srcs
     test_canonical.cpp
     test_gage.cpp
     test_pollut.cpp
@@ -41,19 +47,26 @@ set(solver_test_srcs
     # ADD NEW TEST SUITES TO EXISTING TOOLKIT TEST MODULE
 )
 
-add_executable(test_solver
+add_executable(
+  test_solver
     ${solver_test_srcs}
 )
 
-target_compile_features(test_solver
+target_compile_features(
+  test_solver
     PUBLIC
       cxx_generalized_initializers
 )
 
-target_link_libraries(test_solver
-    swmm5
+target_link_libraries(
+  test_solver
+    PUBLIC
+        swmm5
+    PRIVATE
+        boost_test_headers
 )
 
-set_target_properties(test_solver
+set_target_properties(
+  test_solver
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )

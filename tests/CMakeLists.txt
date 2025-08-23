@@ -10,8 +10,12 @@
 
 
 #Prep ourselves for compiling with boost
-include(../extern/boost.cmake)
+# include(../extern/boost.cmake)
 
+find_package(
+  BoostTestHeaders
+    REQUIRED
+)
 
 add_subdirectory(outfile)
 add_subdirectory(solver)

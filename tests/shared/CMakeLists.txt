@@ -18,9 +18,11 @@ target_include_directories(test_cstrhelper
         ${CMAKE_SOURCE_DIR}/src
     )
 
-target_link_libraries(test_cstrhelper
-    ${Boost_LIBRARIES}
-    )
+target_link_libraries(
+  test_cstrhelper
+    PRIVATE
+        boost_test_headers
+)
 
 
 add_executable(test_errormanager
@@ -33,9 +35,11 @@ target_include_directories(test_errormanager
         ${CMAKE_SOURCE_DIR}/src
     )
 
-target_link_libraries(test_errormanager
-    ${Boost_LIBRARIES}
-    )
+target_link_libraries(
+  test_errormanager
+    PRIVATE
+        boost_test_headers
+)
 
 
 add_executable(test_filemanager
@@ -48,9 +52,11 @@ target_include_directories(test_filemanager
         ${CMAKE_SOURCE_DIR}/src
     )
 
-target_link_libraries(test_filemanager
-    ${Boost_LIBRARIES}
-    )
+target_link_libraries(
+  test_filemanager
+    PRIVATE
+        boost_test_headers
+)
 
 
 set_target_properties(test_cstrhelper test_errormanager test_filemanager
