@@ -13,15 +13,7 @@
 
 name: Build and Test
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - dev-build
-  pull_request:
-    branches:
-      - dev-build
-  merge_group:
+on: [push, pull_request]
 
 jobs:
   build:
