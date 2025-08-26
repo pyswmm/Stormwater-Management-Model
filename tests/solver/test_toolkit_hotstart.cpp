@@ -9,6 +9,7 @@
  */
 
 #include <boost/test/unit_test.hpp>
+
 #include "test_solver.hpp"
 #include <fstream>
 #include <iterator>

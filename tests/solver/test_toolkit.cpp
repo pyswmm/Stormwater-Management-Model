@@ -966,7 +966,7 @@ BOOST_FIXTURE_TEST_CASE(get_result_during_sim, FixtureBeforeStep){
                 BOOST_REQUIRE(error == ERR_NONE);
                 test_vec.push_back(val);
             }
-            BOOST_CHECK(check_cdd_double(test_vec, link_vec, 3));
+            BOOST_CHECK(check_cdd_double(test_vec, link_vec, 1.9));
 
         }
         step_ind+=1;

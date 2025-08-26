@@ -13,8 +13,6 @@
 
 
 #define BOOST_TEST_MODULE "lid"
-
-
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_lid.hpp"

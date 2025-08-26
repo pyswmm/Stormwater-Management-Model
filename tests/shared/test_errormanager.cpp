@@ -12,8 +12,7 @@
  */
 
 #define BOOST_TEST_MODULE errormanager
-
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "shared/errormanager.h"
 
