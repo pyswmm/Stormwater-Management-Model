@@ -120,7 +120,7 @@ int EXPORT_OUT_API SMO_init(SMO_Handle *p_handle)
     if (priv_data != NULL) {
         priv_data->error_handle = new_errormanager(&errorLookup);
         *p_handle = priv_data;
-    } 
+    }
     else
         errorcode = -1;
 
@@ -489,12 +489,12 @@ int EXPORT_OUT_API SMO_getSubcatchSeries(SMO_Handle p_handle, int subcatchIndex,
         errorcode = -1;
     else if (subcatchIndex < 0 || subcatchIndex > p_data->Nsubcatch)
         errorcode = 420;
-    else if (startPeriod < 0 || startPeriod >= p_data->Nperiods ||
-             endPeriod <= startPeriod)
+    else if (startPeriod < 0 || endPeriod < startPeriod ||
+        endPeriod >= p_data->Nperiods)
         errorcode = 422;
     // Check memory for outValues
     else if
-        MEMCHECK(temp = newFloatArray(len = endPeriod - startPeriod))
+        MEMCHECK(temp = newFloatArray(len = endPeriod - startPeriod + 1))
     errorcode = 411;
     else {
         // loop over and build time series
@@ -527,12 +527,12 @@ int EXPORT_OUT_API SMO_getNodeSeries(SMO_Handle p_handle, int nodeIndex,
         errorcode = -1;
     else if (nodeIndex < 0 || nodeIndex > p_data->Nnodes)
         errorcode = 420;
-    else if (startPeriod < 0 || startPeriod >= p_data->Nperiods ||
-             endPeriod <= startPeriod)
+        else if (startPeriod < 0 || endPeriod < startPeriod ||
+            endPeriod >= p_data->Nperiods)
         errorcode = 422;
     // Check memory for outValues
     else if
-        MEMCHECK(temp = newFloatArray(len = endPeriod - startPeriod))
+        MEMCHECK(temp = newFloatArray(len = endPeriod - startPeriod + 1))
     errorcode = 411;
     else {
         // loop over and build time series
@@ -564,12 +564,12 @@ int EXPORT_OUT_API SMO_getLinkSeries(SMO_Handle p_handle, int linkIndex,
         errorcode = -1;
     else if (linkIndex < 0 || linkIndex > p_data->Nlinks)
         errorcode = 420;
-    else if (startPeriod < 0 || startPeriod >= p_data->Nperiods ||
-             endPeriod <= startPeriod)
+        else if (startPeriod < 0 || endPeriod < startPeriod ||
+            endPeriod >= p_data->Nperiods)
         errorcode = 422;
     // Check memory for outValues
     else if
-        MEMCHECK(temp = newFloatArray(len = endPeriod - startPeriod))
+        MEMCHECK(temp = newFloatArray(len = endPeriod - startPeriod + 1))
     errorcode = 411;
     else {
         // loop over and build time series
@@ -598,12 +598,12 @@ int EXPORT_OUT_API SMO_getSystemSeries(SMO_Handle p_handle, SMO_systemAttribute 
 
     if (p_data == NULL)
         errorcode = -1;
-    else if (startPeriod < 0 || startPeriod >= p_data->Nperiods ||
-             endPeriod <= startPeriod)
+        else if (startPeriod < 0 || endPeriod < startPeriod ||
+            endPeriod >= p_data->Nperiods)
         errorcode = 422;
     // Check memory for outValues
     else if
-        MEMCHECK(temp = newFloatArray(len = endPeriod - startPeriod))
+        MEMCHECK(temp = newFloatArray(len = endPeriod - startPeriod + 1))
     errorcode = 411;
     else {
         // loop over and build time series
