@@ -185,61 +185,64 @@ int EXPORT_OUT_API SMO_open(SMO_Handle p_handle, const char *path)
         if ((_fopen(&(p_data->file), path, "rb")) != 0)
             errorcode = 434;
 
-        // --- validate the output file
-        else if ((err = validateFile(p_data)) != 0)
-            errorcode = err;
+        // Only validate if file was opened successfully
+        if (errorcode == 0) {
+            if ((err = validateFile(p_data)) != 0)
+                errorcode = err;
 
-        // If a warning is encountered read file header
-        if (errorcode < 400) {
-            // --- otherwise read additional parameters from start of file
-            fseek(p_data->file, 3 * RECORDSIZE, SEEK_SET);
-            fread(&(p_data->Nsubcatch), RECORDSIZE, 1, p_data->file);
-            fread(&(p_data->Nnodes), RECORDSIZE, 1, p_data->file);
-            fread(&(p_data->Nlinks), RECORDSIZE, 1, p_data->file);
-            fread(&(p_data->Npolluts), RECORDSIZE, 1, p_data->file);
+            // If a warning is encountered read file header
+            if (errorcode < 400) {
+                // --- otherwise read additional parameters from start of file
+                fseek(p_data->file, 3 * RECORDSIZE, SEEK_SET);
+                fread(&(p_data->Nsubcatch), RECORDSIZE, 1, p_data->file);
+                fread(&(p_data->Nnodes), RECORDSIZE, 1, p_data->file);
+                fread(&(p_data->Nlinks), RECORDSIZE, 1, p_data->file);
+                fread(&(p_data->Npolluts), RECORDSIZE, 1, p_data->file);
 
-            // Compute offset for saved subcatch/node/link input values
-            offset =
-                (p_data->Nsubcatch + 2) * RECORDSIZE    // Subcatchment area
-                + (3 * p_data->Nnodes + 4) *
-                      RECORDSIZE    // Node type, invert & max depth
-                + (5 * p_data->Nlinks + 6) *
-                      RECORDSIZE;    // Link type, z1, z2, max depth & length
-            offset += p_data->ObjPropPos;
+                // Compute offset for saved subcatch/node/link input values
+                offset =
+                    (p_data->Nsubcatch + 2) * RECORDSIZE    // Subcatchment area
+                    + (3 * p_data->Nnodes + 4) *
+                            RECORDSIZE    // Node type, invert & max depth
+                    + (5 * p_data->Nlinks + 6) *
+                            RECORDSIZE;    // Link type, z1, z2, max depth & length
+                offset += p_data->ObjPropPos;
 
-            // Read number & codes of computed variables
-            _fseek(p_data->file, offset, SEEK_SET);
-            fread(&(p_data->SubcatchVars), RECORDSIZE, 1,
-                  p_data->file);    // # Subcatch variables
+                // Read number & codes of computed variables
+                _fseek(p_data->file, offset, SEEK_SET);
+                fread(&(p_data->SubcatchVars), RECORDSIZE, 1,
+                        p_data->file);    // # Subcatch variables
 
-            _fseek(p_data->file, p_data->SubcatchVars * RECORDSIZE, SEEK_CUR);
-            fread(&(p_data->NodeVars), RECORDSIZE, 1,
-                  p_data->file);    // # Node variables
+                _fseek(p_data->file, p_data->SubcatchVars * RECORDSIZE, SEEK_CUR);
+                fread(&(p_data->NodeVars), RECORDSIZE, 1,
+                        p_data->file);    // # Node variables
 
-            _fseek(p_data->file, p_data->NodeVars * RECORDSIZE, SEEK_CUR);
-            fread(&(p_data->LinkVars), RECORDSIZE, 1,
-                  p_data->file);    // # Link variables
+                _fseek(p_data->file, p_data->NodeVars * RECORDSIZE, SEEK_CUR);
+                fread(&(p_data->LinkVars), RECORDSIZE, 1,
+                        p_data->file);    // # Link variables
 
-            _fseek(p_data->file, p_data->LinkVars * RECORDSIZE, SEEK_CUR);
-            fread(&(p_data->SysVars), RECORDSIZE, 1,
-                  p_data->file);    // # System variables
+                _fseek(p_data->file, p_data->LinkVars * RECORDSIZE, SEEK_CUR);
+                fread(&(p_data->SysVars), RECORDSIZE, 1,
+                        p_data->file);    // # System variables
 
-            // --- read data just before start of output results
-            offset = p_data->ResultsPos - 3 * RECORDSIZE;
-            _fseek(p_data->file, offset, SEEK_SET);
-            fread(&(p_data->StartDate), DATESIZE, 1, p_data->file);
-            fread(&(p_data->ReportStep), RECORDSIZE, 1, p_data->file);
+                // --- read data just before start of output results
+                offset = p_data->ResultsPos - 3 * RECORDSIZE;
+                _fseek(p_data->file, offset, SEEK_SET);
+                fread(&(p_data->StartDate), DATESIZE, 1, p_data->file);
+                fread(&(p_data->ReportStep), RECORDSIZE, 1, p_data->file);
 
-            // --- compute number of bytes of results values used per time
-            // period
-            p_data->BytesPerPeriod =
-                DATESIZE +
-                (p_data->Nsubcatch * p_data->SubcatchVars +
-                 p_data->Nnodes * p_data->NodeVars +
-                 p_data->Nlinks * p_data->LinkVars + p_data->SysVars) *
-                    RECORDSIZE;
+                // --- compute number of bytes of results values used per time
+                // period
+                p_data->BytesPerPeriod =
+                    DATESIZE +
+                    (p_data->Nsubcatch * p_data->SubcatchVars +
+                        p_data->Nnodes * p_data->NodeVars +
+                        p_data->Nlinks * p_data->LinkVars + p_data->SysVars) *
+                        RECORDSIZE;
+            }
         }
     }
+        
     // If error close the binary file
     if (errorcode > 400) {
         set_error(p_data->error_handle, errorcode);

@@ -103,6 +103,19 @@ BOOST_AUTO_TEST_CASE(InitOpenCloseTest) {
     SMO_close(p_handle);
 }
 
+BOOST_AUTO_TEST_CASE(OpenNonexistentFileTest) {
+    SMO_Handle p_handle = NULL;
+    int error = SMO_init(&p_handle);
+    BOOST_REQUIRE(error == 0);
+
+    // Try to open a file that does not exist
+    std::string bad_path = "./this_file_does_not_exist.out";
+    error = SMO_open(p_handle, bad_path.c_str());
+
+    // Should return error code 434 (file open error)
+    BOOST_CHECK_EQUAL(error, 434);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 struct Fixture {
