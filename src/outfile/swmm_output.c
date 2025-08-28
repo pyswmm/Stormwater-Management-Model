@@ -241,9 +241,9 @@ int EXPORT_OUT_API SMO_open(SMO_Handle p_handle, const char *path)
                         p_data->Nlinks * p_data->LinkVars + p_data->SysVars) *
                         RECORDSIZE;
             }
+// ############################################################################
         }
     }
-// ############################################################################
 
     // If error close the binary file
     if (errorcode > 400) {
