@@ -120,7 +120,7 @@ int EXPORT_OUT_API SMO_init(SMO_Handle *p_handle)
     if (priv_data != NULL) {
         priv_data->error_handle = new_errormanager(&errorLookup);
         *p_handle = priv_data;
-    } 
+    }
     else
         errorcode = -1;
 
@@ -185,6 +185,7 @@ int EXPORT_OUT_API SMO_open(SMO_Handle p_handle, const char *path)
         if ((_fopen(&(p_data->file), path, "rb")) != 0)
             errorcode = 434;
 
+// PYSWMM EDIT ################################################################
         // Only validate if file was opened successfully
         if (errorcode == 0) {
             if ((err = validateFile(p_data)) != 0)
@@ -242,7 +243,8 @@ int EXPORT_OUT_API SMO_open(SMO_Handle p_handle, const char *path)
             }
         }
     }
-        
+// ############################################################################
+
     // If error close the binary file
     if (errorcode > 400) {
         set_error(p_data->error_handle, errorcode);
