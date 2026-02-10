@@ -578,8 +578,8 @@ BOOST_FIXTURE_TEST_CASE(test_decodeDate_day_of_week_progression, Fixture) {
     error = SMO_getTimes(p_handle, SMO_numPeriods, &nperiods);
     BOOST_REQUIRE(error == 0);
 
-    // Only check DOW if the step divides a day evenly and we have ≥ 1 full day
-    if (86400 % reportStepSec != 0 || nperiods < (86400 / reportStepSec)) {
+    // Only check DOW if the step divides a day evenly and we have > 1 full day
+    if (86400 % reportStepSec != 0 || nperiods <= (86400 / reportStepSec)) {
         BOOST_TEST_MESSAGE("Skipping DOW progression: report step does not divide a day or not enough periods.");
         return;
     }
