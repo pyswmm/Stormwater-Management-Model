@@ -60,3 +60,7 @@ tests/solver/data/feng*
 # Generated files
 *_export.h
 version.h
+
+# CodeQL
+_codeql_build_dir/
+_codeql_detected_source_root
