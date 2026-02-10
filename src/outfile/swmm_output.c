@@ -541,6 +541,7 @@ void  EXPORT_OUT_API SMO_decodeDate(double date, int *year, int *month, int *day
 //  Output: date's year, month of year, day of month, time of day (hour,
 //           minute, second), and day of week
 //  Purpose: retrieves the calendar date and clock time of an encoded date.
+//  Note:    all output pointers must be non-NULL.
 {
     datetime_decodeDate(date, year, month, day);
     datetime_decodeTime(date, hour, minute, second);
