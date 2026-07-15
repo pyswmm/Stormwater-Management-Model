@@ -51,8 +51,12 @@
 //-----------------------------------------------------------------------------
 typedef struct
 {
-    int     k;                  // storage unit index
-    double  v;                  // storage unit volume (ft3)
+    int     j;                  // node index (as expected by storage_getVolume/
+                                // storage_getSurfArea, NOT the storage unit's
+                                // own subIndex)
+    double  v;                  // target storage volume in USER (display) units,
+                                // matching the user-unit depth iterate used by
+                                // storage_getDepth's Newton solve
 } TStorageVol;
 
 //-----------------------------------------------------------------------------
@@ -835,7 +839,7 @@ double storage_getDepth(int j, double v)
 
     // --- convert volume to user's units
     v *= UCF(VOLUME);
-    storageVol.k = k;
+    storageVol.j = j;
     storageVol.v = v;
 
     switch (shape)
@@ -905,24 +909,41 @@ double storage_getDepth(int j, double v)
 
 void  storage_getVolDiff(double y, double* f, double* df, void* p)
 //
-//  Input:   y = depth of water (ft)
-//           p = pointer to a TStorageVol object
-//  Output:  f = volume of water (ft3)
-//           df = dVolume/dDepth ( = surface area)(ft2)
+//  Input:   y = trial depth of water (USER units, matching storage_getDepth's
+//               Newton solve)
+//           p = pointer to a TStorageVol object (v in USER volume units)
+//  Output:  f = volume difference (USER volume units)
+//           df = dVolume/dDepth w.r.t. the USER-unit depth y
 //  Purpose: computes volume difference and its derivative at a storage node
 //           using the node's area versus depth function.
 //
+//  Note:    storage_getVolume/storage_getSurfArea take depth in INTERNAL (ft)
+//           units and return volume/area in INTERNAL (ft3/ft2) units, while y
+//           and storageVol->v here are in USER (display) units. Convert at
+//           this boundary so the two unit systems aren't mixed in *f/*df
+//           (harmless when UCF(LENGTH)==UCF(VOLUME)==1.0, i.e. US units, but
+//           wrong under SI units where they aren't).
+//
 {
-    int    k;
+    int    j;
+    double yFt;
+    double ucfLen, ucfVol;
     TStorageVol* storageVol;
 
     // --- cast void pointer p to a TStorageVol object
     storageVol = (TStorageVol *)p;
-    k = storageVol->k;
+    j = storageVol->j;
+
+    // --- convert trial depth to internal (ft) units for storage_getVolume/
+    //     storage_getSurfArea, then convert their internal-unit results back
+    //     to the user units used by storageVol->v and the Newton iterate y
+    ucfLen = UCF(LENGTH);
+    ucfVol = UCF(VOLUME);
+    yFt = y / ucfLen;
 
     // --- compute volume & surface area at depth y
-    *f = storage_getVolume(k, y) - storageVol->v;
-    *df = storage_getSurfArea(k, y);
+    *f = storage_getVolume(j, yFt) * ucfVol - storageVol->v;
+    *df = storage_getSurfArea(j, yFt) * ucfVol / ucfLen;
 }
 
 //=============================================================================
