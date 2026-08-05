@@ -17,6 +17,8 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 
+#include <stdbool.h>
+
 #include "toolkit_enums.h"
 #include "toolkit_structs.h"
 #include "toolkit_export.h"
@@ -401,6 +403,46 @@ EXPORT_TOOLKIT int swmm_setSimulationDateTime(SM_TimePropety type, int year, int
 */
 EXPORT_TOOLKIT int swmm_getCurrentDateTime(int *year, int *month, int *day,
                                       int *hour, int *minute, int *second);
+
+
+
+/**
+ @brief Retrieve metadata for the current report-aligned window.
+ @param[out] lastReady Date/time (decimal days) for the most recent completed report (negative when unavailable)
+ @param[out] nextReport Date/time (decimal days) for the upcoming report window
+ @param[out] isReady Optional flag that is true when a completed window is available
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getReportWindow(bool *isReady, double *lastReady, double *nextReport);
+
+/**
+ @brief Get a node result aligned with the reporting time grid.
+ @param index The index of a node
+ @param type The property type code (See @ref SM_NodeResult)
+ @param[out] result The interpolated result for the node
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getNodeLiveReport(int index, SM_NodeResult type, double *result);
+
+/**
+ @brief Get a link result aligned with the reporting time grid.
+ @param index The index of a link
+ @param type The property type code (See @ref SM_LinkResult)
+ @param[out] result The interpolated result for the link
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getLinkLiveReport(int index, SM_LinkResult type, double *result);
+
+/**
+ @brief Get a subcatchment result aligned with the reporting time grid.
+ @param index The index of a subcatchment
+ @param type The property type code (See @ref SM_SubcResult)
+ @param[out] result The interpolated result for the subcatchment
+ @return Error code
+*/
+EXPORT_TOOLKIT int swmm_getSubcatchLiveReport(int index, SM_SubcResult type, double *result);
+
+
 
 /**
  @brief Get a result value for specified node.

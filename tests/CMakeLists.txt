@@ -40,3 +40,8 @@ add_test(NAME test_solver
     COMMAND "${TEST_BIN_DIRECTORY}/test_solver"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/solver/data
 )
+
+add_test(NAME test_live_report
+    COMMAND "${TEST_BIN_DIRECTORY}/test_live_report"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/solver/data
+)

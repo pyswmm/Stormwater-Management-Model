@@ -227,7 +227,6 @@ void   DLLEXPORT swmm_getName(int objType, int index, char *name, int size);
 int    DLLEXPORT swmm_getIndex(int objType, const char *name);
 double DLLEXPORT swmm_getValue(int property, int index);
 void   DLLEXPORT swmm_setValue(int property, int index,  double value);
-double DLLEXPORT swmm_getSavedValue(int property, int index, int period);
 void   DLLEXPORT swmm_writeLine(const char *line);
 void   DLLEXPORT swmm_decodeDate(double date, int *year, int *month, int *day,
                  int *hour, int *minute, int *second, int *dayOfWeek);

@@ -136,7 +136,11 @@ EXTERN double
                   OldRoutingTime,           // Previous routing time (msec)
                   NewRoutingTime,           // Current routing time (msec)
                   TotalDuration,            // Simulation duration (msec)
-                  ElapsedTime;              // Current elapsed time (days)
+                  ElapsedTime,              // Current elapsed time (days)
+                  LatestReportTime;         // Most recent completed report time (msec)
+
+EXTERN int        LatestReportPeriod,       // Count of completed report periods
+                  LatestReportReady;        // TRUE if LatestReportTime reflects current step
 
 EXTERN TTemp      Temp;                     // Temperature data
 EXTERN TEvap      Evap;                     // Evaporation data

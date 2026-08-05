@@ -15,6 +15,7 @@ enum  ToolkitErrorType {
     ERR_TKAPI_MEMORY             = 2011,
     ERR_TKAPI_NO_INLET           = 2012,
     ERR_TKAPI_SIM_RUNNING        = 2013,
+    ERR_TKAPI_REPORT_UNAVAILABLE = 2014,
 
     TKMAXERRMSG                  = 3000
 };

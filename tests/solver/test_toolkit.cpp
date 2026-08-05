@@ -23,6 +23,7 @@
 #define ERR_TKAPI_WRONG_TYPE 2003
 #define ERR_TKAPI_OBJECT_INDEX 2004
 #define ERR_TKAPI_SIM_RUNNING 2013
+#define ERR_TKAPI_REPORT_UNAVAILABLE 2014
 
 using namespace std;
 
@@ -974,6 +975,7 @@ BOOST_FIXTURE_TEST_CASE(get_result_during_sim, FixtureBeforeStep){
     BOOST_REQUIRE(error == ERR_NONE);
     swmm_end();
 }
+
 
 // Testing link flow direction is accounted for in link result getter
 BOOST_FIXTURE_TEST_CASE(test_flow_dir_during_sim, FixtureBeforeStep_Flow_Dir){

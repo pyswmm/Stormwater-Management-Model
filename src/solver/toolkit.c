@@ -32,7 +32,6 @@
 #include "lid.h"
 #include "inlet.h"
 
-
 // Protect against lack of compiler support for OpenMP
 #if defined(_OPENMP)
 #include <omp.h>
@@ -43,6 +42,12 @@ int alt_omp_get_max_threads(void)
 #else
   int alt_omp_get_max_threads(void) { return 1;}
 #endif
+
+
+// Result buffers allocated in output.c (used for interpolated report values)
+extern float* SubcatchResults;
+extern float* NodeResults;
+extern float* LinkResults;
 
 // Function Declarations for API
 int  massbal_getRoutingTotal(SM_RoutingTotals **routingTot);
@@ -60,6 +65,14 @@ int  stats_getSubcatchStat(int index, TSubcatchStats **subcatchStats);
 // Utilty Function Declarations
 double *newDoubleArray(int n);
 
+// Internal helpers for interpolated report results
+static int get_latest_report_time(double *reportTime)
+{
+    if (LatestReportReady == FALSE || LatestReportTime < 0.0)
+        return ERR_TKAPI_REPORT_UNAVAILABLE;
+    *reportTime = LatestReportTime;
+    return ERR_NONE;
+}
 
 
 EXPORT_TOOLKIT const char *swmm_getSemVersion()
@@ -2063,9 +2076,199 @@ EXPORT_TOOLKIT int swmm_setLidCParam(int lidControlIndex, SM_LidLayer layerIndex
     return error_code;
 }
 
+
 //-------------------------------
-// Active Simulation Results API
+// Report-Aligned Results API
 //-------------------------------
+EXPORT_TOOLKIT int swmm_getReportWindow(bool *isReady, double *lastReady, double *nextReport)
+{
+    bool readyFlag;
+
+    if (lastReady == NULL || nextReport == NULL)
+        return ERR_TKAPI_OUTBOUNDS;
+    if (swmm_IsOpenFlag() == FALSE)
+        return ERR_TKAPI_INPUTNOTOPEN;
+    if (swmm_IsStartedFlag() == FALSE)
+        return ERR_TKAPI_SIM_NRUNNING;
+
+    readyFlag = (LatestReportReady == TRUE && LatestReportTime >= 0.0);
+    if (readyFlag)
+        *lastReady = getDateTime(LatestReportTime);
+    else if (LatestReportTime >= 0.0)
+        *lastReady = getDateTime(LatestReportTime);
+    else
+        *lastReady = -1.0;
+
+    *nextReport = getDateTime(ReportTime);
+
+    if (isReady != NULL)
+        *isReady = readyFlag;
+
+    return ERR_NONE;
+}
+
+
+EXPORT_TOOLKIT int swmm_getNodeLiveReport(int index, SM_NodeResult type, double *result)
+///
+/// Input:   index = Index of desired ID
+///          type = Result Type (SM_NodeResult)
+/// Output:  result = interpolated result at last reporting time (byref)
+/// Return:  API Error
+/// Purpose: Gets Node Result aligned with reporting time grid
+{
+    int error_code = 0;
+    double reportTimeMsec;
+
+    if (swmm_IsOpenFlag() == FALSE)
+        return ERR_TKAPI_INPUTNOTOPEN;
+    if (swmm_IsStartedFlag() == FALSE)
+        return ERR_TKAPI_SIM_NRUNNING;
+    if (index < 0 || index >= Nobjects[NODE])
+        return ERR_TKAPI_OBJECT_INDEX;
+    if (result == NULL)
+        return ERR_TKAPI_OUTBOUNDS;
+
+    *result = 0.0;
+
+    error_code = get_latest_report_time(&reportTimeMsec);
+    if (error_code)
+        return error_code;
+
+    if (!output_getNodeResultsAtTime(index, reportTimeMsec, NodeResults))
+        return ERR_TKAPI_REPORT_UNAVAILABLE;
+
+    switch (type)
+    {
+        case SM_TOTALINFLOW:
+            *result = NodeResults[NODE_INFLOW];
+            break;
+        case SM_NODEVOL:
+            *result = NodeResults[NODE_VOLUME];
+            break;
+        case SM_NODEFLOOD:
+            *result = NodeResults[NODE_OVERFLOW];
+            break;
+        case SM_NODEDEPTH:
+            *result = NodeResults[NODE_DEPTH];
+            break;
+        case SM_NODEHEAD:
+            *result = NodeResults[NODE_HEAD];
+            break;
+        case SM_LATINFLOW:
+            *result = NodeResults[NODE_LATFLOW];
+            break;
+        default:
+            error_code = ERR_TKAPI_WRONG_TYPE;
+            break;
+    }
+    return error_code;
+}
+
+
+EXPORT_TOOLKIT int swmm_getLinkLiveReport(int index, SM_LinkResult type, double *result)
+///
+/// Input:   index = Index of desired ID
+///          type = Result Type (SM_LinkResult)
+/// Output:  result = interpolated result at last reporting time (byref)
+/// Return:  API Error
+/// Purpose: Gets Link Result aligned with reporting time grid
+{
+    int error_code = 0;
+    double reportTimeMsec;
+
+    if (swmm_IsOpenFlag() == FALSE)
+        return ERR_TKAPI_INPUTNOTOPEN;
+    if (swmm_IsStartedFlag() == FALSE)
+        return ERR_TKAPI_SIM_NRUNNING;
+    if (index < 0 || index >= Nobjects[LINK])
+        return ERR_TKAPI_OBJECT_INDEX;
+    if (result == NULL)
+        return ERR_TKAPI_OUTBOUNDS;
+
+    *result = 0.0;
+
+    error_code = get_latest_report_time(&reportTimeMsec);
+    if (error_code)
+        return error_code;
+
+    if (!output_getLinkResultsAtTime(index, reportTimeMsec, LinkResults))
+        return ERR_TKAPI_REPORT_UNAVAILABLE;
+
+    switch (type)
+    {
+        case SM_LINKFLOW:
+            *result = LinkResults[LINK_FLOW];
+            break;
+        case SM_LINKDEPTH:
+            *result = LinkResults[LINK_DEPTH];
+            break;
+        case SM_LINKVOL:
+            *result = LinkResults[LINK_VOLUME];
+            break;
+        case SM_SETTING:
+            *result = LinkResults[LINK_CAPACITY];
+            break;
+        default:
+            error_code = ERR_TKAPI_WRONG_TYPE;
+            break;
+    }
+    return error_code;
+}
+
+
+EXPORT_TOOLKIT int swmm_getSubcatchLiveReport(int index, SM_SubcResult type, double *result)
+///
+/// Input:   index = Index of desired ID
+///          type = Result Type (SM_SubcResult)
+/// Output:  result = interpolated result at last reporting time (byref)
+/// Return:  API Error
+/// Purpose: Gets Subcatchment Result aligned with reporting time grid
+{
+    int error_code = 0;
+    double reportTimeMsec;
+
+    if (swmm_IsOpenFlag() == FALSE)
+        return ERR_TKAPI_INPUTNOTOPEN;
+    if (swmm_IsStartedFlag() == FALSE)
+        return ERR_TKAPI_SIM_NRUNNING;
+    if (index < 0 || index >= Nobjects[SUBCATCH])
+        return ERR_TKAPI_OBJECT_INDEX;
+    if (result == NULL)
+        return ERR_TKAPI_OUTBOUNDS;
+
+    *result = 0.0;
+
+    error_code = get_latest_report_time(&reportTimeMsec);
+    if (error_code)
+        return error_code;
+
+    if (!output_getSubcatchResultsAtTime(index, reportTimeMsec, SubcatchResults))
+        return ERR_TKAPI_REPORT_UNAVAILABLE;
+
+    switch (type)
+    {
+        case SM_SUBCRAIN:
+            *result = SubcatchResults[SUBCATCH_RAINFALL];
+            break;
+        case SM_SUBCEVAP:
+            *result = SubcatchResults[SUBCATCH_EVAP];
+            break;
+        case SM_SUBCINFIL:
+            *result = SubcatchResults[SUBCATCH_INFIL];
+            break;
+        case SM_SUBCRUNOFF:
+            *result = SubcatchResults[SUBCATCH_RUNOFF];
+            break;
+        case SM_SUBCSNOW:
+            *result = SubcatchResults[SUBCATCH_SNOWDEPTH];
+            break;
+        default:
+            error_code = ERR_TKAPI_WRONG_TYPE;
+            break;
+    }
+    return error_code;
+}
+
 
 EXPORT_TOOLKIT int swmm_getCurrentDateTime(int *year, int *month, int *day,
                                       int *hour, int *minute, int *second)

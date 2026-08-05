@@ -19,6 +19,8 @@ extern "C" {
 #include "toolkit.h"
 }
 
+#include "test_predicates.hpp"
+
 // Add shared data paths here
 #define DATA_PATH_INP "test_example1.inp"
 #define DATA_PATH_INP_POLLUT_NODE "node_constantinflow_constanteffluent.inp"
@@ -123,13 +125,6 @@ struct FixtureBeforeStep_Inlets{
     }
 };
 
-
-
-// Declare shared test predicates here
-boost::test_tools::predicate_result check_cdd_double(std::vector<double>& test,
-    std::vector<double>& ref, long cdd_tol);
-
-boost::test_tools::predicate_result check_string(std::string test, std::string ref);
 
 
 #endif //TEST_SOLVER_HPP

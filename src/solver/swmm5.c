@@ -182,7 +182,6 @@ static double RoutingDuration;      // duration of a set of routing steps (msecs
 //  swmm_getEndNode
 //  swmm_getValue
 //  swmm_setValue
-//  swmm_getSavedValue
 //  swmm_writeLine
 //  swmm_decodeDate
 
@@ -190,7 +189,7 @@ static double RoutingDuration;      // duration of a set of routing steps (msecs
 //  Local functions
 //-----------------------------------------------------------------------------
 static void   execRouting(void);
-static void   saveResults(void);
+static void   saveResults(int writeToFile);
 static double getGageValue(int index, int property);
 static double getSubcatchValue(int index, int property);
 static double getNodeValue(int index, int property);
@@ -387,6 +386,9 @@ int DLLEXPORT swmm_start(int saveResults)
         NewRunoffTime = 0.0;
         NewRoutingTime = 0.0;
         ReportTime = 1000 * (double)ReportStep;
+        LatestReportTime = -1.0;
+        LatestReportPeriod = 0;
+        LatestReportReady = FALSE;
         TotalStepCount = 0;
         ReportStepCount = 0;
         NonConvergeCount = 0;
@@ -464,6 +466,9 @@ int DLLEXPORT swmm_step(double *elapsedTime)
     if ( !IsStartedFlag )
         return (ErrorCode = ERR_API_NOT_STARTED);
 
+    // --- invalidate cached report results until next reporting period completes
+    LatestReportReady = FALSE;
+
 #ifdef EXH
     // --- begin exception handling loop here
     __try
@@ -479,8 +484,7 @@ int DLLEXPORT swmm_step(double *elapsedTime)
         }
 
         // --- if saving results to the binary file
-        if ( SaveResultsFlag )
-            saveResults();
+        saveResults(SaveResultsFlag);
 
         // --- update elapsed time (days)
         if ( NewRoutingTime < RoutingDuration )
@@ -616,7 +620,7 @@ void execRouting()
 
 //=============================================================================
 
-void saveResults()
+void saveResults(int writeToFile)
 //
 //  Input:   none
 //  Output:  none
@@ -625,7 +629,7 @@ void saveResults()
     if (NewRoutingTime >= ReportTime)
     {
         // --- if user requested that average results be saved:
-        if (RptFlags.averages)
+        if (RptFlags.averages && writeToFile)
         {
             // --- include latest results in current averages
             //     if current time equals the reporting time
@@ -640,15 +644,23 @@ void saveResults()
             if (NewRoutingTime > ReportTime) output_updateAvgResults();
         }
 
-        // --- otherwise save interpolated point results
-        else output_saveResults(ReportTime);
+        // --- otherwise save interpolated point results when writing enabled
+        else if (writeToFile)
+        {
+            output_saveResults(ReportTime);
+        }
+
+        // --- cache latest reporting time for live API consumers
+        LatestReportTime = ReportTime;
+        LatestReportReady = TRUE;
+        LatestReportPeriod++;
 
         // --- advance to next reporting period
         ReportTime = ReportTime + 1000 * (double)ReportStep;
     }
 
     // --- not a reporting period so update average results if applicable
-    else if (RptFlags.averages) output_updateAvgResults();
+    else if (RptFlags.averages && writeToFile) output_updateAvgResults();
 
 }
 
@@ -955,33 +967,6 @@ void  DLLEXPORT swmm_setValue(int property, int index, double value)
             RptFlags.disabled = (value > 0.0);
         return;
     }
-}
-
-//=============================================================================
-
-double  DLLEXPORT swmm_getSavedValue(int property, int index, int period)
-//
-//  Input:   property = an object's property code
-//           index = the object's index in the array of like objects
-//           period = a reporting time period (starting from 1) 
-//  Output:  returns the property's saved value 
-//  Purpose: retrieves an object's computed value at a specific reporting time period.
-{
-    if (!IsOpenFlag)
-        return 0;
-    if (IsStartedFlag)
-        return 0;
-    if (period < 1 || period > Nperiods)
-        return 0;
-    if (property == swmm_CURRENTDATE)
-        return getSavedDate(period);
-    if (property >= 200 && property < 300)
-        return getSavedSubcatchValue(property, index, period);
-    if (property < 400)
-        return getSavedNodeValue(property, index, period);
-    if (property < 500)
-        return getSavedLinkValue(property, index, period);
-    return 0;
 }
 
 //=============================================================================

@@ -96,6 +96,8 @@ static void output_saveID(char* id, FILE* file);
 static void output_saveSubcatchResults(double reportTime, FILE* file);
 static void output_saveNodeResults(double reportTime, FILE* file);
 static void output_saveLinkResults(double reportTime, FILE* file);
+static double output_getRunoffWeight(double reportTime);
+static double output_getRoutingWeight(double reportTime);
 
 static int  output_openAvgResults(void);
 static void output_closeAvgResults(void);
@@ -594,7 +596,7 @@ void output_saveSubcatchResults(double reportTime, FILE* file)
     }
 
     // --- find where current reporting time lies between latest runoff times
-    f = (reportTime - OldRunoffTime) / (NewRunoffTime - OldRunoffTime);
+    f = output_getRunoffWeight(reportTime);
 
     // --- write subcatchment results to file
     for ( j=0; j<Nobjects[SUBCATCH]; j++)
@@ -651,8 +653,7 @@ void output_saveNodeResults(double reportTime, FILE* file)
     int j;
 
     // --- find where current reporting time lies between latest routing times
-    double f = (reportTime - OldRoutingTime) /
-               (NewRoutingTime - OldRoutingTime);
+    double f = output_getRoutingWeight(reportTime);
 
     // --- write node results to file
     for (j=0; j<Nobjects[NODE]; j++)
@@ -683,7 +684,7 @@ void output_saveLinkResults(double reportTime, FILE* file)
     double z;
 
     // --- find where current reporting time lies between latest routing times
-    f = (reportTime - OldRoutingTime) / (NewRoutingTime - OldRoutingTime);
+    f = output_getRoutingWeight(reportTime);
 
     // --- write link results to file
     for (j=0; j<Nobjects[LINK]; j++)
@@ -699,6 +700,34 @@ void output_saveLinkResults(double reportTime, FILE* file)
         z = ((1.0-f)*Link[j].oldVolume + f*Link[j].newVolume) * UCF(VOLUME);
         SysResults[SYS_STORAGE] += (REAL4)z;
     }
+}
+
+//=============================================================================
+
+static double output_calcWeight(double numerator, double denominator)
+{
+    double weight;
+    if (denominator <= 0.0) return 0.0;
+    weight = numerator / denominator;
+    if (weight < 0.0) weight = 0.0;
+    else if (weight > 1.0) weight = 1.0;
+    return weight;
+}
+
+//=============================================================================
+
+static double output_getRunoffWeight(double reportTime)
+{
+    return output_calcWeight(reportTime - OldRunoffTime,
+                             NewRunoffTime - OldRunoffTime);
+}
+
+//=============================================================================
+
+static double output_getRoutingWeight(double reportTime)
+{
+    return output_calcWeight(reportTime - OldRoutingTime,
+                             NewRoutingTime - OldRoutingTime);
 }
 
 //=============================================================================
@@ -772,6 +801,39 @@ void output_readLinkResults(long period, int index)
     F_SEEK(Fout.file, bytePos, SEEK_SET);
     fread(LinkResults, sizeof(REAL4), NumLinkVars, Fout.file);
     fread(SysResults, sizeof(REAL4), MAX_SYS_RESULTS, Fout.file);
+}
+
+//=============================================================================
+
+int output_getSubcatchResultsAtTime(int index, double reportTime, float x[])
+{
+    double f;
+    if (index < 0 || index >= Nobjects[SUBCATCH]) return 0;
+    f = output_getRunoffWeight(reportTime);
+    subcatch_getResults(index, f, x);
+    return 1;
+}
+
+//=============================================================================
+
+int output_getNodeResultsAtTime(int index, double reportTime, float x[])
+{
+    double f;
+    if (index < 0 || index >= Nobjects[NODE]) return 0;
+    f = output_getRoutingWeight(reportTime);
+    node_getResults(index, f, x);
+    return 1;
+}
+
+//=============================================================================
+
+int output_getLinkResultsAtTime(int index, double reportTime, float x[])
+{
+    double f;
+    if (index < 0 || index >= Nobjects[LINK]) return 0;
+    f = output_getRoutingWeight(reportTime);
+    link_getResults(index, f, x);
+    return 1;
 }
 
 //=============================================================================

@@ -165,6 +165,9 @@ void    output_readDateTime(long period, DateTime *aDate);
 void    output_readSubcatchResults(long period, int index);
 void    output_readNodeResults(int long, int index);
 void    output_readLinkResults(int long, int index);
+int     output_getSubcatchResultsAtTime(int index, double reportTime, float x[]);
+int     output_getNodeResultsAtTime(int index, double reportTime, float x[]);
+int     output_getLinkResultsAtTime(int index, double reportTime, float x[]);
 
 //-----------------------------------------------------------------------------
 //   Groundwater Methods
